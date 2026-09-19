@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"name": "STM32F103C8_Minimal",
+			"path": "../../STM32F103C8_Minimal"
+		},
+		{
+			"name": "STM32_Nano_Blink",
+			"path": "../../STM32_Nano_Blink/STM32_Nano_Blink"
+		},
+		{
+			"name": "DRONE_TEST",
+			"path": "."
+		}
+	],
+	"settings": {
+		"powershell.cwd": "DRONE_TEST"
+	}
+}
