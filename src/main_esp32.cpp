@@ -258,5 +258,5 @@ void loop() {
     sendTelemetryToController();
   }
 
-  delay(20);
+  delay(2);
 }

@@ -19,7 +19,7 @@ inline void safe_serial_begin() {
 #define SAFE_SERIAL_UNLOCK() do { if (gSerialMutex) xSemaphoreGive(gSerialMutex); } while(0)
 #endif
 
-#define UART_BAUDRATE 57600
+#define UART_BAUDRATE 115200
 
 #define IMU_RATE_HZ 200
 #define DEBUG_RATE_HZ 10

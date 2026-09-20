@@ -171,7 +171,7 @@ void IMU_task(void *pvParameters) {
             xQueueOverwrite(xQueueAttitude, &data);
 
             const uint32_t nowMs = millis();
-            if (nowMs - lastUartImuPacketMs >= 20) {
+            if (nowMs - lastUartImuPacketMs >= 10) {
                 lastUartImuPacketMs = nowMs;
 
                 IMU_Data packet{};
@@ -234,6 +234,6 @@ void IMU_task(void *pvParameters) {
             }
           }
         }
-        vTaskDelay(pdMS_TO_TICKS(2));
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 }

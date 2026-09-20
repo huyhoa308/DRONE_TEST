@@ -46,7 +46,7 @@ static void MotorSend_task(void *pvParameters) {
     for (;;) {
         Motor_Output out = GetMotorSnapshot();
         const uint32_t now = millis();
-        if (out.timestamp != 0 && now - lastSendMs >= 20) {
+        if (out.timestamp != 0 && now - lastSendMs >= 10) {
             Packet_BuildAndSend(out);
             static uint32_t lastMotorLogMs = 0;
             if (now - lastMotorLogMs >= 500) {
