@@ -625,8 +625,10 @@
       const pitch = parseInt(m[4],10);    // -1000..1000
       raw.thrN = clamp01((throttle - 1000) / 1000);
       raw.yawN = clamp11(-yaw / 1000);
-      raw.pitchN = clamp11(-pitch / 1000); // dao dau: khop chieu pitch that cua drone
-      raw.rollN = clamp11(-roll / 1000);   // dao dau: khop chieu roll that cua drone
+      // Doi cho 2 truc VRx <-> VRy cua JOY2 va dao chieu am/duong (chi o simulator, firmware tay cam giu nguyen):
+      // firmware in roll=VRx, pitch=VRy; o day VRy dieu khien roll, VRx dieu khien pitch, ca hai khong dao dau.
+      raw.pitchN = clamp11(roll / 1000);
+      raw.rollN = clamp11(pitch / 1000);
       return true;
     }
     if(line.indexOf('[CTRL] START') === 0){ if(flightRunning) raw.armed = true; return true; }
