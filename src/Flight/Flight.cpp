@@ -17,6 +17,11 @@ constexpr float kMaxValidDt = 0.10f;
 constexpr float kPidIntegralLimit = 100.0f;
 constexpr float kPidOutputScale = 3.0f;
 constexpr int32_t kMixLimit = 250;
+// Yaw chi nen co quyen han nho: neu khong, dong tac START/STOP (can yaw giu o cuc)
+// se lam 4 motor vot bat doi xung ngay luc arm/disarm.
+constexpr int32_t kYawMixLimit = 80;
+// Sau khi arm, bo qua lenh yaw cho toi khi can yaw ve gan tam it nhat 1 lan.
+constexpr int16_t kYawCenterThreshold = 50;  // don vi giong rc.yaw_rate_sp (+/-350)
 constexpr float kPidSaturationLimit = static_cast<float>(kMixLimit) / kPidOutputScale;
 constexpr float kDerivativeAlpha = 0.2f;
 constexpr float kGpsMaxAgeMs = 2500.0f;
@@ -58,6 +63,7 @@ static bool gHomeValid = false;
 static GPS_Data gHoldGps{};
 static bool gHoldValid = false;
 static uint8_t gPreviousAux = 0;
+static bool gYawInhibit = true;
 
 static float wrapDegrees(float degrees) {
   while (degrees > 180.0f) degrees -= 360.0f;
@@ -119,6 +125,7 @@ void Flight_Init() {
   gHoldGps = {};
   gHoldValid = false;
   gPreviousAux = 0;
+  gYawInhibit = true;
 }
 
 void Flight_Update() {
@@ -135,6 +142,11 @@ void Flight_Update() {
     gHomeGps = gps;
     gHomeValid = true;
     DEBUG_SERIAL.println("[NAV] home captured");
+  }
+  if (rc.armed == 0) {
+    gYawInhibit = true;
+  } else if (gYawInhibit && abs(static_cast<int>(rc.yaw_rate_sp)) < kYawCenterThreshold) {
+    gYawInhibit = false;
   }
   if (rc.armed == 0) {
     gHomeValid = false;
@@ -182,7 +194,8 @@ void Flight_Update() {
     }
     const float rollError = rollSetpoint - roll;
     const float pitchError = pitchSetpoint - pitch;
-    const float yawError = static_cast<float>(rc.yaw_rate_sp) - yawRate;
+    const float yawSetpoint = gYawInhibit ? 0.0f : static_cast<float>(rc.yaw_rate_sp);
+    const float yawError = yawSetpoint - yawRate;
 
     const bool hasNewImuSample = !gHasPidImuTimestamp || imu.timestamp != gLastPidImuTimestamp;
     if (hasNewImuSample) {
@@ -198,7 +211,7 @@ void Flight_Update() {
       gLastPitchMix = constrain(static_cast<int32_t>(UpdatePid(gPitchPid, pitchError,
           pidConfig.pitch_kp, pidConfig.pitch_ki, pidConfig.pitch_kd, dt) * kPidOutputScale), -kMixLimit, kMixLimit);
       gLastYawMix = constrain(static_cast<int32_t>(UpdatePid(gYawPid, yawError,
-          pidConfig.yaw_kp, pidConfig.yaw_ki, pidConfig.yaw_kd, dt) * kPidOutputScale), -kMixLimit, kMixLimit);
+          pidConfig.yaw_kp, pidConfig.yaw_ki, pidConfig.yaw_kd, dt) * kPidOutputScale), -kYawMixLimit, kYawMixLimit);
     }
 
     const int32_t throttle = rawThrottle;
