@@ -9,11 +9,32 @@
 #include "OLEDAnimation.h"
 #include "Audio/Audio.h"
 
+// Chan mac dinh cho ESP32 DevKit V1. Env esp32s3_controller ghi de qua build_flags
+// (xem platformio.ini) vi ESP32-S3 khong co GPIO32-36 va ADC1 nam o GPIO1-10.
+#ifndef CTRL_MODE_PIN
 #define CTRL_MODE_PIN 25  // SW (button) from Joystick1 -> use a digital pin (GPIO25) with internal pull-up
+#endif
+#ifndef NAV_MODE_PIN
 #define NAV_MODE_PIN 13    // J2 SW moved to D2 (GPIO2) on ESP32
+#endif
 #define CTRL_MODE_HOLD_MS 5000
 #define NAV_MODE_HOLD_MS 100
+#ifndef MTS102_SW_PIN
 #define MTS102_SW_PIN 36
+#endif
+// Joystick analog: bat buoc la chan ADC1 (ADC2 khong doc duoc khi WiFi/ESP-NOW dang chay).
+#ifndef JOY_THROTTLE_PIN
+#define JOY_THROTTLE_PIN 34  // J1 VRx
+#endif
+#ifndef JOY_YAW_PIN
+#define JOY_YAW_PIN 35       // J1 VRy
+#endif
+#ifndef JOY_ROLL_PIN
+#define JOY_ROLL_PIN 32      // J2 VRx
+#endif
+#ifndef JOY_PITCH_PIN
+#define JOY_PITCH_PIN 33     // J2 VRy
+#endif
 
 // Web/AP is disabled in the minimal flight path, so ESP-NOW receives on the STA MAC.
 static const uint8_t kDroneMac[6] = {0xXX, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX};
@@ -230,10 +251,10 @@ static void initEspNowController() {
   long sumPitch = 0;
   long sumYaw = 0;
   for (int i = 0; i < SAMPLES; ++i) {
-    sumThrottle += analogRead(34);
-    sumRoll += analogRead(32);
-    sumPitch += analogRead(33);
-    sumYaw += analogRead(35);
+    sumThrottle += analogRead(JOY_THROTTLE_PIN);
+    sumRoll += analogRead(JOY_ROLL_PIN);
+    sumPitch += analogRead(JOY_PITCH_PIN);
+    sumYaw += analogRead(JOY_YAW_PIN);
     delay(5);
   }
   int avgThrottle = (int)(sumThrottle / SAMPLES);
@@ -299,10 +320,10 @@ static int mapInverted(int raw, bool invert, int outMin, int outMax) {
 static RCCommand buildCommand() {
   RCCommand cmd{};
   cmd.header = RF_PACKET_HEADER;
-  int rawRoll = analogRead(32);
-  int rawPitch = analogRead(33);
-  int rawYaw = analogRead(35);
-  int rawThrottle = analogRead(34);
+  int rawRoll = analogRead(JOY_ROLL_PIN);
+  int rawPitch = analogRead(JOY_PITCH_PIN);
+  int rawYaw = analogRead(JOY_YAW_PIN);
+  int rawThrottle = analogRead(JOY_THROTTLE_PIN);
 
   // Joystick 2 remains visible/transmitted for diagnostics; STM32 ignores it
   // while the bench-test flight path is throttle-only.

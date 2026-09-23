@@ -14,8 +14,14 @@ namespace {
 constexpr uint8_t kOledWidth = 128;
 constexpr uint8_t kOledHeight = 64;
 constexpr uint8_t kOledAddress = 0x3C;
-constexpr int kSdaPin = 21;
-constexpr int kSclPin = 22;
+#ifndef OLED_SDA_PIN
+#define OLED_SDA_PIN 21
+#endif
+#ifndef OLED_SCL_PIN
+#define OLED_SCL_PIN 22
+#endif
+constexpr int kSdaPin = OLED_SDA_PIN;
+constexpr int kSclPin = OLED_SCL_PIN;
 constexpr char kBrand[] = "RESHAPE LAB";
 
 Adafruit_SSD1306 oled(kOledWidth, kOledHeight, &Wire, -1);
@@ -154,7 +160,7 @@ void OLED_Init() {
 
   oled.clearDisplay();
   oled.display();
-  Serial.println("[OLED] SSD1306 ready SDA=21 SCL=22 addr=0x3C");
+  Serial.printf("[OLED] SSD1306 ready SDA=%d SCL=%d addr=0x3C\n", kSdaPin, kSclPin);
 }
 
 void OLED_BootMarqueeFrame(uint32_t elapsed, uint32_t totalMs) {

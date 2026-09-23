@@ -31,8 +31,13 @@ bool initRF();                    // hàm khởi tạo module NRF24L01 bên TX
 // Pin mapping cho ESP32 DevKit V1 (VSPI mặc định) - dùng để BENCH TEST
 // trước khi port sang ESP32-C3 thật. Khi port, nhớ đổi lại số GPIO vì
 // ESP32-C3 không có đủ 30 chân như DevKit V1, cần chọn lại chân trống.
+// Env esp32s3_controller ghi de 2 chan nay qua build_flags.
+#ifndef RF_CE_PIN
 #define RF_CE_PIN   4   // GPIO4  - CE
+#endif
+#ifndef RF_CSN_PIN
 #define RF_CSN_PIN  5   // GPIO5  - CSN
+#endif
 // SCK=GPIO18, MISO=GPIO19, MOSI=GPIO23 dùng VSPI mặc định, không cần define
 // riêng vì thư viện SPI tự nhận đúng chân này khi gọi SPI.begin() không
 // tham số trên ESP32 DevKit V1.
