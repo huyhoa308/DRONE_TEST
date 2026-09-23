@@ -3,3 +3,6 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+
+# MAC that cua drone, chi nam tren may
+src/DroneMac.h

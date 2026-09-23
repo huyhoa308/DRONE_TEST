@@ -37,7 +37,13 @@
 #endif
 
 // Web/AP is disabled in the minimal flight path, so ESP-NOW receives on the STA MAC.
-static const uint8_t kDroneMac[6] = {0xXX, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX};
+// MAC that nam trong src/DroneMac.h (khong dua len git). Tao file do tu src/DroneMac.example.h.
+#if __has_include("DroneMac.h")
+#include "DroneMac.h"
+#else
+#error "Thieu src/DroneMac.h: copy src/DroneMac.example.h thanh src/DroneMac.h roi dien MAC STA cua ESP32 drone"
+#endif
+static const uint8_t kDroneMac[6] = DRONE_MAC;
 static bool modeEspNow = true;
 static bool holdDetected = false;
 static uint32_t holdStartMs = 0;
