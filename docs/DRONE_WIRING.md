@@ -11,7 +11,8 @@
 
 | Linh kiện | Chân linh kiện | GPIO | Ghi chú |
 |---|---|---|---|
-| IMU BNO08x (I2C, 0x4B) | SDA / SCL | 21 / 22 | VIN → 3V3. INT, RST để trống |
+| IMU BNO08x (I2C, 0x4B) | SDA / SCL | 21 / 22 | VIN → 3V3. Module no-name màu tím: PS0/PS1 đã kéo xuống GND sẵn (I2C), ADO = HIGH (0x4B) |
+| | RST | 33 | Reset cứng, code kéo RST trước khi khởi tạo (`BNO080_RST_PIN` trong `IMU.cpp`). INT để trống |
 | GPS (9600 baud) | TX / RX | 25 / 26 | GPS TX → GPIO25 (RX của ESP32), GPS RX → GPIO26 |
 | ESC M1 trước-trái | signal | 13 | DShot |
 | ESC M2 trước-phải | signal | 27 | DShot |

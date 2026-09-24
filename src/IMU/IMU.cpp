@@ -1,6 +1,6 @@
-// accelerometer and gyroscope 
+// accelerometer and gyroscope
 // AttitudeData (quaternion)
-// task có nhiệm vụ đọc dữ liệu từ IMU (BNO08x) và gửi dữ liệu qua SPI cho STM32F103C8
+// task có nhiệm vụ đọc dữ liệu từ IMU (BNO08x) rồi đẩy quaternion/gyro/accel vào queue cho task UART gửi sang STM32F103C8
 // AttitudeData (quaternion) là dữ liệu mô tả hướng (orientation) hiện tại của drone trong không gian 3D, được biểu diễn dưới dạng quaternion.
 /*
   Using the BNO08x IMU
@@ -13,15 +13,16 @@
 
   Originally written by Nathan Seidle @ SparkFun Electronics, December 28th, 2017
 
-  Hardware Connections:
-  IoT RedBoard --> BNO08x
-  QWIIC --> QWIIC
-  A4  --> INT (đang bỏ)
-  A5  --> RST (đang bỏ)
+  Hardware Connections (module BNO08x no-name màu tím --> ESP32 DevKit V1):
+  VIN/3V3 --> 3V3
+  GND     --> GND
+  SDA     --> GPIO21 (I2C_SDA_PIN)
+  SCL     --> GPIO22 (I2C_SCL_PIN)
+  RST     --> GPIO33 (BNO080_RST_PIN, reset cứng)
+  INT     --> chưa nối (BNO080_INT_PIN = -1, thư viện poll I2C)
 
-  BNO08x "mode" jumpers set for I2C (default):
-  PSO: OPEN
-  PS1: OPEN
+  Chế độ giao tiếp: module này đã kéo PS0/PS1 xuống GND sẵn => I2C. Địa chỉ 0x4B (ADO = HIGH).
+  Điện trở kéo lên cho SDA/SCL đã có sẵn trên module.
 
   Serial.print it out at 115200 baud to serial monitor.
 
@@ -35,8 +36,8 @@
 #include "../StabilityPatch.h"
 
 //--------cấu hình phần cứng -----------------------
-#define BNO080_INT_PIN -1 // chân ngắt (interrupt) của BNO08x kết nối với chân D2 của ESP32
-#define BNO080_RST_PIN -1 // chân reset của BNO08x kết nối với
+#define BNO080_INT_PIN -1 // chân ngắt (interrupt) của BNO08x: chưa nối, thư viện poll I2C
+#define BNO080_RST_PIN 33 // chân reset cứng của BNO08x, nối với GPIO33 của ESP32 (active LOW)
 #define BNO080_ADDR 0x4B // địa chỉ I2C của BNO08x (mặc định là 0x4B)
 
 //--------đối tượng phần cứng dùng nội bộ -----------------------
@@ -116,18 +117,35 @@ bool initIMU() {
     Wire.setTimeOut(50);
 #endif
     // Wire.setClock(400000);   // tạm bỏ dòng này khi debug
+
+    // Reset cứng BNO08x TRƯỚC khi begin(): thư viện chỉ reset cứng bên trong _init(), mà
+    // begin() lại kiểm tra isConnected() (ACK địa chỉ) trước đó. Nếu chip đang kẹt và không
+    // ACK thì begin() thoát sớm và không bao giờ tới được _init(). Kéo RST ở đây để chip
+    // luôn khởi động từ trạng thái sạch (cả lúc boot lẫn mỗi lần thử lại).
+    pinMode(BNO080_RST_PIN, OUTPUT);
+    digitalWrite(BNO080_RST_PIN, HIGH);
+    delay(10);
+    digitalWrite(BNO080_RST_PIN, LOW);
+    delay(100); // xung reset ngắn (10 ms) không đủ để BNO08x về trạng thái sạch: khởi tạo được nhưng không có dữ liệu
+    digitalWrite(BNO080_RST_PIN, HIGH);
+    delay(300); // chờ firmware SH2 nội bộ của BNO08x boot xong
+
     if (myIMU.begin(BNO080_ADDR, Wire, BNO080_INT_PIN, BNO080_RST_PIN) == false) {
         Serial.println(F("BNO080 not detected..."));
         return false;
     }
+    // Sau begin() các report bật ngay CHƯA chắc có hiệu lực: quan sát thực tế là khởi tạo báo
+    // thành công nhưng BNO08x không đẩy dữ liệu, cho tới khi reset cứng + chờ boot xong rồi
+    // mới bật lại report. Làm luôn bước đó ở đây thay vì đợi watchdog (2 giây) ở IMU_task.
+    myIMU.hardwareReset();
+    delay(500); // chờ firmware SH2 nội bộ boot xong
     setReport();
     return true;
 }
 void IMU_task(void *pvParameters) {
     (void)pvParameters;
-    // Khong con vTaskDelete khi init that bai: BNO08x khong co chan RST noi day
-    // nen sau khi ESP32 reset no hay bi ket, phai thu lai (kem bus recovery)
-    // thay vi bo IMU vinh vien den khi reboot.
+    // Khong vTaskDelete khi init that bai: thu lai (moi lan thu deu reset cung BNO08x qua
+    // chan RST, kem bus recovery neu SDA/SCL bi ket) thay vi bo IMU vinh vien den khi reboot.
     while (!initIMU()) {
         Serial.println(F("[IMU] init failed - bus recovery, retry in 1s"));
         i2cBusRecovery(I2C_SDA_PIN, I2C_SCL_PIN);
@@ -136,7 +154,20 @@ void IMU_task(void *pvParameters) {
     AttitudeData data;
     uint32_t lastPrint_ms = 0; // dùng để giới hạn tần suất in debug, tránh ngập terminal
     uint32_t lastUartImuPacketMs = 0;
+    uint32_t lastSensorEventMs = millis(); // lần cuối BNO08x thực sự trả về dữ liệu
     for (;;) {
+        // Watchdog dữ liệu: có lúc khởi tạo báo thành công (ACK địa chỉ, đọc được product ID,
+        // bật được report) nhưng BNO08x không đẩy dữ liệu nào ra. Im lặng > 2 giây thì reset
+        // cứng rồi bật lại các report, thay vì để IMU chết lặng cho tới khi reboot cả board.
+        // KHÔNG gọi lại initIMU()/begin() ở đây: thư viện SparkFun mở SH2 một lần, gọi begin()
+        // lần hai sau khi đã mở thì luôn thất bại (ACK được nhưng _init() trả về false).
+        if (millis() - lastSensorEventMs > 2000) {
+            Serial.println(F("[IMU] no sensor data for 2s - hardware reset + re-enable reports"));
+            myIMU.hardwareReset();
+            vTaskDelay(pdMS_TO_TICKS(500)); // chờ firmware SH2 nội bộ boot xong
+            setReport();
+            lastSensorEventMs = millis();
+        }
         if (myIMU.wasReset()) {
             Serial.println(F("BNO080 has reset, reconfiguring."));
             // Cho firmware SH2 nội bộ của BNO085 thời gian boot xong trước khi
@@ -146,6 +177,7 @@ void IMU_task(void *pvParameters) {
         }
         // đọc dữ liệu IMU
         if (myIMU.getSensorEvent() == true) {
+          lastSensorEventMs = millis();
           const uint8_t sensorEventId = myIMU.getSensorEventID();
 
           if (sensorEventId == SENSOR_REPORTID_GYROSCOPE_CALIBRATED) {

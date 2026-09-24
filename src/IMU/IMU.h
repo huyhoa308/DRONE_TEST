@@ -24,7 +24,7 @@ extern QueueHandle_t xQueueAttitude; //
 extern TaskHandle_t IMU_handle;
 
 // --------khai báo hàm giao tiếp -----------------------
-void IMU_task(void*pvParameters); // hàm task đọc dữ liệu từ IMU (BNO08x) và gửi dữ liệu qua SPI cho STM32F103C8
+void IMU_task(void*pvParameters); // hàm task đọc dữ liệu từ IMU (BNO08x) qua I2C và đẩy vào queue để task UART gửi cho STM32F103C8
 bool initIMU(); // hàm khởi tạo IMU (BNO08x)
 bool readIMU(AttitudeData *attitude); // hàm đọc dữ liệu quaternion 
 
