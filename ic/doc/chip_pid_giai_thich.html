@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Chip điều khiển PID cho drone — Giải thích cho nhóm</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 11pt; color: #1f2328; line-height: 1.35; }
+  h1 { font-size: 18pt; color: #1864ab; margin-top: 18pt; }
+  h2 { font-size: 13.5pt; color: #1f2328; margin-top: 12pt; }
+  p { margin: 4pt 0 6pt 0; }
+  table { border-collapse: collapse; margin: 4pt 0 10pt 0; }
+  th { background: #e7f5ff; font-weight: bold; text-align: left; }
+  th, td { border: 1px solid #adb5bd; padding: 3pt 5pt; font-size: 10pt; vertical-align: top; }
+  .caption { font-size: 9.5pt; color: #57606a; font-style: italic; text-align: center; margin-bottom: 12pt; }
+  .fig { text-align: center; margin: 8pt 0 2pt 0; }
+  .note { background: #fff9db; border-left: 4px solid #f08c00; padding: 5pt 8pt; margin: 6pt 0 10pt 0; }
+  .ok { background: #ebfbee; border-left: 4px solid #2b8a3e; padding: 5pt 8pt; margin: 6pt 0 10pt 0; }
+  .title { font-size: 24pt; font-weight: bold; color: #1864ab; margin: 0; }
+  .subtitle { font-size: 13pt; color: #57606a; margin: 4pt 0 2pt 0; }
+  code { font-family: Consolas, monospace; font-size: 9.5pt; background: #f1f3f5; }
+  img { max-width: 100%; height: auto; }
+  table { width: 100%; }
+  @page { size: A4; margin: 2cm; }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    h1, h2 { page-break-after: avoid; }
+    tr, .fig, .note, .ok { page-break-inside: avoid; }
+    .fig { page-break-after: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<p class="title">Chip điều khiển PID cho drone</p>
+<p class="subtitle">Giải thích thiết kế cho cả nhóm — dễ hiểu, không cần biết trước về thiết kế vi mạch</p>
+<p class="subtitle">Nhóm FPOLY UAV · Cuộc thi Thiết kế vi mạch cho Đô thị thông minh lần 3 · 24/09/2026</p>
+
+<div class="note"><b>Đọc nhanh:</b> nhóm đã có drone bay được với thuật toán PID chạy trên STM32. Tài liệu này giải thích cách biến
+thuật toán đó thành một con chip riêng: đã làm được gì (mô hình số nguyên, mạch Verilog, bộ kiểm thử), vì sao chọn như vậy,
+và còn phải làm gì tiếp. Mục 8 có bảng giải nghĩa các thuật ngữ.</div>
+
+<h1>1. Thiết kế chip khác gì lập trình vi điều khiển?</h1>
+<p><b>Vi điều khiển (MCU) như STM32 giống một đầu bếp đa năng.</b> Bên trong có một bộ xử lý (CPU) biết làm mọi việc. Ta đưa
+nó "công thức" là code C (<code>Flight.cpp</code>), nó đọc từng dòng rồi làm theo. Đổi code là nó làm việc khác.</p>
+<p><b>Chip tự thiết kế giống một cái máy chỉ làm đúng một món.</b> Không có CPU, không có code: mạch điện được nối cứng để làm
+đúng việc tính PID. Vì không phải "đọc công thức" nên chip nhỏ hơn, tốn ít điện hơn và nhanh hơn; đổi lại, làm xong là
+không sửa được.</p>
+<p><b>Mục tiêu của nhóm:</b> biến bộ điều khiển PID + bộ trộn động cơ đang chạy trên STM32 thành một mạch điện chuyên dụng,
+cho kết quả giống hệt bản đã bay thử.</p>
+
+<h1>2. Quy trình thiết kế chip và tiến độ</h1>
+<p class="fig"><img src="png/design_flow.png" width="640"></p>
+<p class="caption">Hình 1. Bảy bước làm một con chip. Ba bước đầu đã xong trên máy của nhóm; bốn bước sau cần công cụ Cadence.</p>
+<table width="640">
+<tr><th>Bước</th><th>Làm gì</th><th>Công cụ</th><th>Trạng thái</th></tr>
+<tr><td>1. Thuật toán</td><td>Viết và bay thử thuật toán bằng phần mềm</td><td>STM32, <code>Flight.cpp</code></td><td>Xong — drone bay được</td></tr>
+<tr><td>2. Mô hình fixed-point</td><td>Chuyển số thập phân sang số nguyên để mạch tính được</td><td>Python</td><td>Xong</td></tr>
+<tr><td>3. RTL</td><td>"Vẽ" mạch điện bằng ngôn ngữ Verilog</td><td>Verilog</td><td>Xong, biên dịch không lỗi</td></tr>
+<tr><td>4. Mô phỏng</td><td>Chạy thử mạch trên máy tính, so với đáp án</td><td>Icarus / Xcelium</td><td>Chưa chạy (thiếu phần mềm)</td></tr>
+<tr><td>5. Tổng hợp</td><td>Đổi Verilog thành hàng nghìn cổng logic thật</td><td>Cadence Genus</td><td>Chưa làm</td></tr>
+<tr><td>6. Layout</td><td>Xếp cổng lên mặt silicon và đi dây</td><td>Cadence Innovus</td><td>Chưa làm</td></tr>
+<tr><td>7. Kiểm tra cuối</td><td>Kiểm tra tốc độ, luật vẽ; xuất file gửi nhà máy</td><td>Tempus, Pegasus</td><td>Chưa làm</td></tr>
+</table>
+
+<h1>3. Bước 2 — Mô hình fixed-point</h1>
+<h2>3.1. Vì sao phải đổi sang số nguyên?</h2>
+<p>Code STM32 dùng <b>số thực (float)</b>, ví dụ góc = 12,3456°. Mạch tính số thực rất to và phức tạp, nên chip nhỏ gọn chỉ
+làm với <b>số nguyên</b>. Mẹo giống như ghi tiền: thay vì 12,35 nghìn đồng ta ghi 12350 đồng — vẫn chính xác mà chỉ còn số nguyên.</p>
+<p>Mạch cũng vậy: nhân mọi giá trị với một số cố định rồi lưu thành số nguyên. Ví dụ với <code>fe = 10</code>, góc được nhân
+với 2<sup>10</sup> = 1024: góc 12,3456° lưu thành 12642, và bước nhỏ nhất chip phân biệt được là 1/1024 ≈ 0,001°.</p>
+<p><b>Câu hỏi then chốt là dùng bao nhiêu bit</b> (bit = chữ số nhị phân). Nhiều bit thì chính xác nhưng mạch to và tốn điện;
+ít bit thì mạch nhỏ nhưng tính lệch so với STM32.</p>
+
+<h2>3.2. Cách chọn số bit</h2>
+<p>Mô hình Python (<code>ic/model/</code>) chạy <b>song song</b> hai bản PID: bản số thực chép y hệt <code>Flight.cpp</code>, và bản
+số nguyên giống hệt mạch. Cả hai nhận cùng dữ liệu bay từ 7 kịch bản (16.000 chu kỳ): lơ lửng có gió, đổi góc đột ngột,
+xoay yaw, gạt cần ngẫu nhiên, drone bị kẹt gây bão hoà, đầu vào ngẫu nhiên toàn dải, arm/disarm liên tục. Mô hình thử
+lần lượt từng mức bit để tìm <b>mức ít bit nhất mà kết quả vẫn gần như giống hệt</b>.</p>
+
+<h2>3.3. Kết quả: hai lựa chọn cho nhóm</h2>
+<table width="640">
+<tr><th>Cấu hình</th><th>Lệnh motor lệch so với STM32</th><th>Góc bay lệch (vòng kín)</th><th>Phép nhân lớn nhất</th><th>Nhận xét</th></tr>
+<tr><td><b>A — khớp MCU</b></td><td>tối đa 1 µs, ở 0,71% chu kỳ</td><td>0,013°</td><td>40 bit</td><td>Dễ chứng minh "chip = thuật toán đã bay thử"</td></tr>
+<tr><td><b>B — tiết kiệm</b></td><td>tối đa 4 µs, ở 14% chu kỳ</td><td>0,11°</td><td>32 bit</td><td>Nhỏ hơn, lệch vẫn dưới nhiễu cảm biến (0,3°)</td></tr>
+<tr><td>C — tối giản</td><td>tối đa 18 µs, ở 61% chu kỳ</td><td>1,24°</td><td>28 bit</td><td>Bắt đầu thấy khác biệt — không dùng</td></tr>
+</table>
+<p>Cảm biến IMU vốn có nhiễu khoảng 0,3°, nên với cấu hình B drone không thể "cảm thấy" khác biệt. Mạch hiện tại dùng
+<b>cấu hình A</b>; đổi sang B chỉ cần chạy lại một lệnh, không phải sửa mạch.</p>
+<p class="fig"><img src="png/step_roll.png" width="600"></p>
+<p class="caption">Hình 2. Đáp ứng khi đổi góc roll (0° → 20° → −10°) trên mô hình drone đơn giản: bản số thực (STM32) và hai bản
+số nguyên gần như trùng khít. Độ vọt lố là do mô hình drone giả lập, không phải drone thật.</p>
+
+<h2>3.4. Mẹo để chip không cần phép chia</h2>
+<p>Phép chia trong mạch rất tốn diện tích. Code STM32 có chia cho dt (thời gian giữa hai lần tính). Vì chip luôn tính đều
+400 lần/giây, dt luôn bằng 2,5 ms, nên phần chia được <b>tính sẵn vào hệ số</b> từ trước. Chip chỉ còn cộng, nhân và dịch bit.</p>
+<table width="640">
+<tr><th>Trên STM32 (số thực)</th><th>Trên chip (số nguyên)</th></tr>
+<tr><td>dt đo từ đồng hồ, thay đổi từng lần</td><td>dt cố định 2,5 ms (400 Hz)</td></tr>
+<tr><td>Tích phân: I = I + e·dt, giới hạn ±100</td><td>A = A + e, giới hạn ±100/dt (chỉ cộng)</td></tr>
+<tr><td>Đạo hàm: (e − e_trước) / dt</td><td>ΔE = e − e_trước (không chia)</td></tr>
+<tr><td>u = kp·e + ki·I + kd·D, rồi nhân 3</td><td>u' = KP'·e + KI'·A + KD'·ΔE với KP' = 3kp, KI' = 3ki·dt, KD' = 3kd/dt</td></tr>
+</table>
+
+<h2>3.5. Những phát hiện đáng đưa vào báo cáo thi</h2>
+<ul>
+<li><b>Thành phần D quyết định độ chính xác đầu vào.</b> KD' = 36 nên sai số làm tròn của góc bị nhân lên 36 lần; đây là lý do
+cấu hình A cần tới 10 bit phần thập phân cho góc.</li>
+<li><b>Hệ số lọc alpha = 0,2 tốn 13 bit</b> vì không biểu diễn gọn được ở hệ nhị phân. Nếu đổi thành 13/64 = 0,203 trên cả STM32
+lẫn chip (bộ lọc gần như y hệt), chỉ cần 6 bit.</li>
+<li><b>Bắt buộc làm tròn khi dịch bit.</b> Nếu cắt bỏ phần lẻ, cấu hình A lệch 2 µs và không đạt tiêu chí; làm tròn chỉ tốn thêm
+một bộ cộng.</li>
+</ul>
+
+<h1>4. Bước 3 — Kiến trúc mạch (RTL)</h1>
+<h2>4.1. Verilog không phải chương trình</h2>
+<p>Verilog trông giống code nhưng <b>không chạy từng dòng</b>. Mỗi dòng mô tả một <b>linh kiện</b> và cách nối dây; công cụ sẽ dựng
+mạch thật từ mô tả đó. Mạch PID gồm các loại linh kiện chính: <b>thanh ghi</b> (ô nhớ nhỏ giữ một số), <b>bộ cộng, bộ nhân</b>,
+<b>bộ chọn (MUX)</b> chọn một trong nhiều đường dữ liệu, và <b>máy trạng thái (FSM)</b> điều phối mỗi nhịp clock làm việc gì.</p>
+
+<h2 class="wide">4.2. Sơ đồ khối</h2>
+<p class="fig wide"><img src="png/block_diagram.png" width="660" data-maxh="14.2"></p>
+<p class="caption wide">Hình 3. Sơ đồ khối mạch <code>pid_ctrl</code>. Nét liền là dữ liệu, nét đứt xanh là điều khiển từ FSM, nét đứt đỏ là
+ghi lại trạng thái sau mỗi lần tính.</p>
+<table class="wide" style="page-break-before:always" width="640">
+<tr><th>Khối</th><th>Nhiệm vụ</th></tr>
+<tr><td>Thanh ghi đầu vào</td><td>Chốt setpoint, góc đo, gyro, ga, trạng thái arm khi có xung <code>sample_valid</code> (mẫu IMU mới)</td></tr>
+<tr><td>MUX trục + bộ trừ</td><td>Chọn trục đang tính (roll, pitch hoặc yaw) và tính sai số e = setpoint − đo đạc</td></tr>
+<tr><td>Trạng thái 3 trục</td><td>Thanh ghi nhớ tích phân A, sai số lần trước, đạo hàm đã lọc Df và đầu ra của từng trục</td></tr>
+<tr><td>Tiền xử lý</td><td>Tính A + e, hiệu sai số ΔE và (ΔE − Df) bằng bộ cộng/trừ</td></tr>
+<tr><td>Hằng số</td><td>Hệ số KP', KI', KD' mỗi trục, alpha bộ lọc, số bit dịch, các giới hạn — nối cứng vào mạch</td></tr>
+<tr><td>Bộ nhân dùng chung</td><td>Linh kiện to nhất; lần lượt tính α·(ΔE − Df), KP'·e, KI'·A, KD'·Df cho cả 3 trục</td></tr>
+<tr><td>Dịch phải + làm tròn</td><td>Đưa tích về đúng thang số nguyên, có làm tròn như mô hình</td></tr>
+<tr><td>Σ, bão hoà, cắt, giới hạn</td><td>Cộng P + I + D; giới hạn ±250 và chống tràn tích phân; cắt về số nguyên; giới hạn ±250 (roll, pitch) hoặc ±80 (yaw)</td></tr>
+<tr><td>Mixer X-frame</td><td>Trộn thành lệnh 4 động cơ, kẹp trong 1000–2000 µs; chưa arm hoặc ga ≤ 1000 thì cả 4 motor về 1000</td></tr>
+</table>
+
+<h2 class="wide">4.3. Vì sao chỉ dùng một bộ nhân?</h2>
+<p class="wide">Drone chỉ cần tính PID <b>400 lần mỗi giây</b>, trong khi clock của chip chạy <b>10 triệu nhịp mỗi giây</b>. Thời gian rảnh
+rất dư, nên thay vì làm ba bộ PID riêng cho roll, pitch, yaw, mạch dùng <b>một bộ nhân, tính lần lượt từng trục</b> — giống
+một thu ngân phục vụ nhanh ba khách thay vì mở ba quầy. Cả ba trục tính xong trong 20 nhịp, tức <b>2 µs</b>, trong khi thời
+gian cho phép là <b>2500 µs</b>.</p>
+<p class="fig wide"><img src="png/fsm_timeline.png" width="660" data-maxh="5.2"></p>
+<p class="caption wide">Hình 4. Lịch 20 chu kỳ clock cho một mẫu IMU. Mỗi trục đi qua 6 bước; ô đỏ là lúc bộ nhân cho kết quả dùng được.</p>
+
+<h2>4.4. Cổng vào/ra của chip</h2>
+<table width="640">
+<tr><th>Cổng</th><th>Hướng</th><th>Ý nghĩa</th></tr>
+<tr><td><code>clk</code>, <code>rst_n</code></td><td>vào</td><td>Clock; reset (mức thấp)</td></tr>
+<tr><td><code>sample_valid</code></td><td>vào</td><td>Xung báo có mẫu IMU mới</td></tr>
+<tr><td><code>clear</code></td><td>vào</td><td>Xoá trạng thái PID</td></tr>
+<tr><td><code>armed</code>, <code>throttle[10:0]</code></td><td>vào</td><td>Trạng thái arm, mức ga (µs)</td></tr>
+<tr><td><code>sp_roll</code>, <code>sp_pitch</code>, <code>sp_yaw</code></td><td>vào</td><td>Setpoint (độ, độ/s), số nguyên 22 bit có dấu</td></tr>
+<tr><td><code>roll</code>, <code>pitch</code>, <code>gz</code></td><td>vào</td><td>Góc và tốc độ quay đo từ IMU, cùng định dạng</td></tr>
+<tr><td><code>m1..m4[10:0]</code></td><td>ra</td><td>Lệnh 4 động cơ (µs, 1000–2000)</td></tr>
+<tr><td><code>mix_roll/pitch/yaw[9:0]</code></td><td>ra</td><td>Đầu ra PID từng trục</td></tr>
+<tr><td><code>out_valid</code>, <code>busy</code></td><td>ra</td><td>Báo có kết quả mới; báo đang tính</td></tr>
+</table>
+
+<h2>4.5. Độ rộng các thanh ghi chính (cấu hình A)</h2>
+<table width="640">
+<tr><th>Tín hiệu</th><th>Số bit</th><th>Tín hiệu</th><th>Số bit</th></tr>
+<tr><td>Đầu vào (góc, gyro, setpoint)</td><td>22</td><td>Sai số e</td><td>23</td></tr>
+<tr><td>Tích phân A</td><td>27</td><td>Đạo hàm đã lọc Df</td><td>28</td></tr>
+<tr><td>Tổng u' = P + I + D</td><td>28</td><td>Bộ nhân (toán hạng)</td><td>14 × 29</td></tr>
+</table>
+<p>Các con số này được tính theo trường hợp xấu nhất (góc ±180°, gyro ±2000°/s) để mạch <b>không bao giờ tràn số</b>. Chúng nằm
+trong file <code>pid_params.vh</code> do Python tự sinh, nên mô hình và mạch luôn khớp nhau.</p>
+
+<h1>5. Bước 4 — Kiểm thử</h1>
+<p>Chip đã sản xuất rồi thì không sửa được, nên phải chạy thử trên máy tính trước.</p>
+<ul>
+<li><b>Testbench</b> (<code>tb_pid_ctrl.v</code>) đóng vai "người chấm bài": đưa dữ liệu vào mạch, đọc kết quả, so với đáp án.</li>
+<li><b>Golden vectors</b> (<code>vectors.txt</code>) là bộ đề kèm đáp án: 16.000 mẫu, mỗi mẫu gồm đầu vào và đầu ra đúng do mô hình
+Python tính sẵn.</li>
+<li><b>Bit-exact</b>: mạch phải cho ra đúng từng bit giống đáp án, không lệch dù chỉ 1.</li>
+</ul>
+<div class="note"><b>Trạng thái:</b> mạch và testbench đã biên dịch qua ModelSim ở chế độ kiểm tra chặt (<code>vlog -lint</code>):
+0 lỗi, 0 cảnh báo. <b>Chưa chạy mô phỏng</b> vì ModelSim trên máy không có license. Cần cài Icarus Verilog (miễn phí) hoặc
+dùng Cadence Xcelium, rồi chạy <code>sh ic/sim/run_iverilog.sh</code> để có kết quả PASS/FAIL.</div>
+
+<h1>6. Các file trong thư mục <code>ic/</code></h1>
+<table width="640">
+<tr><th>File</th><th>Vai trò</th></tr>
+<tr><td><code>model/pid_model.py</code></td><td>Hai bản PID: số thực (chép STM32) và số nguyên (giống mạch)</td></tr>
+<tr><td><code>model/analyze.py</code></td><td>Thử các mức bit, chọn cấu hình, xuất báo cáo</td></tr>
+<tr><td><code>model/out/report.md</code></td><td>Báo cáo kết quả chi tiết, dùng được cho slide và báo cáo thi</td></tr>
+<tr><td><code>model/export_rtl.py</code></td><td>Sinh file tham số và bộ đề cho mạch (chọn cấu hình A hoặc B)</td></tr>
+<tr><td><code>rtl/pid_ctrl.v</code></td><td><b>Mạch PID</b> — sản phẩm chính</td></tr>
+<tr><td><code>rtl/pid_params.vh</code></td><td>Số bit, hệ số, giới hạn — sinh tự động, không sửa tay</td></tr>
+<tr><td><code>tb/tb_pid_ctrl.v</code>, <code>tb/vectors.txt</code></td><td>Người chấm bài và bộ đề</td></tr>
+<tr><td><code>sim/</code></td><td>Lệnh chạy mô phỏng cho Icarus, Xcelium, ModelSim</td></tr>
+</table>
+
+<h1>7. Việc tiếp theo và điểm nhóm cần quyết định</h1>
+<table width="640">
+<tr><th>#</th><th>Việc</th><th>Ghi chú</th></tr>
+<tr><td>1</td><td>Cài Icarus Verilog, chạy mô phỏng</td><td>Có PASS mới chắc chắn mạch đúng</td></tr>
+<tr><td>2</td><td>Chọn cấu hình A hay B</td><td>Phân vân thì lấy A cho an toàn</td></tr>
+<tr><td>3</td><td>Có đổi alpha thành 13/64 không</td><td>Tiết kiệm 7 bit; phải sửa cả STM32 và bay thử lại</td></tr>
+<tr><td>4</td><td>Xác nhận tần số 400 Hz</td><td>PID chỉ tính khi có mẫu IMU mới; IMU đang cấu hình 2,5 ms</td></tr>
+<tr><td>5</td><td>Có xoá trạng thái PID khi arm không</td><td>Code STM32 hiện giữ tích phân từ lần bay trước sang lần arm sau</td></tr>
+<tr><td>6</td><td>Học Verilog cơ bản (1–2 buổi)</td><td>Đủ để đọc hiểu <code>pid_ctrl.v</code> và trả lời giám khảo</td></tr>
+<tr><td>7</td><td>Buổi đào tạo Cadence</td><td>Hỏi thẳng vào bước 5–7 (Genus, Innovus, kiểm tra cuối)</td></tr>
+</table>
+
+<h1>8. Thuật ngữ</h1>
+<table width="640">
+<tr><th>Thuật ngữ</th><th>Nghĩa</th></tr>
+<tr><td>Bit</td><td>Chữ số nhị phân (0 hoặc 1). Càng nhiều bit, số càng lớn/chính xác nhưng mạch càng to</td></tr>
+<tr><td>Fixed-point (dấu phẩy tĩnh)</td><td>Lưu số thập phân dưới dạng số nguyên đã nhân với 2<sup>n</sup></td></tr>
+<tr><td>Q.FE</td><td>Định dạng số nguyên có FE bit phần thập phân (ví dụ Q.10: đơn vị 1/1024)</td></tr>
+<tr><td>Clock</td><td>Xung nhịp đều đặn; mỗi nhịp mạch tiến thêm một bước</td></tr>
+<tr><td>Thanh ghi (register)</td><td>Ô nhớ nhỏ giữ một con số giữa các nhịp clock</td></tr>
+<tr><td>MUX</td><td>Bộ chọn: chọn một trong nhiều đường dữ liệu đưa ra</td></tr>
+<tr><td>FSM (máy trạng thái)</td><td>Bộ điều phối quyết định mỗi nhịp clock mạch làm việc gì</td></tr>
+<tr><td>RTL / Verilog</td><td>Cách mô tả mạch bằng chữ; Verilog là ngôn ngữ dùng để viết</td></tr>
+<tr><td>Testbench</td><td>Đoạn mã kiểm tra mạch: đưa dữ liệu vào, so kết quả với đáp án</td></tr>
+<tr><td>Golden vectors</td><td>Bộ đề kèm đáp án đúng dùng để chấm mạch</td></tr>
+<tr><td>Bit-exact</td><td>Kết quả khớp đúng từng bit với đáp án</td></tr>
+<tr><td>Bão hoà / anti-windup</td><td>Giới hạn đầu ra; ngừng cộng tích phân khi đầu ra đã chạm giới hạn</td></tr>
+<tr><td>Tổng hợp (synthesis)</td><td>Đổi Verilog thành mạch gồm các cổng logic có thật trong thư viện nhà máy</td></tr>
+<tr><td>PDK</td><td>Bộ tài liệu của nhà máy: linh kiện có sẵn, luật vẽ, thông số</td></tr>
+<tr><td>Layout / GDS</td><td>Bản vẽ vật lý của chip trên silicon; GDS là file gửi nhà máy</td></tr>
+</table>
+
+<h1 class="wide" style="page-break-before:always">Phụ lục — Phần cứng nguyên mẫu với MCU</h1>
+<p class="wide">Các sơ đồ đấu nối của nguyên mẫu drone và tay cầm hiện tại, trên đó thuật toán PID đã được bay thử.</p>
+<p class="fig wide"><img src="png/wiring_drone.png" width="640" data-maxh="12.8"></p>
+<p class="caption wide">Hình A1. Drone: ESP32 (IMU, GPS, 4 ESC) và STM32 (PID, NRF24).</p>
+<p class="fig wide"><img src="png/wiring_s3.png" width="620"></p>
+<p class="caption wide">Hình A2. Tay cầm điều khiển trên WeAct ESP32-S3-A.</p>
+<p class="fig wide"><img src="png/wiring_devkit.png" width="620"></p>
+<p class="caption wide">Hình A3. Tay cầm điều khiển trên ESP32 DevKit V1.</p>
+
+</body>
+</html>

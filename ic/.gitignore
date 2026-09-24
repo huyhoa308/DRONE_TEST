@@ -1,0 +1,11 @@
+# San pham mo phong
+sim/work/
+sim/*.vvp
+sim/*.vcd
+sim/transcript
+sim/xcelium.d/
+sim/xrun.*
+sim/*.wlf
+
+# Python
+__pycache__/

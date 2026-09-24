@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1480 880" width="1480" height="880" font-family="Segoe UI, Arial, Helvetica, sans-serif">
+<defs><marker id="ah1c7ed6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1c7ed6"/></marker><marker id="ah1f2328" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f2328"/></marker><marker id="ah2b8a3e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2b8a3e"/></marker><marker id="ah7048e8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7048e8"/></marker><marker id="ahc2255c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c2255c"/></marker><marker id="ahc92a2a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c92a2a"/></marker><marker id="ahf08c00" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#f08c00"/></marker></defs>
+<rect width="1480" height="880" fill="#ffffff"/>
+<text x="740" y="30" font-size="20" text-anchor="middle" font-weight="700" fill="#1f2328">Sơ đồ khối mạch pid_ctrl — PID 3 trục dùng chung một bộ nhân</text>
+<rect x="540" y="48" width="500" height="64" rx="8" fill="#e7f5ff" stroke="#1c7ed6" stroke-width="2"/>
+<text x="790" y="72" font-size="15" text-anchor="middle" font-weight="700" fill="#1864ab">Bộ điều khiển FSM (máy trạng thái)</text>
+<text x="790" y="96" font-size="13" text-anchor="middle" font-weight="400" fill="#1f2328">IDLE → LOAD → FILT → P → I → D → SAT  (lặp 3 trục)  → MIX</text>
+<polyline points="600,112 600,124 418,124 418,226" fill="none" stroke="#1c7ed6" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#ah1c7ed6)"/>
+<text x="430" y="140" font-size="11" text-anchor="start" font-weight="400" fill="#1864ab">chọn trục</text>
+<polyline points="780,112 780,440 818,440 818,466" fill="none" stroke="#1c7ed6" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#ah1c7ed6)"/>
+<text x="786" y="430" font-size="11" text-anchor="start" font-weight="400" fill="#1864ab">chọn toán hạng</text>
+<text x="214" y="205" font-size="13" text-anchor="end" font-weight="400" fill="#1f2328">sample_valid</text>
+<polyline points="218,200 230,200" fill="none" stroke="#1f2328" stroke-width="1.5" marker-end="url(#ah1f2328)"/>
+<text x="214" y="237" font-size="13" text-anchor="end" font-weight="400" fill="#1f2328">armed</text>
+<polyline points="218,232 230,232" fill="none" stroke="#1f2328" stroke-width="1.5" marker-end="url(#ah1f2328)"/>
+<text x="214" y="269" font-size="13" text-anchor="end" font-weight="400" fill="#1f2328">throttle [10:0]</text>
+<polyline points="218,264 230,264" fill="none" stroke="#1f2328" stroke-width="1.5" marker-end="url(#ah1f2328)"/>
+<text x="214" y="323" font-size="13" text-anchor="end" font-weight="400" fill="#1f2328">sp_roll / sp_pitch / sp_yaw</text>
+<polyline points="218,318 230,318" fill="none" stroke="#1f2328" stroke-width="1.5" marker-end="url(#ah1f2328)"/>
+<text x="214" y="377" font-size="13" text-anchor="end" font-weight="400" fill="#1f2328">roll / pitch / gz</text>
+<polyline points="218,372 230,372" fill="none" stroke="#1f2328" stroke-width="1.5" marker-end="url(#ah1f2328)"/>
+<text x="120" y="160" font-size="15" text-anchor="middle" font-weight="700" fill="#1f2328">Đầu vào</text>
+<text x="120" y="410" font-size="11" text-anchor="middle" font-weight="400" fill="#57606a">(Q.FE, số nguyên có dấu)</text>
+<rect x="232" y="170" width="140" height="250" rx="8" fill="#f6f8fa" stroke="#495057" stroke-width="2"/>
+<text x="302" y="270" font-size="13" text-anchor="middle" font-weight="600" fill="#1f2328">Thanh ghi</text>
+<text x="302" y="288" font-size="13" text-anchor="middle" font-weight="600" fill="#1f2328">đầu vào</text>
+<text x="302" y="306" font-size="13" text-anchor="middle" font-weight="600" fill="#1f2328">(chốt khi</text>
+<text x="302" y="324" font-size="13" text-anchor="middle" font-weight="600" fill="#1f2328">sample_valid)</text>
+<polyline points="372,318 400,318" fill="none" stroke="#1f2328" stroke-width="1.5" marker-end="url(#ah1f2328)"/>
+<polyline points="372,372 400,372" fill="none" stroke="#1f2328" stroke-width="1.5" marker-end="url(#ah1f2328)"/>
+<polygon points="400,230 436,242 436,388 400,400" fill="#fff4e6" stroke="#e67700" stroke-width="2"/>
+<text x="418.0" y="315.0" font-size="12" font-weight="700" fill="#1f2328" text-anchor="middle" transform="rotate(-90 418.0 315.0)">MUX trục</text>
+<circle cx="486" cy="315" r="18" fill="#ffffff" stroke="#1f2328" stroke-width="2"/>
+<text x="486" y="322" font-size="22" text-anchor="middle" font-weight="700" fill="#1f2328">−</text>
+<polyline points="436,300 468,308" fill="none" stroke="#1f2328" stroke-width="1.5" marker-end="url(#ah1f2328)"/>
+<polyline points="436,340 468,324" fill="none" stroke="#1f2328" stroke-width="1.5" marker-end="url(#ah1f2328)"/>
+<text x="452" y="294" font-size="11" text-anchor="middle" font-weight="400" fill="#57606a">sp</text>
+<text x="452" y="356" font-size="11" text-anchor="middle" font-weight="400" fill="#57606a">đo</text>
+<polyline points="504,315 540,315" fill="none" stroke="#1f2328" stroke-width="2" marker-end="url(#ah1f2328)"/>
+<text x="520" y="306" font-size="14" text-anchor="middle" font-weight="700" fill="#1f2328">e</text>
+<rect x="540" y="190" width="220" height="170" rx="8" fill="#fff9db" stroke="#f08c00" stroke-width="2"/>
+<text x="650" y="214" font-size="14" text-anchor="middle" font-weight="700" fill="#e67700">Tiền xử lý (bước LOAD)</text>
+<text x="556" y="244" font-size="13" text-anchor="start" font-weight="400" fill="#1f2328">A_raw = A + e</text>
+<text x="556" y="270" font-size="13" text-anchor="start" font-weight="400" fill="#1f2328">ΔE = (e − e_prev) · 2^FD</text>
+<text x="556" y="296" font-size="13" text-anchor="start" font-weight="400" fill="#1f2328">diff = ΔE − Df</text>
+<text x="650" y="344" font-size="11" text-anchor="middle" font-weight="400" fill="#57606a" font-style="italic">3 bộ cộng/trừ, không nhân</text>
+<rect x="232" y="470" width="250" height="150" rx="8" fill="#f3f0ff" stroke="#7048e8" stroke-width="2"/>
+<text x="357" y="494" font-size="14" text-anchor="middle" font-weight="700" fill="#5f3dc4">Trạng thái 3 trục (thanh ghi)</text>
+<text x="248" y="524" font-size="13" text-anchor="start" font-weight="400" fill="#1f2328">A[roll, pitch, yaw]   tích phân</text>
+<text x="248" y="546" font-size="13" text-anchor="start" font-weight="400" fill="#1f2328">e_prev[3]   sai số lần trước</text>
+<text x="248" y="568" font-size="13" text-anchor="start" font-weight="400" fill="#1f2328">Df[3]   đạo hàm đã lọc</text>
+<text x="248" y="590" font-size="13" text-anchor="start" font-weight="400" fill="#1f2328">mix[3]   đầu ra PID</text>
+<polyline points="482,520 512,520 512,345 540,345" fill="none" stroke="#7048e8" stroke-width="2" marker-end="url(#ah7048e8)"/>
+<text x="518" y="440" font-size="11" text-anchor="start" font-weight="400" fill="#5f3dc4">A, e_prev, Df</text>
+<rect x="540" y="470" width="220" height="150" rx="8" fill="#ebfbee" stroke="#2b8a3e" stroke-width="2"/>
+<text x="650" y="494" font-size="14" text-anchor="middle" font-weight="700" fill="#2b8a3e">Hằng số (nối cứng)</text>
+<text x="556" y="524" font-size="13" text-anchor="start" font-weight="400" fill="#1f2328">KP', KI', KD' mỗi trục</text>
+<text x="556" y="546" font-size="13" text-anchor="start" font-weight="400" fill="#1f2328">ALPHA bộ lọc D</text>
+<text x="556" y="568" font-size="13" text-anchor="start" font-weight="400" fill="#1f2328">số bit dịch mỗi hệ số</text>
+<text x="556" y="590" font-size="13" text-anchor="start" font-weight="400" fill="#1f2328">giới hạn ±250, ±80</text>
+<polyline points="760,250 800,250" fill="none" stroke="#f08c00" stroke-width="2" marker-end="url(#ahf08c00)"/>
+<polygon points="800,200 836,212 836,328 800,340" fill="#fff4e6" stroke="#e67700" stroke-width="2"/>
+<text x="818.0" y="270.0" font-size="12" font-weight="700" fill="#1f2328" text-anchor="middle" transform="rotate(-90 818.0 270.0)">MUX dữ liệu</text>
+<polyline points="760,545 800,545" fill="none" stroke="#2b8a3e" stroke-width="2" marker-end="url(#ah2b8a3e)"/>
+<polygon points="800,470 836,482 836,608 800,620" fill="#fff4e6" stroke="#e67700" stroke-width="2"/>
+<text x="818.0" y="545.0" font-size="12" font-weight="700" fill="#1f2328" text-anchor="middle" transform="rotate(-90 818.0 545.0)">MUX hệ số</text>
+<circle cx="905" cy="405" r="32" fill="#fff0f6" stroke="#c2255c" stroke-width="3"/>
+<text x="905" y="416" font-size="32" text-anchor="middle" font-weight="700" fill="#c2255c">×</text>
+<polyline points="836,270 880,270 880,382" fill="none" stroke="#1f2328" stroke-width="2" marker-end="url(#ah1f2328)"/>
+<polyline points="836,545 880,545 880,428" fill="none" stroke="#1f2328" stroke-width="2" marker-end="url(#ah1f2328)"/>
+<text x="945" y="462" font-size="13" text-anchor="start" font-weight="700" fill="#a61e4d">Bộ nhân dùng chung</text>
+<text x="945" y="479" font-size="13" text-anchor="start" font-weight="700" fill="#a61e4d">14 × 29 bit</text>
+<rect x="950" y="380" width="104" height="50" rx="8" fill="#fff0f6" stroke="#c2255c" stroke-width="2"/>
+<text x="1002" y="400" font-size="12" text-anchor="middle" font-weight="600" fill="#1f2328">Dịch phải</text>
+<text x="1002" y="416" font-size="12" text-anchor="middle" font-weight="600" fill="#1f2328">+ làm tròn</text>
+<polyline points="937,405 950,405" fill="none" stroke="#1f2328" stroke-width="2" marker-end="url(#ah1f2328)"/>
+<rect x="1100" y="150" width="200" height="70" rx="8" fill="#fff0f6" stroke="#c2255c" stroke-width="2"/>
+<text x="1200" y="190.0" font-size="13" text-anchor="middle" font-weight="700" fill="#1f2328">Thanh ghi Df', P, I</text>
+<rect x="1100" y="258" width="200" height="50" rx="8" fill="#fff0f6" stroke="#c2255c" stroke-width="2"/>
+<text x="1200" y="288.0" font-size="13" text-anchor="middle" font-weight="700" fill="#1f2328">Σ   u' = P + I + D</text>
+<rect x="1100" y="348" width="200" height="70" rx="8" fill="#fff5f5" stroke="#c92a2a" stroke-width="2"/>
+<text x="1200" y="388.0" font-size="13" text-anchor="middle" font-weight="700" fill="#1f2328">Bão hoà |u'| ≤ 250</text>
+<rect x="1100" y="458" width="200" height="50" rx="8" fill="#fff5f5" stroke="#c92a2a" stroke-width="2"/>
+<text x="1200" y="488.0" font-size="13" text-anchor="middle" font-weight="700" fill="#1f2328">Cắt về 0, giới hạn ±250 / ±80</text>
+<rect x="1100" y="548" width="200" height="50" rx="8" fill="#f3f0ff" stroke="#7048e8" stroke-width="2"/>
+<text x="1200" y="578.0" font-size="13" text-anchor="middle" font-weight="700" fill="#1f2328">Thanh ghi mix × 3 trục</text>
+<rect x="1100" y="638" width="200" height="70" rx="8" fill="#e6fcf5" stroke="#0c8599" stroke-width="2"/>
+<text x="1200" y="678.0" font-size="13" text-anchor="middle" font-weight="700" fill="#1f2328">Mixer X-frame</text>
+<text x="1200" y="406" font-size="12" text-anchor="middle" font-weight="400" fill="#c92a2a">+ chống tràn tích phân</text>
+<text x="1200" y="700" font-size="12" text-anchor="middle" font-weight="400" fill="#0c8599">kẹp 1000–2000 µs</text>
+<polyline points="1200,220 1200,258" fill="none" stroke="#1f2328" stroke-width="2" marker-end="url(#ah1f2328)"/>
+<polyline points="1200,308 1200,348" fill="none" stroke="#1f2328" stroke-width="2" marker-end="url(#ah1f2328)"/>
+<polyline points="1200,418 1200,458" fill="none" stroke="#1f2328" stroke-width="2" marker-end="url(#ah1f2328)"/>
+<polyline points="1200,508 1200,548" fill="none" stroke="#1f2328" stroke-width="2" marker-end="url(#ah1f2328)"/>
+<polyline points="1200,598 1200,638" fill="none" stroke="#1f2328" stroke-width="2" marker-end="url(#ah1f2328)"/>
+<polyline points="1054,405 1076,405 1076,185 1100,185" fill="none" stroke="#1f2328" stroke-width="2" marker-end="url(#ah1f2328)"/>
+<polyline points="1076,283 1100,283" fill="none" stroke="#1f2328" stroke-width="2" marker-end="url(#ah1f2328)"/>
+<text x="1080" y="250" font-size="12" text-anchor="start" font-weight="700" fill="#a61e4d">D</text>
+<polyline points="1200,150 1200,136 818,136 818,206" fill="none" stroke="#c2255c" stroke-width="1.8" marker-end="url(#ahc2255c)"/>
+<text x="1010" y="130" font-size="11" text-anchor="middle" font-weight="400" fill="#a61e4d">Df' quay lại bộ nhân để tính D</text>
+<polyline points="1100,400 1088,400 1088,790 357,790 357,620" fill="none" stroke="#c92a2a" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ahc92a2a)"/>
+<text x="720" y="782" font-size="12" text-anchor="middle" font-weight="600" fill="#c92a2a">ghi lại A (khi không bão hoà), e_prev, Df  —  bước SAT</text>
+<polyline points="1300,573 1318,573" fill="none" stroke="#1f2328" stroke-width="1.5" marker-end="url(#ah1f2328)"/>
+<text x="1322" y="577" font-size="12" text-anchor="start" font-weight="400" fill="#1f2328">mix_roll / pitch / yaw</text>
+<polyline points="1300,663 1318,663" fill="none" stroke="#1f2328" stroke-width="1.5" marker-end="url(#ah1f2328)"/>
+<text x="1322" y="667" font-size="12" text-anchor="start" font-weight="400" fill="#1f2328">m1 m2 m3 m4 [10:0]</text>
+<polyline points="1300,690 1318,690" fill="none" stroke="#1f2328" stroke-width="1.5" marker-end="url(#ah1f2328)"/>
+<text x="1322" y="694" font-size="12" text-anchor="start" font-weight="400" fill="#1f2328">out_valid, busy</text>
+<text x="1350" y="540" font-size="15" text-anchor="middle" font-weight="700" fill="#1f2328">Đầu ra</text>
+<polyline points="40,840 80,840" fill="none" stroke="#1f2328" stroke-width="2"/>
+<text x="88" y="845" font-size="12" text-anchor="start" font-weight="400" fill="#1f2328">dữ liệu</text>
+<polyline points="170,840 210,840" fill="none" stroke="#1c7ed6" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="218" y="845" font-size="12" text-anchor="start" font-weight="400" fill="#1f2328">điều khiển từ FSM</text>
+<polyline points="360,840 400,840" fill="none" stroke="#c92a2a" stroke-width="2" stroke-dasharray="6 5"/>
+<text x="408" y="845" font-size="12" text-anchor="start" font-weight="400" fill="#1f2328">ghi lại trạng thái</text>
+<text x="1440" y="845" font-size="12" text-anchor="end" font-weight="400" fill="#57606a">Mỗi mẫu IMU: 20 chu kỳ clock (2 µs @ 10 MHz) trong 2500 µs</text>
+</svg>

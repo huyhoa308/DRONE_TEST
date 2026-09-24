@@ -1,0 +1,18 @@
+# He so PID cho RTL, cau hinh fe=10 wk=13 fa=13 fd=4 fu=9 rnd=1, dt=0.0025
+# truc he_so mantissa shift gia_tri_that
+roll KP 7373 12 1.8
+roll KI 5033 24 0.0003
+roll KD 4608 7 36
+pitch KP 7496 12 1.83
+pitch KI 5159 24 0.0003075
+pitch KD 4608 7 36
+yaw KP 7987 11 3.9
+yaw KI 0 0 0
+yaw KD 0 0 0
+ALPHA 1638 13
+ACC_LIM 40960000
+U_LIM 128000
+FE 10
+FD 4
+FU 9
+ROUND 1
