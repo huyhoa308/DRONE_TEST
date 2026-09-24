@@ -77,6 +77,28 @@ static bool menuNavPrev = false;
 static String simTelBuf;
 static const uint32_t SIM_TEL_BUF_MAX = 128;
 
+// LED RGB bao nav mode. Chi env esp32s3_controller dinh nghia STATUS_LED_PIN (WS2812 tren GPIO48
+// cua WeAct S3-A); DevKit V1 khong co LED nay nen phan duoi bi bo qua khi build.
+#ifdef STATUS_LED_PIN
+static const uint8_t kStatusLedBrightness = 245;
+
+static void updateStatusLed(uint8_t mode) {
+  static int16_t shownMode = -1;
+  if (shownMode == mode) return;  // neopixelWrite chan ~30us, chi gui khi doi mode
+  shownMode = mode;
+
+  uint8_t r, g, b;
+  switch (mode) {
+    case RF_AUX_POSHOLD:  r = 0;   g = 255; b = 0;   break;  // xanh la
+    case RF_AUX_RTH:      r = 255; g = 90;  b = 0;   break;  // cam
+    case RF_AUX_GEOFENCE: r = 170; g = 0;   b = 255; break;  // tim
+    default:              r = 255; g = 255; b = 255; break;  // MAN (angle): trang
+  }
+  neopixelWrite(STATUS_LED_PIN, r * kStatusLedBrightness / 255, g * kStatusLedBrightness / 255,
+                b * kStatusLedBrightness / 255);
+}
+#endif
+
 static uint32_t gLastVoiceNotificationMs = 0;
 
 static void playVoiceNotification(VoiceClip clip) {
@@ -418,6 +440,9 @@ void setup() {
   pinMode(CTRL_MODE_PIN, INPUT_PULLUP);
   pinMode(NAV_MODE_PIN, INPUT_PULLUP);
   pinMode(MTS102_SW_PIN, INPUT);
+#ifdef STATUS_LED_PIN
+  updateStatusLed(navMode);
+#endif
   controllerPrefs.begin("controller", false);
   settingsVolume = constrain(controllerPrefs.getUChar("volume", 20), (uint8_t)0, (uint8_t)100);
   settingsBrightness = constrain(controllerPrefs.getUChar("brightness", 100), (uint8_t)25, (uint8_t)100);
@@ -658,6 +683,9 @@ void loop() {
   oledInfo.armed = sendingEnabled;
   oledInfo.useNrf24 = !modeEspNow;
   OLED_SetInfo(oledInfo);
+#ifdef STATUS_LED_PIN
+  updateStatusLed(navMode);
+#endif
 
   delay(20);
 }
