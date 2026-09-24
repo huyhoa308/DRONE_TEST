@@ -36,7 +36,7 @@
 <p class="subtitle">Nhóm FPOLY UAV · Cuộc thi Thiết kế vi mạch cho Đô thị thông minh lần 3 · 24/09/2026</p>
 
 <div class="note"><b>Đọc nhanh:</b> nhóm đã có drone bay được với thuật toán PID chạy trên STM32. Tài liệu này giải thích cách biến
-thuật toán đó thành một con chip riêng: đã làm được gì (mô hình số nguyên, mạch Verilog, bộ kiểm thử), vì sao chọn như vậy,
+thuật toán đó thành một con chip riêng: đã làm được gì (mô hình số nguyên, mạch Verilog, bộ kiểm thử đã PASS), vì sao chọn như vậy,
 và còn phải làm gì tiếp. Mục 8 có bảng giải nghĩa các thuật ngữ.</div>
 
 <h1>1. Thiết kế chip khác gì lập trình vi điều khiển?</h1>
@@ -50,13 +50,13 @@ cho kết quả giống hệt bản đã bay thử.</p>
 
 <h1>2. Quy trình thiết kế chip và tiến độ</h1>
 <p class="fig"><img src="png/design_flow.png" width="640"></p>
-<p class="caption">Hình 1. Bảy bước làm một con chip. Ba bước đầu đã xong trên máy của nhóm; bốn bước sau cần công cụ Cadence.</p>
+<p class="caption">Hình 1. Bảy bước làm một con chip. Bốn bước đầu đã xong trên máy của nhóm; ba bước sau cần công cụ Cadence.</p>
 <table width="640">
 <tr><th>Bước</th><th>Làm gì</th><th>Công cụ</th><th>Trạng thái</th></tr>
 <tr><td>1. Thuật toán</td><td>Viết và bay thử thuật toán bằng phần mềm</td><td>STM32, <code>Flight.cpp</code></td><td>Xong — drone bay được</td></tr>
 <tr><td>2. Mô hình fixed-point</td><td>Chuyển số thập phân sang số nguyên để mạch tính được</td><td>Python</td><td>Xong</td></tr>
 <tr><td>3. RTL</td><td>"Vẽ" mạch điện bằng ngôn ngữ Verilog</td><td>Verilog</td><td>Xong, biên dịch không lỗi</td></tr>
-<tr><td>4. Mô phỏng</td><td>Chạy thử mạch trên máy tính, so với đáp án</td><td>Icarus / Xcelium</td><td>Chưa chạy (thiếu phần mềm)</td></tr>
+<tr><td>4. Mô phỏng</td><td>Chạy thử mạch trên máy tính, so với đáp án</td><td>Icarus Verilog</td><td>Xong — PASS 16.000/16.000 mẫu</td></tr>
 <tr><td>5. Tổng hợp</td><td>Đổi Verilog thành hàng nghìn cổng logic thật</td><td>Cadence Genus</td><td>Chưa làm</td></tr>
 <tr><td>6. Layout</td><td>Xếp cổng lên mặt silicon và đi dây</td><td>Cadence Innovus</td><td>Chưa làm</td></tr>
 <tr><td>7. Kiểm tra cuối</td><td>Kiểm tra tốc độ, luật vẽ; xuất file gửi nhà máy</td><td>Tempus, Pegasus</td><td>Chưa làm</td></tr>
@@ -174,9 +174,7 @@ trong file <code>pid_params.vh</code> do Python tự sinh, nên mô hình và m�
 Python tính sẵn.</li>
 <li><b>Bit-exact</b>: mạch phải cho ra đúng từng bit giống đáp án, không lệch dù chỉ 1.</li>
 </ul>
-<div class="note"><b>Trạng thái:</b> mạch và testbench đã biên dịch qua ModelSim ở chế độ kiểm tra chặt (<code>vlog -lint</code>):
-0 lỗi, 0 cảnh báo. <b>Chưa chạy mô phỏng</b> vì ModelSim trên máy không có license. Cần cài Icarus Verilog (miễn phí) hoặc
-dùng Cadence Xcelium, rồi chạy <code>sh ic/sim/run_iverilog.sh</code> để có kết quả PASS/FAIL.</div>
+<div class="ok"><b>Kết quả:</b> mô phỏng bằng Icarus Verilog 14 cho <b>PASS 16.000/16.000 mẫu</b> — mạch khớp từng bit với mô hình Python, mỗi mẫu tính xong trong đúng 20 chu kỳ clock, biên dịch với <code>-Wall</code> không có cảnh báo nào. Cả cấu hình A và B đều PASS. Để chắc testbench thật sự bắt được lỗi, nhóm đã thử sửa sai 1 đáp án trong bộ đề: testbench báo đúng <code>FAIL: 1/16000</code> và chỉ ra mẫu bị sai. Chạy lại bằng lệnh <code>sh ic/sim/run_iverilog.sh</code>.</div>
 
 <h1>6. Các file trong thư mục <code>ic/</code></h1>
 <table width="640">
@@ -194,13 +192,13 @@ dùng Cadence Xcelium, rồi chạy <code>sh ic/sim/run_iverilog.sh</code> để
 <h1>7. Việc tiếp theo và điểm nhóm cần quyết định</h1>
 <table width="640">
 <tr><th>#</th><th>Việc</th><th>Ghi chú</th></tr>
-<tr><td>1</td><td>Cài Icarus Verilog, chạy mô phỏng</td><td>Có PASS mới chắc chắn mạch đúng</td></tr>
+<tr><td>1</td><td>Mô phỏng RTL</td><td>Đã xong: PASS 16.000/16.000 (Icarus Verilog)</td></tr>
 <tr><td>2</td><td>Chọn cấu hình A hay B</td><td>Phân vân thì lấy A cho an toàn</td></tr>
 <tr><td>3</td><td>Có đổi alpha thành 13/64 không</td><td>Tiết kiệm 7 bit; phải sửa cả STM32 và bay thử lại</td></tr>
 <tr><td>4</td><td>Xác nhận tần số 400 Hz</td><td>PID chỉ tính khi có mẫu IMU mới; IMU đang cấu hình 2,5 ms</td></tr>
 <tr><td>5</td><td>Có xoá trạng thái PID khi arm không</td><td>Code STM32 hiện giữ tích phân từ lần bay trước sang lần arm sau</td></tr>
 <tr><td>6</td><td>Học Verilog cơ bản (1–2 buổi)</td><td>Đủ để đọc hiểu <code>pid_ctrl.v</code> và trả lời giám khảo</td></tr>
-<tr><td>7</td><td>Buổi đào tạo Cadence</td><td>Hỏi thẳng vào bước 5–7 (Genus, Innovus, kiểm tra cuối)</td></tr>
+<tr><td>7</td><td>Buổi đào tạo Cadence</td><td>Chạy lại mô phỏng bằng Xcelium, rồi hỏi thẳng vào bước 5–7 (Genus, Innovus, kiểm tra cuối)</td></tr>
 </table>
 
 <h1>8. Thuật ngữ</h1>

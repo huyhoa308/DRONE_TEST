@@ -6,7 +6,7 @@ Thư mục cho phần thiết kế vi mạch (Cuộc thi Thiết kế vi mạch 
 |---|---|---|
 | 1. Mô hình fixed-point, chọn độ rộng bit | ✅ | [`model/`](model/) |
 | 2. RTL Verilog (PID + mixer) | ✅ biên dịch sạch (`vlog -lint`) | [`rtl/`](rtl/) |
-| 3. Testbench so bit-exact với golden vectors | ✅ viết xong, ⏳ chưa chạy (cần simulator) | [`tb/`](tb/), [`sim/`](sim/) |
+| 3. Testbench so bit-exact với golden vectors | ✅ **PASS 16000/16000** (Icarus Verilog 14, cả cấu hình A và B) | [`tb/`](tb/), [`sim/`](sim/) |
 | 4. Tổng hợp / P&R (Genus, Innovus) | ⏳ | — |
 
 ## RTL

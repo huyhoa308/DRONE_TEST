@@ -215,7 +215,7 @@ def design_flow():
     steps = [('1. Thuật toán', 'STM32 · Flight.cpp', 'Xong', '#2b8a3e'),
              ('2. Fixed-point', 'Python', 'Xong', '#2b8a3e'),
              ('3. RTL Verilog', 'pid_ctrl.v', 'Xong', '#2b8a3e'),
-             ('4. Mô phỏng', 'Icarus / Xcelium', 'Chưa chạy', '#e67700'),
+             ('4. Mô phỏng', 'Icarus Verilog', 'PASS', '#2b8a3e'),
              ('5. Tổng hợp', 'Cadence Genus', 'Chưa làm', '#868e96'),
              ('6. Layout', 'Cadence Innovus', 'Chưa làm', '#868e96'),
              ('7. Kiểm tra cuối', 'Tempus · Pegasus', 'Chưa làm', '#868e96')]
@@ -231,8 +231,8 @@ def design_flow():
         s.text(x + bw / 2, 158, status, 12, 'middle', 700, '#ffffff')
         if i:
             s.arrow([(x - gap + 2, 120), (x - 3, 120)], '#495057', 2.5)
-    s.box(x0, 196, 3 * bw + 2 * gap, 34, '#ebfbee', '#2b8a3e', 1.5, 8)
-    s.text(x0 + (3 * bw + 2 * gap) / 2, 218, 'Làm trên máy của nhóm (miễn phí)', 13, 'middle', 700, '#2b8a3e')
+    s.box(x0, 196, 4 * bw + 3 * gap, 34, '#ebfbee', '#2b8a3e', 1.5, 8)
+    s.text(x0 + (4 * bw + 3 * gap) / 2, 218, 'Làm trên máy của nhóm (miễn phí)', 13, 'middle', 700, '#2b8a3e')
     xb = x0 + 4 * (bw + gap)
     s.box(xb, 196, 3 * bw + 2 * gap, 34, '#e7f5ff', '#1c7ed6', 1.5, 8)
     s.text(xb + (3 * bw + 2 * gap) / 2, 218, 'Cần license Cadence — buổi đào tạo', 13, 'middle', 700, '#1864ab')
