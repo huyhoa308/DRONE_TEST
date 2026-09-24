@@ -22,6 +22,10 @@ Hai env dùng **chung một mã nguồn**, chỉ khác số chân (xem `build_fl
 
 ## ESP32 DevKit V1
 
+![Sơ đồ đấu nối DevKit V1](wiring_devkit.svg)
+
+Vị trí chân thật trên board:
+
 ```
                         ┌──────────────────────┐
                         │      ESP32 DevKit V1 │
@@ -93,7 +97,9 @@ Hai env dùng **chung một mã nguồn**, chỉ khác số chân (xem `build_fl
 
 ## WeAct ESP32-S3-A (bản dự phòng)
 
-Nạp và xem Serial qua cổng USB-C native (GPIO19/20, hiện trên Windows là `USB Serial Device`, VID `303A`). Không phụ thuộc chip USB-UART.
+![Sơ đồ đấu nối WeAct ESP32-S3-A](wiring_s3.svg)
+
+Nạp và xem Serial qua cổng USB-C native (GPIO19/20, hiện trên Windows là `USB Serial Device`, VID `303A`). Không phụ thuộc chip USB-UART. Hình trên vẽ theo chức năng; vị trí chân thật xem chữ in cạnh chân trên board.
 
 | Chức năng | GPIO DevKit | GPIO S3 | Ghi chú S3 |
 |---|---|---|---|
