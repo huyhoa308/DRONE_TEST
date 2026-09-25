@@ -1,0 +1,86 @@
+
+#include <16F886.h>
+#fuses HS, NOWDT, NOPROTECT, NOLVP, NOBROWNOUT, PUT
+#use delay(clock = 20MHz)
+
+#define BUOC      3
+#define GIA_TRI_MAX 9999
+#define DEBOUNCE  3          // so khung quet lien tiep (~3 x 8 ms) de xac nhan nhan
+
+// Ma LED 7 doan anode chung: 0..9
+const unsigned int8 MA7DOAN[10] = {
+    0b11000000, 0b11111001, 0b10100100, 0b10110000, 0b10011001,
+    0b10010010, 0b10000010, 0b11111000, 0b10000000, 0b10010000
+};
+
+// Mat na chon so tren RA0..RA3 (bit = 0 -> PNP dan -> so sang)
+const unsigned int8 CHON_SO[4] = { 0b1110, 0b1101, 0b1011, 0b0111 };
+
+signed int16 b = 2007;
+unsigned int8 so[4];
+
+void TachSo(unsigned int16 a)
+{
+    so[0] = a / 1000;
+    so[1] = (a % 1000) / 100;
+    so[2] = (a % 100) / 10;
+    so[3] = a % 10;
+}
+
+// Quet 1 vong 4 so, moi so ~2 ms -> tan so lam tuoi ~125 Hz, khong nhap nhay
+void HienThi(unsigned int16 a)
+{
+    unsigned int8 i;
+    TachSo(a);
+    for (i = 0; i < 4; i++) {
+        output_a(0x0F);               // tat het cac so truoc -> chong bong ma (ghosting)
+        output_c(MA7DOAN[so[i]]);     // nap ma so
+        output_a(CHON_SO[i]);         // bat dung so can hien thi
+        delay_ms(2);
+    }
+    output_a(0x0F);
+}
+
+// Chong doi phim + bat canh: tra ve 1 dung 1 lan moi lan nhan
+int1 NhanNut(int1 muc, unsigned int8 *dem, unsigned int8 *da_nhan)
+{
+    if (muc == 0) {                   // dang nhan (keo len 10k, nhan = 0)
+        if (*dem < DEBOUNCE) (*dem)++;
+        if (*dem == DEBOUNCE && !*da_nhan) {
+            *da_nhan = 1;
+            return 1;
+        }
+    } else {
+        *dem = 0;
+        *da_nhan = 0;
+    }
+    return 0;
+}
+
+void main()
+{
+    unsigned int8 dem0 = 0, dem1 = 0;
+    unsigned int8 nhan0 = 0, nhan1 = 0;   // CCS khong ho tro con tro toi int1
+
+    setup_adc_ports(NO_ANALOGS);      // RA0..RA3, RB0, RB1 mac dinh la analog tren 16F886
+    setup_adc(ADC_OFF);
+    setup_comparator(NC_NC_NC_NC);
+    set_tris_a(0xF0);
+    set_tris_b(0xFF);
+    set_tris_c(0x00);
+    output_a(0x0F);
+
+    while (TRUE)
+    {
+        if (NhanNut(input(PIN_B0), &dem0, &nhan0)) {
+            b += BUOC;
+            if (b > GIA_TRI_MAX) b -= (GIA_TRI_MAX + 1);   // 9998 + 3 -> 0001
+        }
+        if (NhanNut(input(PIN_B1), &dem1, &nhan1)) {
+            b -= BUOC;
+            if (b < 0) b += (GIA_TRI_MAX + 1);              // 0001 - 3 -> 9998
+        }
+
+        HienThi((unsigned int16)b);
+    }
+}
