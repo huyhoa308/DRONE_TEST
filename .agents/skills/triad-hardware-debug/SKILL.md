@@ -45,6 +45,14 @@ description: >-
 
 # Quy chuẩn Tài liệu README (README.md Standards)
 Mỗi dự án mới đều **bắt buộc kèm file `README.md`** theo form chuẩn mà Cinq và Claude đã thống nhất:
+0. **Banner động đầu trang (BẮT BUỘC)**:
+   - Luôn đặt block banner ở đầu file:
+     ```html
+     <div align="center">
+     <img src="assets/banner.svg" alt="CINQ - RESHAPE LAB. Automation, PCB, hardware, 3D engineer. Flight test, firmware STM32 and ESP, UAV, USV. Stack: C++, Python, Verilog. GitHub statistics." width="100%">
+     </div>
+     ```
+   - Kèm thư mục `assets/` chứa `banner.svg` và `logo.svg` của ReShape Lab / TRIAD.
 1. **Tiêu đề & Giới thiệu ngắn**: `# TÊN_REPO`, tóm tắt 1-2 câu mục đích/vai trò của firmware/hardware.
 2. **Bảng môi trường PlatformIO**: Bảng `| Env | Board | Vai trò |` liệt kê các environment trong `platformio.ini`.
 3. **Lệnh build / upload**: Khối code bash `pio run -e <env> -t upload`.
