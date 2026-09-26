@@ -42,3 +42,15 @@ description: >-
 - Khi board bị crash loop liên tục (reset do lỗi code), tính năng nạp qua USB JTAG (`upload_protocol = esp-builtin`) thường bị đứt kết nối (Libusb error).
 - Cần chuyển tạm về `upload_protocol = esptool` và ép board vào Bootloader mode thủ công bằng tay: 
   - Giữ nút `BOOT` -> Bấm thả nút `RST` -> Thả nút `BOOT`.
+
+# Quy chuẩn Tài liệu README (README.md Standards)
+Mỗi dự án mới đều **bắt buộc kèm file `README.md`** theo form chuẩn mà Cinq và Claude đã thống nhất:
+1. **Tiêu đề & Giới thiệu ngắn**: `# TÊN_REPO`, tóm tắt 1-2 câu mục đích/vai trò của firmware/hardware.
+2. **Bảng môi trường PlatformIO**: Bảng `| Env | Board | Vai trò |` liệt kê các environment trong `platformio.ini`.
+3. **Lệnh build / upload**: Khối code bash `pio run -e <env> -t upload`.
+4. **Bảng sơ đồ đấu nối chân (Pinout Mapping)**:
+   - Cột chuẩn: `| Linh kiện | Chân linh kiện | Chân MCU (GPIO) | Ghi chú kỹ thuật |`.
+   - Phân cụm rõ ràng: Nguồn, Màn hình, Âm thanh, Cảm biến, Động cơ/Servo.
+5. **Kiến trúc nguồn & Chống nhiễu**: Cảnh báo dòng tải (peak current), mạch hạ áp (Buck/BEC), tụ lọc nhiễu và quy tắc nối mass chung (Star Grounding).
+6. **Lưu ý phần cứng thực tế (Gotchas)**: Chân strapping, điện áp Logic 3.3V/5V, chân chia sẻ bus SPI/I2S/I2C.
+7. **Liên kết chéo (Cross-references)**: Dẫn link file code ([`src/...`](src/...)), sơ đồ SVG trong `docs/`, và các repo liên quan trong hệ sinh thái (TRIAD, JS-CONTROLER, GCS-STATION, Xiaozhi).
