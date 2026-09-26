@@ -1,26 +1,40 @@
 /**
- * hello_gmt147.cpp
- * ReShape Lab Logo Animation for ESP32-S3 WeAct N16R8 + GMT147SPI (ST7789V3 172x320 IPS)
- * Env: esp32s3_gmt147
+ * main_xiaozhi.cpp
+ * Xiaozhi AI Voice Assistant & Desktop Robot
+ * Board: ESP32-S3 WeAct N16R8 (16MB Flash, 8MB PSRAM OPI)
+ * Display: GMT147SPI (ST7789V3 172x320 IPS)
+ * Env: esp32s3_xiaozhi
  *
- * Animations adapted from js-controler (main_esp32_controler.cpp & OLEDAnimation.cpp):
- *   1. Laser Scanline Wipe Reveal (OLED intro wipe adapted to full-res TFT)
- *   2. Logo Breathing & Pulse Zoom (Display_BootLogo cosine scale oscillation)
- *   3. Dynamic Color Theme Morphing (ReShape Terracotta, Cyber Cyan, Ice Blue, Neon White)
- *   4. Smooth Double-Buffered Marquee Ticker (OLED_BootMarqueeFrame adapted to TFT sprite)
- *   5. Live System HUD (Uptime, Heap, FPS stats)
- *
- * Pinout:
- *   GMT147  |  ESP32-S3 WeAct N16R8
- *   --------+----------------------
- *   VCC     |  3.3V
- *   GND     |  GND
- *   SCL     |  GPIO40 (SCLK - SPI3/HSPI)
- *   SDA     |  GPIO41 (MOSI - SPI3/HSPI)
- *   RES     |  GPIO47 (RST)
- *   DC      |  GPIO38 (DC)
- *   CS      |  GPIO39 (CS)
- *   BL      |  3.3V direct
+ * Hardware Pinout Map:
+ *   [GMT147SPI Display - SPI3/HSPI]
+ *     SCL  -> GPIO40 (SCLK)
+ *     SDA  -> GPIO41 (MOSI)
+ *     CS   -> GPIO39
+ *     DC   -> GPIO38
+ *     RES  -> GPIO47
+ *     BL   -> 3.3V
+ *   [INMP441 MEMS Microphone - I2S0]
+ *     SCK  -> GPIO15
+ *     WS   -> GPIO16
+ *     SD   -> GPIO17
+ *     L/R  -> GND (Left channel)
+ *   [MAX98357A I2S DAC / Speaker - I2S1]
+ *     BCLK -> GPIO12
+ *     LRC  -> GPIO13
+ *     DIN  -> GPIO14
+ *     GAIN -> GND (12dB)
+ *   [VL53L0X / VL53L1X ToF Distance Sensor - I2C]
+ *     SDA  -> GPIO8
+ *     SCL  -> GPIO9
+ *     XSHUT-> GPIO21
+ *   [4x Servos (180 deg) - LEDC PWM]
+ *     SERVO1 -> GPIO4
+ *     SERVO2 -> GPIO5
+ *     SERVO3 -> GPIO6
+ *     SERVO4 -> GPIO7
+ *   [Status & Controls]
+ *     RGB LED -> GPIO48 (WS2812 onboard)
+ *     BUTTON  -> GPIO1  (Wake / Push-to-talk)
  */
 
 #include <Arduino.h>
