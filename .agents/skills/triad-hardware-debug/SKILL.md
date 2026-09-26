@@ -44,21 +44,15 @@ description: >-
   - Giữ nút `BOOT` -> Bấm thả nút `RST` -> Thả nút `BOOT`.
 
 # Quy chuẩn Tài liệu README (README.md Standards)
-Mỗi dự án mới đều **bắt buộc kèm file `README.md`** theo form chuẩn mà Cinq và Claude đã thống nhất:
-0. **Banner động đầu trang (BẮT BUỘC)**:
-   - Luôn đặt block banner ở đầu file:
-     ```html
-     <div align="center">
-     <img src="assets/banner.svg" alt="CINQ - RESHAPE LAB. Automation, PCB, hardware, 3D engineer. Flight test, firmware STM32 and ESP, UAV, USV. Stack: C++, Python, Verilog. GitHub statistics." width="100%">
-     </div>
-     ```
-   - Kèm thư mục `assets/` chứa `banner.svg` và `logo.svg` của ReShape Lab / TRIAD.
-1. **Tiêu đề & Giới thiệu ngắn**: `# TÊN_REPO`, tóm tắt 1-2 câu mục đích/vai trò của firmware/hardware.
-2. **Bảng môi trường PlatformIO**: Bảng `| Env | Board | Vai trò |` liệt kê các environment trong `platformio.ini`.
-3. **Lệnh build / upload**: Khối code bash `pio run -e <env> -t upload`.
-4. **Bảng sơ đồ đấu nối chân (Pinout Mapping)**:
-   - Cột chuẩn: `| Linh kiện | Chân linh kiện | Chân MCU (GPIO) | Ghi chú kỹ thuật |`.
-   - Phân cụm rõ ràng: Nguồn, Màn hình, Âm thanh, Cảm biến, Động cơ/Servo.
-5. **Kiến trúc nguồn & Chống nhiễu**: Cảnh báo dòng tải (peak current), mạch hạ áp (Buck/BEC), tụ lọc nhiễu và quy tắc nối mass chung (Star Grounding).
-6. **Lưu ý phần cứng thực tế (Gotchas)**: Chân strapping, điện áp Logic 3.3V/5V, chân chia sẻ bus SPI/I2S/I2C.
-7. **Liên kết chéo (Cross-references)**: Dẫn link file code ([`src/...`](src/...)), sơ đồ SVG trong `docs/`, và các repo liên quan trong hệ sinh thái (TRIAD, JS-CONTROLER, GCS-STATION, Xiaozhi).
+Mỗi dự án mới đều **bắt buộc có file `README.md` chuyên biệt**, thiết kế đúng chất kỹ sư Automation theo phong cách thực chiến của Cinq và Claude (như `CONTROLLER_WIRING.md`, `JS-CONTROLER`, `QUAD-UAV`, `ic/README.md`):
+1. **Tiêu đề & Tóm tắt 1 câu**: `# TÊN_REPO`, tóm tắt bản chất kỹ thuật của firmware/hardware (không copy banner chung của profile nếu không khớp đề tài).
+2. **Bảng môi trường PlatformIO**: `| Env PlatformIO | Board MCU | Vai trò kỹ thuật | Lệnh nạp firmware |`.
+3. **Lệnh build / nạp nhanh**: Khối code bash `pio run -e <env> -t upload` và `pio device monitor`.
+4. **Bảng linh kiện & Giao tiếp (BOM)**: Liệt kê chi tiết linh kiện, chuẩn giao tiếp (I2S, SPI, I2C, PWM) và vai trò.
+5. **Sơ đồ chân trực quan (ASCII Art Board)**: Vẽ sơ đồ 2 hàng chân thực tế của board (như WeAct ESP32-S3 / DevKit V1) để nhìn vào là đấu dây được ngay.
+6. **Bảng tra cứu chân chi tiết (Pinout Mapping Table)**:
+   - Cột chuẩn: `| Cụm thiết bị | Chân linh kiện | Chân MCU (GPIO) | Điện áp | Ghi chú kỹ thuật |`.
+7. **Kiến trúc nguồn & Chống nhiễu Audio**: Cảnh báo dòng tải đỉnh (peak current), module Buck/BEC, tụ bù sụt áp ($470\mu F - 1000\mu F$) và quy tắc **Nối mass hình sao (Star Grounding)** chống rè loa/nhiễu mic.
+8. **Lưu ý phần cứng thực tế (Gotchas)**: Chân strapping cấm dùng, kênh USB Native, chân PSRAM OPI, bus SPI riêng biệt, font chữ hiển thị.
+9. **Lộ trình tính năng (Roadmap)**: Checklist các phase phát triển của dự án.
+10. **Liên kết chéo hệ sinh thái (Cross-references)**: Dẫn link file mã nguồn ([`src/...`](src/...)) và các repo liên quan (`DRONE_TEST`, `JS-CONTROLER`, `GCS-STATION`, `QUAD-UAV`, `esp32s3_weact_xiaozhirobot`).
