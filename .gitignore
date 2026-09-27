@@ -9,3 +9,8 @@ src/DroneMac.h
 
 # Profile README repo clone
 profile-readme/
+
+# Clangd & IDE cache
+.cache/
+.clangd/
+compile_commands.json
