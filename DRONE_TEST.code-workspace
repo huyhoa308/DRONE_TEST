@@ -17,6 +17,10 @@
 		}
 	],
 	"settings": {
-		"powershell.cwd": "DRONE_TEST"
+		"powershell.cwd": "DRONE_TEST",
+		"clangd.arguments": [
+			"--compile-commands-dir=d:/PlatformIO/Projects/DRONE_TEST/DRONE_TEST/.cache/clangd",
+			"--query-driver=C:/Users/trung/.platformio/packages/toolchain-*/bin/*,C:/Users/trung/.platformio/packages/tool-*/bin/*"
+		]
 	}
 }

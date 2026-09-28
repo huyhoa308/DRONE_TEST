@@ -43,16 +43,34 @@ description: >-
 - Cần chuyển tạm về `upload_protocol = esptool` và ép board vào Bootloader mode thủ công bằng tay: 
   - Giữ nút `BOOT` -> Bấm thả nút `RST` -> Thả nút `BOOT`.
 
-# Quy chuẩn Tài liệu README (README.md Standards)
-Mỗi dự án mới đều **bắt buộc có file `README.md` chuyên biệt**, thiết kế đúng chất kỹ sư Automation theo phong cách thực chiến của Cinq và Claude (như `CONTROLLER_WIRING.md`, `JS-CONTROLER`, `QUAD-UAV`, `ic/README.md`):
-1. **Tiêu đề & Tóm tắt 1 câu**: `# TÊN_REPO`, tóm tắt bản chất kỹ thuật của firmware/hardware (không copy banner chung của profile nếu không khớp đề tài).
-2. **Bảng môi trường PlatformIO**: `| Env PlatformIO | Board MCU | Vai trò kỹ thuật | Lệnh nạp firmware |`.
-3. **Lệnh build / nạp nhanh**: Khối code bash `pio run -e <env> -t upload` và `pio device monitor`.
-4. **Bảng linh kiện & Giao tiếp (BOM)**: Liệt kê chi tiết linh kiện, chuẩn giao tiếp (I2S, SPI, I2C, PWM) và vai trò.
-5. **Sơ đồ chân trực quan (ASCII Art Board)**: Vẽ sơ đồ 2 hàng chân thực tế của board (như WeAct ESP32-S3 / DevKit V1) để nhìn vào là đấu dây được ngay.
-6. **Bảng tra cứu chân chi tiết (Pinout Mapping Table)**:
-   - Cột chuẩn: `| Cụm thiết bị | Chân linh kiện | Chân MCU (GPIO) | Điện áp | Ghi chú kỹ thuật |`.
-7. **Kiến trúc nguồn & Chống nhiễu Audio**: Cảnh báo dòng tải đỉnh (peak current), module Buck/BEC, tụ bù sụt áp ($470\mu F - 1000\mu F$) và quy tắc **Nối mass hình sao (Star Grounding)** chống rè loa/nhiễu mic.
-8. **Lưu ý phần cứng thực tế (Gotchas)**: Chân strapping cấm dùng, kênh USB Native, chân PSRAM OPI, bus SPI riêng biệt, font chữ hiển thị.
-9. **Lộ trình tính năng (Roadmap)**: Checklist các phase phát triển của dự án.
-10. **Liên kết chéo hệ sinh thái (Cross-references)**: Dẫn link file mã nguồn ([`src/...`](src/...)) và các repo liên quan (`DRONE_TEST`, `JS-CONTROLER`, `GCS-STATION`, `QUAD-UAV`, `esp32s3_weact_xiaozhirobot`).
+# Quy chuẩn Tài liệu README & Banner SVG (ReShape Lab Standards)
+Mỗi dự án mới đều **bắt buộc có Banner SVG động (`docs/banner.svg`) và file `README.md` chuyên biệt**, thiết kế đúng chất kỹ sư Automation theo phong cách thực chiến của Cinq và Claude (như `QUAD-UAV`, `JS-CONTROLER`, `esp32s3_weact_xiaozhirobot`):
+
+## 1. Kiến trúc Banner SVG Động (`docs/banner.svg`)
+- **Khung & Tỷ lệ**: `viewBox="0 0 1200 {HEIGHT}" width="1200" height="{HEIGHT}" rx="24" fill="#0E0E0E"`.
+- **Hoạt ảnh Logo (Giữ nguyên 100%)**:
+  - Logo ReShape Gear (`#lg`) rơi xuống từ đỉnh (`split-a`, `split-b`, 0-1.7s), dừng ở giữa (2.8s) rồi tách ra 2 góc trên-trái và dưới-phải (4.4s).
+  - Hoạt ảnh chữ thương hiệu: `TRIAD` (Serif font-size 60), `SUBTITLE` (Mono font-size 17), `RESHAPE LAB` (Mono font-size 17).
+  - Hoạt ảnh idle trôi nhẹ nhàng (`.float a`, `.float b`).
+- **Font Stack (Bắt buộc giữ nguyên font & size)**:
+  - `.serif`: `'Tiempos Headline', Georgia, 'Times New Roman', serif;`
+  - `.sans`: `'Styrene A', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;`
+  - `.mono`: `'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;`
+- **Cấu trúc 4 Section thông tin ngắn trên Banner**:
+  - `info i1`: `TRIAD · RESHAPE LAB` (Mono 19) + `TÊN DỰ ÁN` (Serif 110) + `Mô tả 2 dòng` (Sans 30).
+  - `info i2`: `FIRMWARE` (Serif 72) + Tên môi trường & file cpp chính.
+  - `info i3`: `FEATURES / PERIPHERALS` (Serif 72) + Các cụm ngoại vi chính.
+  - `info i4`: `RELATED REPOS` (Serif 72) + Các repo liên kết trong hệ sinh thái TRIAD.
+
+## 2. Phần Markdown Chi tiết Bên dưới Banner (`README.md`)
+- `<div align="center"><img src="docs/banner.svg" alt="..." width="100%"></div>`
+- **Tiêu đề & Tóm tắt**: `# TÊN_DỰ_ÁN`, mô tả tổng quan kỹ thuật.
+- **Bảng môi trường PlatformIO**: `| Env PlatformIO | Bo mạch MCU | Vai trò kỹ thuật | Lệnh nạp firmware |`.
+- **Lệnh build / nạp nhanh**: Khối code bash `pio run -e <env> -t upload` và `pio device monitor`.
+- **Bảng linh kiện & Giao tiếp (BOM)**: Liệt kê chi tiết linh kiện, chuẩn giao tiếp (I2S, SPI, I2C, PWM) và vai trò.
+- **Sơ đồ chân trực quan (ASCII Art Board)**: Vẽ sơ đồ 2 hàng chân thực tế của board MCU (WeAct ESP32-S3-A / DevKit V1 30-pin).
+- **Bảng tra cứu chân chi tiết (Pinout Mapping Table)**: Cột chuẩn `| Cụm thiết bị | Chân linh kiện | Chân MCU (GPIO) | Điện áp | Ghi chú kỹ thuật |`.
+- **Kiến trúc nguồn & Chống nhiễu**: Sơ đồ Buck DC-DC, tụ bù ($470\mu F - 1000\mu F$), nguyên tắc Star Grounding.
+- **Lưu ý phần cứng thực tế (Gotchas)**: Strapping pins, USB CDC Native, PSRAM OPI, bus SPI riêng, font chữ.
+- **Lộ trình tính năng (Roadmap)**: Checklist các phase phát triển.
+- **Liên kết chéo hệ sinh thái (Cross-references)**: Link sang các repo anh em trong hệ sinh thái.
