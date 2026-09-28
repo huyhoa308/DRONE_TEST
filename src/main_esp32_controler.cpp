@@ -6,7 +6,7 @@
 #include "display/display.h"
 #include "RF_Protocol.h"
 #include "RF_TX/RF_TX.h"
-#include "OLEDAnimation.h"
+#include "display/OLEDAnimation.h"
 #include "Audio/Audio.h"
 
 // Chan mac dinh cho ESP32 DevKit V1. Env esp32s3_controller ghi de qua build_flags

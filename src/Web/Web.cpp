@@ -7,7 +7,7 @@
 #include <cstring>
 #include <cstdio>
 
-#include "../index_html.h"
+#include "index_html.h"
 
 static WebServer server(80);
 static WebSocketsServer webSocket(81);

@@ -1,6 +1,6 @@
 #include "Flight/Flight.h"
 #include "Shared/SharedData.h"
-#include "StabilityPatch.h"
+#include "Shared/StabilityPatch.h"
 #include "config.h"
 #include <math.h>
 

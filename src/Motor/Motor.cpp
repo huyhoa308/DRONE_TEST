@@ -1,7 +1,7 @@
 #include "Motor/Motor.h"
 #include "Packet/Packet.h"
 #include "Shared/SharedData.h"
-#include "StabilityPatch.h"
+#include "Shared/StabilityPatch.h"
 #include "../config.h"
 
 #if defined(ESP32)

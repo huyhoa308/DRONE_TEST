@@ -33,7 +33,7 @@
 #include <math.h>
 #include "../config.h"
 #include "../Packet/Packet.h"
-#include "../StabilityPatch.h"
+#include "../Shared/StabilityPatch.h"
 
 //--------cấu hình phần cứng -----------------------
 #define BNO080_INT_PIN -1 // chân ngắt (interrupt) của BNO08x: chưa nối, thư viện poll I2C
