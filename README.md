@@ -20,6 +20,19 @@ Kho mã nguồn này chứa firmware điều khiển trung tâm đa vi điều k
 | `stm32_drone` | STM32F103 Blue Pill | [`src/main_stm32f103c8t6.cpp`](src/main_stm32f103c8t6.cpp) | Cascade PID + motor mixer, nhận RC dự phòng qua NRF24 |
 | `esp32_controller` | ESP32 DevKit V1 | [`src/main_esp32_controler.cpp`](src/main_esp32_controler.cpp) | Tay cầm điều khiển 2 joystick, màn hình TFT + OLED, âm thanh I2S |
 | `esp32s3_xiaozhi` | WeAct ESP32-S3 N16R8 | [`src/main_xiaozhi.cpp`](src/main_xiaozhi.cpp) | Màn hình GMT147SPI, Mic INMP441, Loa MAX98357A, ToF, 4x Servo |
+| `esp32s3_robot_base` | WeAct ESP32-S3 | [`src/main_s3_robot.cpp`](src/main_s3_robot.cpp) | Base code test phần cứng: OLED, INMP441, Touch, MPU6050, VL53L0X, 4x Servo |
+
+---
+
+## 🤖 Cấu hình phần cứng Robot ESP32-S3 (Đã chốt)
+
+- **Vi điều khiển**: ESP32-S3 WeAct (Bản A, N8R8/N16R8)
+- **Nguồn**: Pin LiPo 2S (304060), mạch sạc & bảo vệ (chưa chốt)
+- **Ngoại vi**:
+  - Giao tiếp I2C: Màn hình OLED SSD1306, Cảm biến góc nghiêng MPU6050, Cảm biến khoảng cách VL53L0X V2 (SDA=8, SCL=9)
+  - Giao tiếp I2S: Mic INMP441 (SCK=15, WS=16, SD=17)
+  - Cảm ứng (Touch Sensor)
+- **Động cơ**: 4x MG90S Servo (PWM)
 
 ---
 
