@@ -40,7 +40,13 @@
 #include <Arduino.h>
 #include <TFT_eSPI.h>
 #include <math.h>
+#include <Wire.h>
+#include <Adafruit_SSD1306.h>
 #include "Logo/Logo.h"
+
+static Adafruit_SSD1306 oled(128, 64, &Wire, -1);
+static bool oledReady = false;
+
 
 static TFT_eSPI tft = TFT_eSPI();
 
@@ -51,13 +57,13 @@ static constexpr int SPRITE_Y = 28;
 static TFT_eSprite logoSprite = TFT_eSprite(&tft);
 
 // Sprite 1bpp cho dong chu chay (marquee ticker): 172x20 = 430 bytes
-static constexpr int MARQUEE_W = 172;
-static constexpr int MARQUEE_H = 20;
-static constexpr int MARQUEE_Y = 292;
+static constexpr int MARQUEE_W   = 172;
+static constexpr int MARQUEE_H   = 20;
+static constexpr int MARQUEE_Y   = 292;
 static TFT_eSprite marqueeSprite = TFT_eSprite(&tft);
 
 // Bang mau ReShape Lab & Cyberpunk
-static const uint16_t COLOR_RESHAPE_ORANGE = tft.color565(217, 119, 87);  // #D97757 chinh hang
+static const uint16_t COLOR_RESHAPE_ORANGE = tft.color565(217, 119, 87); // #D97757 chinh hang
 static const uint16_t COLOR_CYBER_CYAN     = tft.color565(0, 240, 255);
 static const uint16_t COLOR_ELECTRIC_BLUE  = tft.color565(70, 160, 255);
 static const uint16_t COLOR_NEON_GREEN     = tft.color565(40, 255, 160);
@@ -69,36 +75,36 @@ static const uint16_t THEME_COLORS[] = {
     COLOR_CYBER_CYAN,
     COLOR_ELECTRIC_BLUE,
     COLOR_PURE_WHITE,
-    COLOR_NEON_GREEN
-};
+    COLOR_NEON_GREEN};
 static constexpr size_t NUM_THEMES = sizeof(THEME_COLORS) / sizeof(THEME_COLORS[0]);
 
 // Chuoi chay marquee o day man hinh
 static const char kMarqueeText[] = "  ✦ RESHAPE LAB ✦ CINQ ✦ TRIAD UAV ECOSYSTEM ✦ ESP32-S3 N16R8 ✦ AUTOMATION & ROBOTICS ✦";
-static int gMarqueeOffset = 0;
-static int gMarqueeTextW = 0;
+static int gMarqueeOffset        = 0;
+static int gMarqueeTextW         = 0;
 
 // Render 1 khung logo voi ty le 'scale' vao sprite (chong giat tuyet doi)
-static void renderLogoFrame(float scale, uint16_t fgColor, int maxVisibleY = SPRITE_H) {
+static void renderLogoFrame(float scale, uint16_t fgColor, int maxVisibleY = SPRITE_H)
+{
     logoSprite.fillSprite(0);
     logoSprite.setBitmapColor(fgColor, COLOR_BG);
 
     constexpr int kRowBytes = (kLogoTftW + 7) / 8;
-    const float cx = (SPRITE_W - 1) / 2.0f;
-    const float cy = (SPRITE_H - 1) / 2.0f;
-    const float logo_cx = (kLogoTftW - 1) / 2.0f;
-    const float logo_cy = (kLogoTftH - 1) / 2.0f;
+    const float cx          = (SPRITE_W - 1) / 2.0f;
+    const float cy          = (SPRITE_H - 1) / 2.0f;
+    const float logo_cx     = (kLogoTftW - 1) / 2.0f;
+    const float logo_cy     = (kLogoTftH - 1) / 2.0f;
 
     int srcCol[SPRITE_W];
     int srcRow[SPRITE_H];
 
     for (int x = 0; x < SPRITE_W; ++x) {
         const int sx = static_cast<int>(lroundf((x - cx) / scale + logo_cx));
-        srcCol[x] = (sx >= 0 && sx < kLogoTftW) ? sx : -1;
+        srcCol[x]    = (sx >= 0 && sx < kLogoTftW) ? sx : -1;
     }
     for (int y = 0; y < SPRITE_H; ++y) {
         const int sy = static_cast<int>(lroundf((y - cy) / scale + logo_cy));
-        srcRow[y] = (sy >= 0 && sy < kLogoTftH) ? sy : -1;
+        srcRow[y]    = (sy >= 0 && sy < kLogoTftH) ? sy : -1;
     }
 
     const int limitY = min(SPRITE_H, maxVisibleY);
@@ -118,14 +124,16 @@ static void renderLogoFrame(float scale, uint16_t fgColor, int maxVisibleY = SPR
 }
 
 // Phase 1: Laser Scanline Wipe Reveal (Tu tren xuong, lay cam hung tu OLED runIntro)
-static void runLaserWipeIntro(uint32_t durationMs) {
+static void runLaserWipeIntro(uint32_t durationMs)
+{
     Serial.println("[ANIM] Phase 1: Laser Wipe Reveal starting...");
-    const uint32_t start = millis();
+    const uint32_t start        = millis();
     constexpr float kFixedScale = 0.82f;
+    constexpr int kLogoX = (128 - kLogoOledBigW) / 2;
 
     while (millis() - start < durationMs) {
         const uint32_t elapsed = millis() - start;
-        const int scanY = static_cast<int>((elapsed * (SPRITE_H + 10)) / durationMs);
+        const int scanY        = static_cast<int>((elapsed * (SPRITE_H + 10)) / durationMs);
 
         renderLogoFrame(kFixedScale, COLOR_RESHAPE_ORANGE, scanY);
 
@@ -134,25 +142,45 @@ static void runLaserWipeIntro(uint32_t durationMs) {
             tft.drawFastHLine(0, SPRITE_Y + scanY, SPRITE_W, TFT_WHITE);
             if (scanY > 0) tft.drawFastHLine(4, SPRITE_Y + scanY - 1, SPRITE_W - 8, COLOR_CYBER_CYAN);
         }
+
+        // OLED Wipe (reveal from top)
+        if (oledReady) {
+            oled.clearDisplay();
+            const int oledShown = static_cast<int>((elapsed * kLogoOledBigH) / durationMs);
+            oled.drawBitmap(kLogoX, 4, kLogoOledBig, kLogoOledBigW, kLogoOledBigH, SSD1306_WHITE);
+            oled.fillRect(kLogoX, 4 + oledShown, kLogoOledBigW, kLogoOledBigH - oledShown, SSD1306_BLACK);
+            oled.display();
+        }
+
         delay(8);
     }
 
     // Xoa vet tia laser khung cuoi
     renderLogoFrame(kFixedScale, COLOR_RESHAPE_ORANGE, SPRITE_H);
+    if (oledReady) {
+        oled.clearDisplay();
+        oled.drawBitmap(kLogoX, 4, kLogoOledBig, kLogoOledBigW, kLogoOledBigH, SSD1306_WHITE);
+        oled.setTextSize(1);
+        oled.setTextColor(SSD1306_WHITE);
+        oled.setCursor(30, 48);
+        oled.print("RESHAPE LAB");
+        oled.display();
+    }
 }
 
 // Phase 2: Breathing & Pulsing (To -> Nho -> To nhu Display_BootLogo cua js-controler)
-static void runBreathingIntro(uint32_t durationMs) {
+static void runBreathingIntro(uint32_t durationMs)
+{
     Serial.println("[ANIM] Phase 2: Breathing Zoom starting...");
     constexpr float kMinScale = 0.58f;
     constexpr float kMaxScale = 0.88f;
-    constexpr float kCycles   = 2.0f;  // 2 nhip tho
+    constexpr float kCycles   = 2.0f; // 2 nhip tho
 
     const uint32_t start = millis();
     while (millis() - start < durationMs) {
         const uint32_t elapsed = millis() - start;
-        const float phase = 2.0f * PI * kCycles * (static_cast<float>(elapsed) / durationMs);
-        const float scale = kMinScale + (kMaxScale - kMinScale) * (0.5f + 0.5f * (1.0f - cosf(phase)));
+        const float phase      = 2.0f * PI * kCycles * (static_cast<float>(elapsed) / durationMs);
+        const float scale      = kMinScale + (kMaxScale - kMinScale) * (0.5f + 0.5f * (1.0f - cosf(phase)));
 
         // Mau chuyen nhe tu ReShape Orange sang Cyan theo nhip
         const uint16_t color = (cosf(phase) > 0) ? COLOR_RESHAPE_ORANGE : COLOR_CYBER_CYAN;
@@ -162,7 +190,8 @@ static void runBreathingIntro(uint32_t durationMs) {
 }
 
 // Ve khung tinh giao dien (HUD Top Bar + Brand Text + Separator)
-static void drawStaticUI() {
+static void drawStaticUI()
+{
     tft.setTextDatum(MC_DATUM);
 
     // --- Top Bar HUD ---
@@ -188,7 +217,8 @@ static void drawStaticUI() {
 }
 
 // Cap nhat dong Marquee Ticker chay muot o chan man hinh
-static void updateMarquee(uint16_t color) {
+static void updateMarquee(uint16_t color)
+{
     if (gMarqueeTextW == 0) {
         gMarqueeTextW = tft.textWidth(kMarqueeText, 2);
         if (gMarqueeTextW == 0) gMarqueeTextW = 1;
@@ -211,9 +241,10 @@ static void updateMarquee(uint16_t color) {
 }
 
 // Cap nhat Uptime & Heap tren Top Bar
-static void updateHudStats() {
+static void updateHudStats()
+{
     static uint32_t lastHudMs = 0;
-    const uint32_t now = millis();
+    const uint32_t now        = millis();
     if (now - lastHudMs < 500) return;
     lastHudMs = now;
 
@@ -231,15 +262,27 @@ static void updateHudStats() {
     tft.drawString("ST7789V3", 4, 6, 1);
 }
 
-void setup() {
+void setup()
+{
     Serial.begin(115200);
     Serial.println("\n==========================================");
     Serial.println("  ReShape Lab Logo Engine on GMT147SPI");
     Serial.println("  TRIAD Ecosystem - Cinq / Nguyen Trung");
     Serial.println("==========================================");
 
+    // Khoi tao I2C cho OLED / TOF
+    Wire.begin(TOF_I2C_SDA, TOF_I2C_SCL);
+    if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+        Serial.println("[ERR] Khong tim thay OLED SSD1306!");
+    } else {
+        Serial.println("[OK] OLED SSD1306 san sang.");
+        oled.clearDisplay();
+        oled.display();
+        oledReady = true;
+    }
+
     tft.init();
-    tft.setRotation(0);  // Portrait 172x320
+    tft.setRotation(0); // Portrait 172x320
     tft.fillScreen(COLOR_BG);
 
     // Khoi tao sprite 1bpp cho Logo & Marquee
@@ -261,18 +304,19 @@ void setup() {
     gMarqueeTextW = tft.textWidth(kMarqueeText, 2);
 
     // === CHAY BOOT ANIMATION (Lay tu js-controler) ===
-    runLaserWipeIntro(900);    // Phase 1: Laser Scanline Wipe 900ms
-    drawStaticUI();            // Ve khung UI tinh
-    runBreathingIntro(2500);   // Phase 2: Nhip tho 2.5s (Display_BootLogo)
+    runLaserWipeIntro(900);  // Phase 1: Laser Scanline Wipe 900ms
+    drawStaticUI();          // Ve khung UI tinh
+    runBreathingIntro(2500); // Phase 2: Nhip tho 2.5s (Display_BootLogo)
 
     Serial.println("[OK] Boot Animation hoan tat. Chuyen sang Loop mode.");
 }
 
-void loop() {
-    static uint32_t lastFrameMs = 0;
-    static uint32_t themeStartMs = 0;
+void loop()
+{
+    static uint32_t lastFrameMs   = 0;
+    static uint32_t themeStartMs  = 0;
     static size_t currentThemeIdx = 0;
-    static float breathPhase = 0.0f;
+    static float breathPhase      = 0.0f;
 
     const uint32_t now = millis();
 
@@ -282,7 +326,7 @@ void loop() {
 
         // Chuyen doi chu de mau dinh ky moi 4 giay
         if (now - themeStartMs >= 4000) {
-            themeStartMs = now;
+            themeStartMs    = now;
             currentThemeIdx = (currentThemeIdx + 1) % NUM_THEMES;
             Serial.printf("[THEME] Doi mau logo index %u (0x%04X)\n", currentThemeIdx, THEME_COLORS[currentThemeIdx]);
         }
