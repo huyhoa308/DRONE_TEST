@@ -262,6 +262,71 @@ static void updateHudStats()
     tft.drawString("ST7789V3", 4, 6, 1);
 }
 
+// --- OLED ANIMATIONS ---
+static void renderOledKawaiiFace(uint32_t elapsedMs) {
+    if (!oledReady) return;
+    oled.clearDisplay();
+    // Blink every 3 seconds
+    bool blink = (elapsedMs % 3000) < 150; 
+    int cx = 128 / 2;
+    int cy = 64 / 2;
+    
+    if (blink) {
+        oled.drawFastHLine(cx - 30, cy - 5, 20, SSD1306_WHITE);
+        oled.drawFastHLine(cx + 10, cy - 5, 20, SSD1306_WHITE);
+    } else {
+        oled.fillCircle(cx - 20, cy - 5, 12, SSD1306_WHITE);
+        oled.fillCircle(cx + 20, cy - 5, 12, SSD1306_WHITE);
+        // Kawaii reflection
+        oled.fillCircle(cx - 15, cy - 9, 3, SSD1306_BLACK);
+        oled.fillCircle(cx + 25, cy - 9, 3, SSD1306_BLACK);
+    }
+    
+    // Kawaii Mouth ^
+    oled.drawPixel(cx - 2, cy + 15, SSD1306_WHITE);
+    oled.drawPixel(cx - 1, cy + 16, SSD1306_WHITE);
+    oled.drawPixel(cx, cy + 16, SSD1306_WHITE);
+    oled.drawPixel(cx + 1, cy + 16, SSD1306_WHITE);
+    oled.drawPixel(cx + 2, cy + 15, SSD1306_WHITE);
+    
+    oled.display();
+}
+
+static void renderOledRoboEyes(uint32_t elapsedMs) {
+    if (!oledReady) return;
+    oled.clearDisplay();
+    
+    uint32_t cycle = elapsedMs % 4000;
+    // Chớp mắt kép (Double blink)
+    bool blink = (cycle > 1000 && cycle < 1150) || (cycle > 3000 && cycle < 3100);
+    
+    // Đảo mắt
+    int lookOffset = 0;
+    if (cycle > 1500 && cycle < 2500) lookOffset = -10;
+    else if (cycle > 3500) lookOffset = 10;
+    
+    int eyeW = 24;
+    int eyeH = 34;
+    int cx = 128 / 2 + lookOffset;
+    int cy = 64 / 2;
+    
+    if (blink) {
+        oled.fillRoundRect(cx - 35, cy, eyeW, 6, 2, SSD1306_WHITE);
+        oled.fillRoundRect(cx + 15, cy, eyeW, 6, 2, SSD1306_WHITE);
+    } else {
+        oled.fillRoundRect(cx - 35, cy - eyeH/2, eyeW, eyeH, 6, SSD1306_WHITE);
+        oled.fillRoundRect(cx + 15, cy - eyeH/2, eyeW, eyeH, 6, SSD1306_WHITE);
+        
+        // Biểu cảm tức giận (Angry) cắt xéo phía trên mắt
+        if (cycle > 1500 && cycle < 2500) {
+             oled.fillTriangle(cx - 40, cy - eyeH/2 - 5, cx - 8, cy - eyeH/2 - 5, cx - 8, cy - 2, SSD1306_BLACK);
+             oled.fillTriangle(cx + 13, cy - eyeH/2 - 5, cx + 45, cy - eyeH/2 - 5, cx + 13, cy - 2, SSD1306_BLACK);
+        }
+    }
+    
+    oled.display();
+}
+
 void setup()
 {
     Serial.begin(115200);
@@ -349,5 +414,12 @@ void loop()
 
         // Cap nhat Uptime/Heap
         updateHudStats();
+    }
+
+    // --- OLED ANIMATION UPDATE (ROBO EYES) ---
+    static uint32_t lastOledMs = 0;
+    if (now - lastOledMs >= 40) { // ~25 FPS cho OLED
+        lastOledMs = now;
+        renderOledRoboEyes(now);
     }
 }

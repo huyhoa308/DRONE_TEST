@@ -24,16 +24,16 @@
 #endif
 // Joystick analog: bat buoc la chan ADC1 (ADC2 khong doc duoc khi WiFi/ESP-NOW dang chay).
 #ifndef JOY_THROTTLE_PIN
-#define JOY_THROTTLE_PIN 34  // J1 VRx
+#define JOY_THROTTLE_PIN 32  // J2 VRx
 #endif
 #ifndef JOY_YAW_PIN
-#define JOY_YAW_PIN 35       // J1 VRy
+#define JOY_YAW_PIN 33       // J2 VRy
 #endif
 #ifndef JOY_ROLL_PIN
-#define JOY_ROLL_PIN 32      // J2 VRx
+#define JOY_ROLL_PIN 34      // J1 VRx
 #endif
 #ifndef JOY_PITCH_PIN
-#define JOY_PITCH_PIN 33     // J2 VRy
+#define JOY_PITCH_PIN 35     // J1 VRy
 #endif
 
 // Web/AP is disabled in the minimal flight path, so ESP-NOW receives on the STA MAC.
