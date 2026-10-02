@@ -42,7 +42,23 @@
 #include <math.h>
 #include <Wire.h>
 #include <Adafruit_SSD1306.h>
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
+#include <VL53L0X.h>
+#include <ESP32Servo.h>
+#include <driver/i2s.h>
 #include "Logo/Logo.h"
+
+// --- Hardware Globals ---
+static Adafruit_MPU6050 mpu;
+static VL53L0X tof;
+static Servo servos[4];
+static const int servoPins[4] = {SERVO_PIN_1, SERVO_PIN_2, SERVO_PIN_3, SERVO_PIN_4};
+static int servoTargets[4] = {90, 90, 90, 90};
+static float servoCurrents[4] = {90.0, 90.0, 90.0, 90.0};
+static const float servoMaxSlew = 2.0; // max degrees per frame
+static uint32_t lastServoUpdate = 0;
+static float filteredBattVoltage = 4.0;
 
 static Adafruit_SSD1306 oled(128, 64, &Wire, -1);
 static bool oledReady = false;
@@ -50,14 +66,14 @@ static bool oledReady = false;
 
 static TFT_eSPI tft = TFT_eSPI();
 
-// Sprite 1bpp cho logo: 172x190 = 4,085 bytes SRAM/PSRAM (khong nhap nhay)
-static constexpr int SPRITE_W = 172;
+// Sprite 1bpp cho logo: 240x190
+static constexpr int SPRITE_W = 240;
 static constexpr int SPRITE_H = 190;
 static constexpr int SPRITE_Y = 28;
 static TFT_eSprite logoSprite = TFT_eSprite(&tft);
 
-// Sprite 1bpp cho dong chu chay (marquee ticker): 172x20 = 430 bytes
-static constexpr int MARQUEE_W   = 172;
+// Sprite 1bpp cho dong chu chay (marquee ticker): 240x20
+static constexpr int MARQUEE_W   = 240;
 static constexpr int MARQUEE_H   = 20;
 static constexpr int MARQUEE_Y   = 292;
 static TFT_eSprite marqueeSprite = TFT_eSprite(&tft);
@@ -195,25 +211,25 @@ static void drawStaticUI()
     tft.setTextDatum(MC_DATUM);
 
     // --- Top Bar HUD ---
-    tft.fillRect(0, 0, 172, 24, tft.color565(12, 16, 24));
-    tft.drawFastHLine(0, 24, 172, COLOR_RESHAPE_ORANGE);
+    tft.fillRect(0, 0, 240, 24, tft.color565(12, 16, 24));
+    tft.drawFastHLine(0, 24, 240, COLOR_RESHAPE_ORANGE);
     tft.setTextColor(TFT_WHITE, tft.color565(12, 16, 24));
-    tft.drawString("TRIAD // RESHAPE", 86, 12, 2);
+    tft.drawString("TRIAD // RESHAPE", 120, 12, 2);
 
     // --- Brand Text ---
     // RESHAPE LAB (Font 4)
     tft.setTextColor(COLOR_PURE_WHITE, COLOR_BG);
-    tft.drawString("RESHAPE LAB", 86, 236, 4);
+    tft.drawString("RESHAPE LAB", 120, 236, 4);
 
     // Subtitle (Font 2)
     tft.setTextColor(COLOR_CYBER_CYAN, COLOR_BG);
-    tft.drawString("AUTONOMOUS SYSTEMS", 86, 260, 2);
+    tft.drawString("AUTONOMOUS SYSTEMS", 120, 260, 2);
 
     tft.setTextColor(tft.color565(120, 140, 160), COLOR_BG);
-    tft.drawString("WEACT S3 // GMT147", 86, 276, 1);
+    tft.drawString("WEACT S3 // ILI9341", 120, 276, 1);
 
     // --- Bottom Separator ---
-    tft.drawFastHLine(10, 288, 152, tft.color565(40, 50, 70));
+    tft.drawFastHLine(10, 288, 220, tft.color565(40, 50, 70));
 }
 
 // Cap nhat dong Marquee Ticker chay muot o chan man hinh
@@ -255,11 +271,11 @@ static void updateHudStats()
 
     tft.setTextDatum(TR_DATUM);
     tft.setTextColor(COLOR_CYBER_CYAN, tft.color565(12, 16, 24));
-    tft.drawString(buf, 168, 6, 1);
+    tft.drawString(buf, 236, 6, 1);
 
     tft.setTextDatum(TL_DATUM);
     tft.setTextColor(COLOR_RESHAPE_ORANGE, tft.color565(12, 16, 24));
-    tft.drawString("ST7789V3", 4, 6, 1);
+    tft.drawString("ILI9341", 4, 6, 1);
 }
 
 // --- OLED ANIMATIONS ---
@@ -335,8 +351,19 @@ void setup()
     Serial.println("  TRIAD Ecosystem - Cinq / Nguyen Trung");
     Serial.println("==========================================");
 
-    // Khoi tao I2C cho OLED / TOF
-    Wire.begin(TOF_I2C_SDA, TOF_I2C_SCL);
+    // Khoi tao I2C cho OLED / TOF / MPU6050
+    Wire.begin(I2C_SDA, I2C_SCL);
+    Wire.setClock(400000);
+    
+    // I2C Bus scan
+    Serial.println("[I2C] Scanning bus...");
+    for(byte addr = 1; addr < 127; addr++) {
+        Wire.beginTransmission(addr);
+        if(Wire.endTransmission() == 0) {
+            Serial.printf("[I2C] Found device at 0x%02X\\n", addr);
+        }
+    }
+
     if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
         Serial.println("[ERR] Khong tim thay OLED SSD1306!");
     } else {
@@ -346,8 +373,51 @@ void setup()
         oledReady = true;
     }
 
+    // MPU6050
+    if(!mpu.begin()) {
+        Serial.println("[ERR] MPU6050 not found!");
+    } else {
+        Serial.println("[OK] MPU6050 ready");
+        mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+        mpu.setGyroRange(MPU6050_RANGE_500_DEG);
+        mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+    }
+
+    // VL53L0X
+    pinMode(TOF_XSHUT, OUTPUT);
+    digitalWrite(TOF_XSHUT, LOW);
+    delay(10);
+    digitalWrite(TOF_XSHUT, HIGH);
+    delay(10);
+    tof.setTimeout(500);
+    if (!tof.init()) {
+        Serial.println("[ERR] VL53L0X not found!");
+    } else {
+        Serial.println("[OK] VL53L0X ready");
+    }
+
+    // Servos
+    ESP32PWM::allocateTimer(0);
+    ESP32PWM::allocateTimer(1);
+    ESP32PWM::allocateTimer(2);
+    ESP32PWM::allocateTimer(3);
+    for(int i=0; i<4; i++) {
+        servos[i].setPeriodHertz(50);
+        servos[i].attach(servoPins[i], 500, 2400);
+        servos[i].write(90);
+    }
+
+    // Battery ADC
+    analogReadResolution(12);
+    pinMode(BATT_SENSE_PIN, INPUT);
+    analogSetPinAttenuation(BATT_SENSE_PIN, ADC_11db);
+    
+    // Audio I2S Mute
+    pinMode(SPK_I2S_SD_MODE, OUTPUT);
+    digitalWrite(SPK_I2S_SD_MODE, LOW); // Mute initially
+
     tft.init();
-    tft.setRotation(0); // Portrait 172x320
+    tft.setRotation(0); // Portrait 240x320
     tft.fillScreen(COLOR_BG);
 
     // Khoi tao sprite 1bpp cho Logo & Marquee
@@ -384,6 +454,44 @@ void loop()
     static float breathPhase      = 0.0f;
 
     const uint32_t now = millis();
+
+    // Hardware Loop Tasks
+    if (now - lastServoUpdate >= 20) { // 50Hz update
+        lastServoUpdate = now;
+        
+        // Stagger servo start
+        int movingCount = 0;
+        for(int i=0; i<4; i++) {
+            if(abs(servoTargets[i] - servoCurrents[i]) > 0.1) {
+                movingCount++;
+            }
+        }
+        
+        for(int i=0; i<4; i++) {
+            float diff = servoTargets[i] - servoCurrents[i];
+            if(abs(diff) > 0.1) {
+                // If not moving yet, and too many are already moving, skip this one to stagger
+                if(movingCount > 2 && abs(diff) == abs(servoTargets[i] - 90)) {
+                    continue; 
+                }
+                
+                float step = min(abs(diff), (double)servoMaxSlew);
+                if(diff > 0) servoCurrents[i] += step;
+                else servoCurrents[i] -= step;
+                
+                servos[i].write(servoCurrents[i]);
+            }
+        }
+        
+        // Battery read
+        int battRaw = 0;
+        for(int i=0; i<16; i++) {
+            battRaw += analogRead(BATT_SENSE_PIN);
+        }
+        battRaw /= 16;
+        float vCell = (battRaw / 4095.0) * 3.3 * 2.0;
+        filteredBattVoltage = filteredBattVoltage * 0.9 + vCell * 0.1;
+    }
 
     // Duy tri toc do khung hinh ~35 FPS (28ms / frame)
     if (now - lastFrameMs >= 28) {
