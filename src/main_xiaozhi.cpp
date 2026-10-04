@@ -48,6 +48,7 @@
 #include <ESP32Servo.h>
 #include <driver/i2s.h>
 #include "Logo/Logo.h"
+#include "Audio/Audio.h"
 
 // --- Hardware Globals ---
 static Adafruit_MPU6050 mpu;
@@ -66,16 +67,16 @@ static bool oledReady = false;
 
 static TFT_eSPI tft = TFT_eSPI();
 
-// Sprite 1bpp cho logo: 240x190
-static constexpr int SPRITE_W = 240;
-static constexpr int SPRITE_H = 190;
-static constexpr int SPRITE_Y = 28;
+// Sprite 1bpp cho logo: 320x196
+static constexpr int SPRITE_W = 320;
+static constexpr int SPRITE_H = 196;
+static constexpr int SPRITE_Y = 24;
 static TFT_eSprite logoSprite = TFT_eSprite(&tft);
 
-// Sprite 1bpp cho dong chu chay (marquee ticker): 240x20
-static constexpr int MARQUEE_W   = 240;
+// Sprite 1bpp cho dong chu chay (marquee ticker): 320x20
+static constexpr int MARQUEE_W   = 320;
 static constexpr int MARQUEE_H   = 20;
-static constexpr int MARQUEE_Y   = 292;
+static constexpr int MARQUEE_Y   = 220;
 static TFT_eSprite marqueeSprite = TFT_eSprite(&tft);
 
 // Bang mau ReShape Lab & Cyberpunk
@@ -148,6 +149,7 @@ static void runLaserWipeIntro(uint32_t durationMs)
     constexpr int kLogoX = (128 - kLogoOledBigW) / 2;
 
     while (millis() - start < durationMs) {
+        Audio_Update();
         const uint32_t elapsed = millis() - start;
         const int scanY        = static_cast<int>((elapsed * (SPRITE_H + 10)) / durationMs);
 
@@ -194,6 +196,7 @@ static void runBreathingIntro(uint32_t durationMs)
 
     const uint32_t start = millis();
     while (millis() - start < durationMs) {
+        Audio_Update();
         const uint32_t elapsed = millis() - start;
         const float phase      = 2.0f * PI * kCycles * (static_cast<float>(elapsed) / durationMs);
         const float scale      = kMinScale + (kMaxScale - kMinScale) * (0.5f + 0.5f * (1.0f - cosf(phase)));
@@ -211,25 +214,13 @@ static void drawStaticUI()
     tft.setTextDatum(MC_DATUM);
 
     // --- Top Bar HUD ---
-    tft.fillRect(0, 0, 240, 24, tft.color565(12, 16, 24));
-    tft.drawFastHLine(0, 24, 240, COLOR_RESHAPE_ORANGE);
+    tft.fillRect(0, 0, 320, 24, tft.color565(12, 16, 24));
+    tft.drawFastHLine(0, 24, 320, COLOR_RESHAPE_ORANGE);
     tft.setTextColor(TFT_WHITE, tft.color565(12, 16, 24));
-    tft.drawString("TRIAD // RESHAPE", 120, 12, 2);
-
-    // --- Brand Text ---
-    // RESHAPE LAB (Font 4)
-    tft.setTextColor(COLOR_PURE_WHITE, COLOR_BG);
-    tft.drawString("RESHAPE LAB", 120, 236, 4);
-
-    // Subtitle (Font 2)
-    tft.setTextColor(COLOR_CYBER_CYAN, COLOR_BG);
-    tft.drawString("AUTONOMOUS SYSTEMS", 120, 260, 2);
-
-    tft.setTextColor(tft.color565(120, 140, 160), COLOR_BG);
-    tft.drawString("WEACT S3 // ILI9341", 120, 276, 1);
+    tft.drawString("TRIAD // RESHAPE", 160, 12, 2);
 
     // --- Bottom Separator ---
-    tft.drawFastHLine(10, 288, 220, tft.color565(40, 50, 70));
+    tft.drawFastHLine(0, 219, 320, tft.color565(40, 50, 70));
 }
 
 // Cap nhat dong Marquee Ticker chay muot o chan man hinh
@@ -271,11 +262,11 @@ static void updateHudStats()
 
     tft.setTextDatum(TR_DATUM);
     tft.setTextColor(COLOR_CYBER_CYAN, tft.color565(12, 16, 24));
-    tft.drawString(buf, 236, 6, 1);
+    tft.drawString(buf, 316, 6, 1);
 
     tft.setTextDatum(TL_DATUM);
     tft.setTextColor(COLOR_RESHAPE_ORANGE, tft.color565(12, 16, 24));
-    tft.drawString("ILI9341", 4, 6, 1);
+    tft.drawString("ST7789", 4, 6, 1);
 }
 
 // --- OLED ANIMATIONS ---
@@ -341,6 +332,110 @@ static void renderOledRoboEyes(uint32_t elapsedMs) {
     }
     
     oled.display();
+}
+
+// State variables for smooth eye animation
+static float s_eyeX = 0;
+static float s_eyeY = 0;
+static float s_eyeH = 100;
+static float s_smile = 0;
+static float s_angry = 0;
+
+// --- TFT ANIMATIONS ---
+static void renderTftRoboEyes(uint32_t elapsedMs, uint16_t color) {
+    logoSprite.fillSprite(0);
+    logoSprite.setBitmapColor(color, COLOR_BG);
+    
+    // Cycle every 8000ms for a complex script
+    uint32_t cycle = elapsedMs % 8000;
+    
+    float targetX = 0;
+    float targetY = 0;
+    float targetH = 100;
+    float targetSmile = 0;
+    float targetAngry = 0;
+    
+    if (cycle < 1000) {
+        // Normal look
+    } else if (cycle < 1200) {
+        targetH = 8; // Blink
+    } else if (cycle < 2500) {
+        // Look Left + Smile
+        targetX = -25;
+        targetSmile = 1.0f;
+    } else if (cycle < 2700) {
+        targetX = -25;
+        targetH = 8; // Blink while looking left
+    } else if (cycle < 4000) {
+        // Normal look right
+        targetX = 25;
+    } else if (cycle < 4200) {
+        targetX = 25;
+        targetH = 8; // Blink
+    } else if (cycle < 6000) {
+        // Look up + Angry
+        targetY = -15;
+        targetAngry = 1.0f;
+    } else if (cycle < 6200) {
+        targetH = 8; // Blink
+    } else if (cycle < 7500) {
+        // Big Smile, looking center
+        targetSmile = 1.0f;
+    }
+    
+    // Smooth transitions (Lerp)
+    s_eyeX += (targetX - s_eyeX) * 0.2f;
+    s_eyeY += (targetY - s_eyeY) * 0.2f;
+    s_eyeH += (targetH - s_eyeH) * 0.4f; // Blinking is faster
+    s_smile += (targetSmile - s_smile) * 0.15f;
+    s_angry += (targetAngry - s_angry) * 0.15f;
+    
+    // Giggling / Vibrate effect when smiling
+    float shakeX = 0;
+    float shakeY = 0;
+    if (s_smile > 0.1f) {
+        shakeX = cosf(elapsedMs * 0.07f) * 2.0f * s_smile;
+        shakeY = sinf(elapsedMs * 0.08f) * 3.0f * s_smile;
+    }
+    
+    int eyeW = 70;
+    int curH = (int)s_eyeH;
+    if (curH < 4) curH = 4;
+    int cx = SPRITE_W / 2 + (int)s_eyeX + (int)shakeX;
+    int cy = SPRITE_H / 2 + (int)s_eyeY + (int)shakeY;
+    int eyeDist = 65; 
+    
+    int leftX = cx - eyeDist - eyeW/2;
+    int rightX = cx + eyeDist - eyeW/2;
+    int topY = cy - curH/2;
+    
+    // Draw base eyes
+    logoSprite.fillRoundRect(leftX, topY, eyeW, curH, 16, 1);
+    logoSprite.fillRoundRect(rightX, topY, eyeW, curH, 16, 1);
+    
+    // Angry expression mask (Cut from top)
+    if (s_angry > 0.05f) {
+        int angryDrop = (int)(s_angry * 30);
+        logoSprite.fillTriangle(leftX - 15, topY - 10, 
+                                leftX + eyeW + 15, topY - 10, 
+                                leftX + eyeW + 15, topY + angryDrop, 0);
+        logoSprite.fillTriangle(rightX - 15, topY - 10, 
+                                rightX + eyeW + 15, topY - 10, 
+                                rightX - 15, topY + angryDrop, 0);
+    }
+    
+    // Smile expression mask (Cut from bottom forming a crescent)
+    if (s_smile > 0.05f) {
+        int smileCut = (int)(s_smile * 45);
+        logoSprite.fillTriangle(
+            cx - 130, cy + curH/2 + 20,
+            cx, cy + curH/2 - smileCut + 10,
+            cx + 130, cy + curH/2 + 20,
+            0 
+        );
+    }
+    
+    logoSprite.pushSprite(0, SPRITE_Y);
 }
 
 void setup()
@@ -412,12 +507,17 @@ void setup()
     pinMode(BATT_SENSE_PIN, INPUT);
     analogSetPinAttenuation(BATT_SENSE_PIN, ADC_11db);
     
-    // Audio I2S Mute
-    pinMode(SPK_I2S_SD_MODE, OUTPUT);
-    digitalWrite(SPK_I2S_SD_MODE, LOW); // Mute initially
+    // Init Audio
+    if (Audio_Init()) {
+        Serial.println("[OK] Audio I2S initialized.");
+        Audio_SetVolume(60);
+        Audio_PlayVoice(VOICE_FLIGHT_CTRL_READY);
+    } else {
+        Serial.println("[ERR] Audio I2S init failed.");
+    }
 
     tft.init();
-    tft.setRotation(0); // Portrait 240x320
+    tft.setRotation(3); // Landscape 320x240
     tft.fillScreen(COLOR_BG);
 
     // Khoi tao sprite 1bpp cho Logo & Marquee
@@ -444,6 +544,9 @@ void setup()
     runBreathingIntro(2500); // Phase 2: Nhip tho 2.5s (Display_BootLogo)
 
     Serial.println("[OK] Boot Animation hoan tat. Chuyen sang Loop mode.");
+    
+    // Test audio after boot animation
+    Audio_PlayVoice(VOICE_FLIGHT_CTRL_READY);
 }
 
 void loop()
@@ -475,7 +578,7 @@ void loop()
                     continue; 
                 }
                 
-                float step = min(abs(diff), (double)servoMaxSlew);
+                float step = min(abs(diff), (float)servoMaxSlew);
                 if(diff > 0) servoCurrents[i] += step;
                 else servoCurrents[i] -= step;
                 
@@ -514,8 +617,8 @@ void loop()
 
         const float scale = kMinScale + (kMaxScale - kMinScale) * (0.5f + 0.5f * (1.0f - cosf(breathPhase)));
 
-        // Render logo len sprite va day ra man hinh
-        renderLogoFrame(scale, currentColor);
+        // Hien thi Robot Eyes thay cho Logo tren man hinh TFT
+        renderTftRoboEyes(now, currentColor);
 
         // Cap nhat Marquee ticker chay o chan man hinh
         updateMarquee(currentColor);
@@ -530,4 +633,7 @@ void loop()
         lastOledMs = now;
         renderOledRoboEyes(now);
     }
+
+    // --- AUDIO UPDATE ---
+    Audio_Update();
 }
