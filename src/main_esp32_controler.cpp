@@ -293,9 +293,9 @@ static void initEspNowController() {
   int avgYaw = (int)(sumYaw / SAMPLES);
 
   // Heuristic: if throttle rests near high end, invert mapping
-  if (avgThrottle > 3000) throttleInvert = true; else throttleInvert = false;
+  if (avgThrottle > 3000) throttleInvert = false; else throttleInvert = true;
   // For yaw, if resting mapped value far from center, invert mapping
-  yawInvert = false;
+  yawInvert = true;
 
   Serial.printf("[CAL] throttle=%d rollCenter=%d pitchCenter=%d yawCenter=%d throttleInvert=%d yawInvert=%d\n",
                 avgThrottle, rollCenter, pitchCenter, yawCenter, throttleInvert, yawInvert);

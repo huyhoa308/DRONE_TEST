@@ -523,14 +523,21 @@
         // Ignored while stopped: drone must not receive throttle/control until START is pressed.
         return true;
       }
-      const throttle = parseInt(m[1],10); // 1000..2000
-      const yaw = parseInt(m[2],10);      // -1000..1000
-      const roll = parseInt(m[3],10);     // -1000..1000
-      const pitch = parseInt(m[4],10);    // -1000..1000
+      // Đổi J1 và J2: m[1]/m[2] điều khiển Roll/Pitch, m[3]/m[4] điều khiển Throttle/Yaw
+      const raw_m1 = parseInt(m[1],10); // 1000..2000
+      const raw_m2 = parseInt(m[2],10); // -1000..1000
+      const raw_m3 = parseInt(m[3],10); // -1000..1000
+      const raw_m4 = parseInt(m[4],10); // -1000..1000
+
+      // Map lại dải giá trị:
+      const roll = (raw_m1 - 1500) * 2;
+      const pitch = raw_m2;
+      const throttle = (raw_m3 / 2) + 1500;
+      const yaw = raw_m4;
+
       raw.thrN = clamp01((2000 - throttle) / 1000);
       raw.yawN = clamp11(-yaw / 1000);
-      // Doi cho 2 truc VRx <-> VRy cua JOY2 va dao chieu am/duong (chi o simulator, firmware tay cam giu nguyen):
-      // Đã đảo biên âm dương cho throttle, roll, pitch theo yêu cầu
+      // Giữ nguyên logic đảo trục VRx <-> VRy
       raw.pitchN = clamp11(-roll / 1000);
       raw.rollN = clamp11(-pitch / 1000);
       return true;
