@@ -95,7 +95,7 @@ xiaozhi_svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 {ban
     <g class="info i2">
       <text class="serif" font-size="72" fill="#F1EFE8" x="96" y="516">FIRMWARE</text>
       <text class="mono" font-size="19" letter-spacing="4.5" fill="#8B8983" x="100" y="600">ESP32-S3  &#183;  esp32s3_xiaozhi</text>
-      <text class="sans" font-size="30" fill="#F1EFE8" x="100" y="641">AI Voice Assistant, Avatar Emotion &amp; 4-DOF Motion</text>
+      <text class="sans" font-size="30" fill="#F1EFE8" x="100" y="641">AI Voice Assistant, Avatar Emotion &amp; Quadruped Motion</text>
       <text class="mono" font-size="19" fill="#77756E" x="100" y="675">main_xiaozhi.cpp</text>
       <line x1="100" y1="730" x2="1100" y2="730" stroke="#33332F" stroke-width="2"/>
     </g>
@@ -104,14 +104,14 @@ xiaozhi_svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 {ban
     <g class="info i3">
       <text class="serif" font-size="72" fill="#F1EFE8" x="96" y="826">PERIPHERALS</text>
       <text class="mono" font-size="19" letter-spacing="4.5" fill="#8B8983" x="100" y="910">AUDIO I/O</text>
-      <text class="sans" font-size="30" fill="#F1EFE8" x="100" y="951">INMP441 MEMS Mic (I2S0) and MAX98357A Amp (I2S1)</text>
+      <text class="sans" font-size="30" fill="#F1EFE8" x="100" y="951">INMP441 MEMS Mic (I2S0) and WeAct I2S Dual Speaker (I2S1)</text>
       <text class="mono" font-size="19" fill="#77756E" x="100" y="985">I2S Dual-Bus Audio Pipeline</text>
       <text class="mono" font-size="19" letter-spacing="4.5" fill="#8B8983" x="100" y="1050">DISPLAY</text>
-      <text class="sans" font-size="30" fill="#F1EFE8" x="100" y="1091">OLED 0.96" SSD1306 (128x64) I2C</text>
-      <text class="mono" font-size="19" fill="#77756E" x="100" y="1125">I2C Bus  &#183;  Dynamic Avatar &amp; System Status HUD</text>
+      <text class="sans" font-size="30" fill="#F1EFE8" x="100" y="1091">TFT 2.4" GMT147SPI ST7789V3 (240x320) HSPI</text>
+      <text class="mono" font-size="19" fill="#77756E" x="100" y="1125">SPI Bus  &#183;  Dynamic Avatar &amp; System Status HUD</text>
       <text class="mono" font-size="19" letter-spacing="4.5" fill="#8B8983" x="100" y="1190">SENSORS &amp; ACTUATORS</text>
       <text class="sans" font-size="30" fill="#F1EFE8" x="100" y="1231">VL53L0X/1X ToF Distance Sensor &amp; 4x 180&#176; Servos</text>
-      <text class="mono" font-size="19" fill="#77756E" x="100" y="1265">I2C Proximity Wakeup  &#183;  LEDC PWM Head &amp; Arm Motion</text>
+      <text class="mono" font-size="19" fill="#77756E" x="100" y="1265">I2C Proximity Wakeup  &#183;  LEDC PWM Quadruped Legs Motion</text>
       <line x1="100" y1="1320" x2="1100" y2="1320" stroke="#33332F" stroke-width="2"/>
     </g>
 
