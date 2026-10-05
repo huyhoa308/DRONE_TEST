@@ -35,6 +35,7 @@
  *   [Status & Controls]
  *     RGB LED -> GPIO48 (WS2812 onboard)
  *     BUTTON  -> GPIO1  (Wake / Push-to-talk)
+ *     KEY     -> GPIO45 (WeAct User Button / Soft Power On-Off)
  */
 
 #include <Arduino.h>
@@ -60,6 +61,12 @@ static float servoCurrents[4] = {90.0, 90.0, 90.0, 90.0};
 static const float servoMaxSlew = 2.0; // max degrees per frame
 static uint32_t lastServoUpdate = 0;
 static float filteredBattVoltage = 4.0;
+
+// --- Soft Power Button (KEY on GPIO45) ---
+static bool isPoweredOff = false;
+static uint32_t keyPressStartMs = 0;
+static bool keyWasPressed = false;
+static constexpr uint32_t POWER_OFF_HOLD_MS = 3000; // Giu 3 giay de tat
 
 static Adafruit_SSD1306 oled(128, 64, &Wire, -1);
 static bool oledReady = false;
@@ -438,6 +445,84 @@ static void renderTftRoboEyes(uint32_t elapsedMs, uint16_t color) {
     logoSprite.pushSprite(0, SPRITE_Y);
 }
 
+// --- SOFT POWER OFF: Hieu ung tat man hinh va vao Deep Sleep ---
+static void runPowerOffSequence() {
+    Serial.println("[POWER] Shutting down...");
+    
+    // Dung audio
+    Audio_PlayVoice(VOICE_DISARMED);
+    delay(300);
+    
+    // Hieu ung man hinh tat dan (TFT fade-out wipe)
+    for (int y = 0; y < 240; y += 4) {
+        tft.fillRect(0, y, 320, 4, TFT_BLACK);
+        delay(5);
+    }
+    
+    // Tat OLED
+    if (oledReady) {
+        oled.clearDisplay();
+        oled.setTextSize(1);
+        oled.setTextColor(SSD1306_WHITE);
+        oled.setCursor(20, 28);
+        oled.print("POWER OFF...");
+        oled.display();
+        delay(800);
+        oled.clearDisplay();
+        oled.display();
+    }
+    
+    // Dua servo ve trung tam roi detach (tiet kiem nguon)
+    for (int i = 0; i < 4; i++) {
+        servos[i].write(90);
+    }
+    delay(300);
+    for (int i = 0; i < 4; i++) {
+        servos[i].detach();
+    }
+    
+    Serial.println("[POWER] Entering Deep Sleep. Press KEY to wake up.");
+    Serial.flush();
+    
+    // Cau hinh GPIO45 (KEY) lam nguon danh thuc tu Deep Sleep
+    // KEY active LOW (co pull-up tren board)
+    esp_deep_sleep_enable_gpio_wakeup(1ULL << KEY_PIN, ESP_GPIO_WAKEUP_GPIO_LOW);
+    esp_deep_sleep_start();
+    // Khong bao gio chay den day - khi thuc day, ESP32 se reset va chay setup() lai
+}
+
+// Kiem tra nut KEY: giu 3 giay -> tat nguon
+static void checkPowerButton() {
+    bool pressed = (digitalRead(KEY_PIN) == LOW);
+    
+    if (pressed && !keyWasPressed) {
+        // Vua nhan xuong
+        keyPressStartMs = millis();
+        keyWasPressed = true;
+    } else if (pressed && keyWasPressed) {
+        // Dang giu
+        uint32_t holdTime = millis() - keyPressStartMs;
+        
+        // Hien thi progress bar tren TFT khi dang giu nut
+        if (holdTime > 500) {
+            int progress = map(holdTime, 500, POWER_OFF_HOLD_MS, 0, 300);
+            progress = constrain(progress, 0, 300);
+            tft.fillRect(10, 230, 300, 6, tft.color565(30, 30, 30));
+            tft.fillRect(10, 230, progress, 6, TFT_RED);
+            tft.drawRect(10, 230, 300, 6, tft.color565(80, 80, 80));
+        }
+        
+        if (holdTime >= POWER_OFF_HOLD_MS) {
+            runPowerOffSequence(); // Khong return - ESP32 se deep sleep
+        }
+    } else if (!pressed && keyWasPressed) {
+        // Vua tha ra (nhan ngan - co the dung cho chuc nang khac)
+        keyWasPressed = false;
+        // Xoa progress bar neu co
+        tft.fillRect(10, 228, 302, 10, TFT_BLACK);
+    }
+}
+
 void setup()
 {
     Serial.begin(115200);
@@ -501,6 +586,10 @@ void setup()
         servos[i].attach(servoPins[i], 500, 2400);
         servos[i].write(90);
     }
+
+    // KEY button (GPIO45) - Soft Power On/Off
+    pinMode(KEY_PIN, INPUT_PULLUP);
+    Serial.println("[OK] KEY button (GPIO45) ready - Hold 3s to power off");
 
     // Battery ADC
     analogReadResolution(12);
@@ -633,6 +722,9 @@ void loop()
         lastOledMs = now;
         renderOledRoboEyes(now);
     }
+
+    // --- POWER BUTTON CHECK ---
+    checkPowerButton();
 
     // --- AUDIO UPDATE ---
     Audio_Update();
