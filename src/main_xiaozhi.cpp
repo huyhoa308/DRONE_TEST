@@ -48,6 +48,7 @@
 #include <VL53L0X.h>
 #include <ESP32Servo.h>
 #include <driver/i2s.h>
+#include <Adafruit_NeoPixel.h>
 #include "Logo/Logo.h"
 #include "Audio/Audio.h"
 
@@ -61,6 +62,9 @@ static float servoCurrents[4] = {90.0, 90.0, 90.0, 90.0};
 static const float servoMaxSlew = 2.0; // max degrees per frame
 static uint32_t lastServoUpdate = 0;
 static float filteredBattVoltage = 4.0;
+
+// --- RGB LED (WS2812 on GPIO48) ---
+static Adafruit_NeoPixel rgbLed(1, STATUS_LED_PIN, NEO_GRB + NEO_KHZ800);
 
 // --- Soft Power Button (KEY on GPIO45) ---
 static bool isPoweredOff = false;
@@ -101,6 +105,15 @@ static const uint16_t THEME_COLORS[] = {
     COLOR_PURE_WHITE,
     COLOR_NEON_GREEN};
 static constexpr size_t NUM_THEMES = sizeof(THEME_COLORS) / sizeof(THEME_COLORS[0]);
+
+// Bang mau RGB tuong ung cho LED WS2812 (R, G, B) - dong bo voi THEME_COLORS
+static const uint8_t THEME_RGB[][3] = {
+    {217, 119, 87},  // ReShape Orange
+    {0,   240, 255}, // Cyber Cyan
+    {70,  160, 255}, // Electric Blue
+    {255, 255, 255}, // Pure White
+    {40,  255, 160}  // Neon Green
+};
 
 // Chuoi chay marquee o day man hinh
 static const char kMarqueeText[] = "  ✦ RESHAPE LAB ✦ CINQ ✦ TRIAD UAV ECOSYSTEM ✦ ESP32-S3 N16R8 ✦ AUTOMATION & ROBOTICS ✦";
@@ -472,6 +485,10 @@ static void runPowerOffSequence() {
         oled.display();
     }
     
+    // Tat LED RGB
+    rgbLed.setPixelColor(0, 0, 0, 0);
+    rgbLed.show();
+    
     // Dua servo ve trung tam roi detach (tiet kiem nguon)
     for (int i = 0; i < 4; i++) {
         servos[i].write(90);
@@ -591,6 +608,13 @@ void setup()
     pinMode(KEY_PIN, INPUT_PULLUP);
     Serial.println("[OK] KEY button (GPIO45) ready - Hold 3s to power off");
 
+    // RGB LED (WS2812 on GPIO48)
+    rgbLed.begin();
+    rgbLed.setBrightness(40); // Khong qua choi mat
+    rgbLed.setPixelColor(0, THEME_RGB[0][0], THEME_RGB[0][1], THEME_RGB[0][2]);
+    rgbLed.show();
+    Serial.println("[OK] RGB LED (GPIO48) ready - Mood sync enabled");
+
     // Battery ADC
     analogReadResolution(12);
     pinMode(BATT_SENSE_PIN, INPUT);
@@ -705,6 +729,17 @@ void loop()
         if (breathPhase >= 2.0f * PI) breathPhase -= 2.0f * PI;
 
         const float scale = kMinScale + (kMaxScale - kMinScale) * (0.5f + 0.5f * (1.0f - cosf(breathPhase)));
+
+        // --- RGB LED MOOD SYNC: Breathing theo nhip tho cua robot ---
+        {
+            // Do sang LED dao dong theo breathPhase (min 15%, max 100%)
+            float ledBreath = 0.15f + 0.85f * (0.5f + 0.5f * sinf(breathPhase));
+            uint8_t r = (uint8_t)(THEME_RGB[currentThemeIdx][0] * ledBreath);
+            uint8_t g = (uint8_t)(THEME_RGB[currentThemeIdx][1] * ledBreath);
+            uint8_t b = (uint8_t)(THEME_RGB[currentThemeIdx][2] * ledBreath);
+            rgbLed.setPixelColor(0, r, g, b);
+            rgbLed.show();
+        }
 
         // Hien thi Robot Eyes thay cho Logo tren man hinh TFT
         renderTftRoboEyes(now, currentColor);
