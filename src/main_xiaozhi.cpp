@@ -68,11 +68,12 @@ static float filteredBattVoltage = 4.0;
 // --- RGB LED (WS2812 on GPIO48) ---
 static Adafruit_NeoPixel rgbLed(1, STATUS_LED_PIN, NEO_GRB + NEO_KHZ800);
 
-// --- Soft Power Button (KEY on GPIO45) ---
+// --- Soft Power Button (KEY on GPIO45 or BOOT on GPIO0) ---
 static bool isPoweredOff = false;
 static uint32_t keyPressStartMs = 0;
 static bool keyWasPressed = false;
 static constexpr uint32_t POWER_OFF_HOLD_MS = 3000; // Giu 3 giay de tat
+#define BOOT_BTN_PIN 0
 
 static Adafruit_SSD1306 oled(128, 64, &Wire, -1);
 static bool oledReady = false;
@@ -515,9 +516,9 @@ static void runPowerOffSequence() {
     // Khong bao gio chay den day
 }
 
-// Kiem tra nut KEY: giu 3 giay -> tat nguon
+// Kiem tra nut KEY hoac BOOT: giu 3 giay -> tat nguon
 static void checkPowerButton() {
-    bool pressed = (digitalRead(KEY_PIN) == LOW);
+    bool pressed = (digitalRead(KEY_PIN) == LOW) || (digitalRead(BOOT_BTN_PIN) == LOW);
     
     if (pressed && !keyWasPressed) {
         // Vua nhan xuong
@@ -611,9 +612,10 @@ void setup()
         servos[i].write(90);
     }
 
-    // KEY button (GPIO45) - Soft Power On/Off
+    // KEY button (GPIO45) & BOOT button (GPIO0) - Soft Power On/Off
     pinMode(KEY_PIN, INPUT_PULLUP);
-    Serial.println("[OK] KEY button (GPIO45) ready - Hold 3s to power off");
+    pinMode(BOOT_BTN_PIN, INPUT_PULLUP);
+    Serial.println("[OK] Power buttons ready (KEY=GPIO45, BOOT=GPIO0) - Hold 3s to power off");
 
     // RGB LED (WS2812 on GPIO48)
     rgbLed.begin();
