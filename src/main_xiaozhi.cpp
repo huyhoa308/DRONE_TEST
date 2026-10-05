@@ -48,6 +48,8 @@
 #include <VL53L0X.h>
 #include <ESP32Servo.h>
 #include <driver/i2s.h>
+#include <esp_sleep.h>
+#include <driver/gpio.h>
 #include <Adafruit_NeoPixel.h>
 #include "Logo/Logo.h"
 #include "Audio/Audio.h"
@@ -498,14 +500,19 @@ static void runPowerOffSequence() {
         servos[i].detach();
     }
     
-    Serial.println("[POWER] Entering Deep Sleep. Press KEY to wake up.");
+    Serial.println("[POWER] Entering Light Sleep. Press KEY to wake up.");
     Serial.flush();
     
-    // Cau hinh GPIO45 (KEY) lam nguon danh thuc tu Deep Sleep
-    // KEY active LOW (co pull-up tren board)
-    esp_deep_sleep_enable_gpio_wakeup(1ULL << KEY_PIN, ESP_GPIO_WAKEUP_GPIO_LOW);
-    esp_deep_sleep_start();
-    // Khong bao gio chay den day - khi thuc day, ESP32 se reset va chay setup() lai
+    // GPIO45 (KEY) khong phai RTC GPIO nen khong dung duoc deep sleep GPIO wakeup.
+    // Dung light sleep + gpio_wakeup thay the (ho tro moi GPIO).
+    // Sau khi thuc day, goi ESP.restart() de co boot sach nhu deep sleep.
+    gpio_wakeup_enable((gpio_num_t)KEY_PIN, GPIO_INTR_LOW_LEVEL);
+    esp_sleep_enable_gpio_wakeup();
+    esp_light_sleep_start();
+    
+    // Thuc day o day -> restart de boot lai sach
+    ESP.restart();
+    // Khong bao gio chay den day
 }
 
 // Kiem tra nut KEY: giu 3 giay -> tat nguon
@@ -610,7 +617,7 @@ void setup()
 
     // RGB LED (WS2812 on GPIO48)
     rgbLed.begin();
-    rgbLed.setBrightness(40); // Khong qua choi mat
+    rgbLed.setBrightness(240); // Tang do sang theo yeu cau
     rgbLed.setPixelColor(0, THEME_RGB[0][0], THEME_RGB[0][1], THEME_RGB[0][2]);
     rgbLed.show();
     Serial.println("[OK] RGB LED (GPIO48) ready - Mood sync enabled");
