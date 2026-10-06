@@ -430,7 +430,7 @@ static void runPowerOffSequence() {
 
 // Kiem tra nut KEY hoac BOOT: giu 3 giay -> tat nguon
 static void checkPowerButton() {
-    bool pressed = (digitalRead(KEY_PIN) == LOW) || (digitalRead(BOOT_BTN_PIN) == LOW);
+    bool pressed = (digitalRead(BOOT_BTN_PIN) == LOW);
     
     if (pressed && !keyWasPressed) {
         // Vua nhan xuong
