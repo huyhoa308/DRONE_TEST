@@ -56,10 +56,10 @@ Vị trí chân thực tế trên board WeAct ESP32-S3 CoreBoard (Bản A):
               SERVO_2_TILT  ─┤ 10             37 ├─ (PSRAM OPI - Cam dung)
               SERVO_3_ARM_L ─┤ 11             36 ├─ (PSRAM OPI - Cam dung)
               SERVO_4_ARM_R ─┤ 12             35 ├─ (PSRAM OPI - Cam dung)
-             SPK_BCLK (MAX) ─┤ 15              0 ├─ BOOT Button
-              SPK_LRC (MAX) ─┤ 16             45 ├─ (Strapping - Cam dung)
-              SPK_DIN (MAX) ─┤ 17             48 ├─ WS2812 RGB LED Onboard
-              SPK_SD  (MAX) ─┤ 18             47 ├─ TFT_RST
+             SPK_BCK  (PCM) ─┤ 15              0 ├─ BOOT Button
+              SPK_WS  (PCM) ─┤ 16             45 ├─ (Strapping - Cam dung)
+              SPK_DIN (PCM) ─┤ 17             48 ├─ WS2812 RGB LED Onboard
+              SPK_SD  (PCM) ─┤ 18             47 ├─ TFT_RST
                USB D-       ─┤ 19             21 ├─ (Du phong GPIO)
                USB D+       ─┤ 20             14 ├─ (Du phong GPIO)
                         5V  ─┤ 5V             13 ├─ (Du phong GPIO)
@@ -84,16 +84,18 @@ Vị trí chân thực tế trên board WeAct ESP32-S3 CoreBoard (Bản A):
 | | WS  | **GPIO 16** | 3.3V | I2S0 Word Select (LRCK) |
 | | SD  | **GPIO 17** | 3.3V | I2S0 Serial Data In |
 | | L/R | GND | 0V | Kéo xuống GND để thu kênh trái |
-| **WeAct I2S Dual Speaker** | VIN | **5V Boost** | 5.0V | **Cấp 5V từ mạch Boost** để kéo loa 4 Ohm |
+| **WeAct I2S Speaker V1 (PCM5100A)** | VIN | **5V Boost** | 5.0V | **Cấp 5V từ mạch Boost** để kéo loa 4 Ohm |
 | | GND | GND | 0V | |
-| | BCLK | **GPIO 12** | 3.3V | I2S1 Bit Clock |
-| | LRC  | **GPIO 13** | 3.3V | I2S1 Word Select |
+| | MC | **GND** | 0V | Bắt buộc nối GND để PCM5100A chạy PLL |
+| | BCK | **GPIO 12** | 3.3V | I2S1 Bit Clock |
+| | WS  | **GPIO 13** | 3.3V | I2S1 Word Select |
 | | DIN  | **GPIO 14** | 3.3V | I2S1 Data Out |
-| | SD_MODE | **GPIO 18** | 3.3V | Mute/Shutdown control |
+| | SD | **GPIO 18** | 3.3V | Mute/Shutdown control |
 | **ToF VL53L0X/1X** | VIN | 3V3 | 3.3V | Cảm biến khoảng cách chạy 3.3V |
 | | GND | GND | 0V | |
-| | SDA | **GPIO 8** | 3.3V | I2C Data (Chung bus) |
-| | SCL | **GPIO 9** | 3.3V | I2C Clock (Chung bus) |
+| | SDA | **GPIO 7** | 3.3V | I2C Data (I2C0) |
+| | SCL | **GPIO 8** | 3.3V | I2C Clock (I2C0) |
+| | XSHUT | **GPIO 21** | 3.3V | Chân Reset/Enable của ToF |
 | **Gia tốc/Góc nghiêng MPU6050** | VCC | 3V3 | 3.3V | Cấp 3.3V để đồng bộ mức logic I2C |
 | | GND | GND | 0V | |
 | | SDA | **GPIO 11** | 3.3V | I2C1 Data (Tách bus độc lập) |
@@ -101,13 +103,13 @@ Vị trí chân thực tế trên board WeAct ESP32-S3 CoreBoard (Bản A):
 | | INT | **GPIO 2** | 3.3V | Chân ngắt (Interrupt) báo dữ liệu sẵn sàng |
 | **4× Servo 180° (Chân)** | VCC (Đỏ) | **5V Boost** | 5.0V | **Tuyệt đối không lấy từ 3.3V của ESP32** |
 | | GND (Nâu/Đen) | GND | 0V | Nối mass chung về trạm nguồn |
-| | Signal (Vàng/Cam) | **GPIO 4, 5, 6, 7** | 3.3V | Điều khiển xung PWM cho 4 chân |
+| | Signal (Vàng/Cam) | **GPIO 4, 5, 6, 9** | 3.3V | Điều khiển xung PWM cho 4 chân |
 | **Phím / LED (Cảm xúc)** | Nút KEY (Soft Power)| **GPIO 45** | 3.3V | Nút nhấn người dùng tích hợp trên board |
 | | Nút BOOT (Dự phòng) | **GPIO 0** | 3.3V | Phím nguồn dự phòng, Active Low |
 | | Status LED (Mood) | **GPIO 48** | 3.3V | LED WS2812 đồng bộ màu và thở theo biểu cảm Xiaozhi |
 
 > [!NOTE]
-> Cần tuân thủ phân tách 2 bus I2S riêng biệt trên ESP32-S3: **I2S0** dành cho Microphone thu âm (INMP441) và **I2S1** dành cho Speaker phát âm thanh (MAX98357A) để tránh nghẽn xung nhịp và nhiễu tín hiệu.
+> Cần tuân thủ phân tách 2 bus I2S riêng biệt trên ESP32-S3: **I2S0** dành cho Microphone thu âm (INMP441) và **I2S1** dành cho Speaker phát âm thanh (PCM5100A) để tránh nghẽn xung nhịp và nhiễu tín hiệu.
 
 ---
 
@@ -115,7 +117,7 @@ Vị trí chân thực tế trên board WeAct ESP32-S3 CoreBoard (Bản A):
 
 1. **Dòng tải đỉnh (Peak Current)**:
    - ESP32-S3 phát WiFi + WebSocket: ~350mA.
-   - Mạch WeAct I2S Dual Speaker + Loa 4 Ohm: ~500mA - 800mA đỉnh ở 5V.
+   - Mạch WeAct I2S Speaker (PCM5100A) + Loa 4 Ohm: ~500mA - 800mA đỉnh ở 5V.
    - 4 Servo chuyển động đồng thời: Mỗi servo ăn dòng đỉnh 300mA – 600mA ➔ **Tổng 4 servo đỉnh từ 1.5A đến 2.4A!**
    - **Tổng dòng đỉnh toàn hệ thống: ~2.5A – 3.5A ở 5V.**
    - *Khuyến cáo*: Cấp nguồn bằng pin Li-ion ghép song song **1S2P (3.7V, dung lượng cao > 1000mAh)** qua mạch **Boost DC/DC (Tăng áp lên 5V 3A)** kèm mạch sạc Type-C (như TP4056 / IP5306). 
