@@ -771,7 +771,7 @@ void loop()
 
     // --- OLED ANIMATION UPDATE (ROBO EYES) ---
     static uint32_t lastOledMs = 0;
-    if (now - lastOledMs >= 40) { // ~25 FPS cho OLED
+    if (oledReady && (now - lastOledMs >= 40)) { // ~25 FPS cho OLED
         lastOledMs = now;
         renderOledRoboEyes(now);
     }
