@@ -538,11 +538,17 @@ void setup()
     
     // Init Audio
     if (Audio_Init()) {
-        Serial.println("[OK] Audio I2S initialized.");
+        Serial.println("[OK] Audio I2S (Speaker) initialized.");
         Audio_SetVolume(60);
         Audio_PlayVoice(VOICE_FLIGHT_CTRL_READY);
     } else {
-        Serial.println("[ERR] Audio I2S init failed.");
+        Serial.println("[ERR] Audio I2S (Speaker) init failed.");
+    }
+
+    if (AudioMic_Init()) {
+        Serial.println("[OK] Microphone I2S initialized.");
+    } else {
+        Serial.println("[ERR] Microphone I2S init failed.");
     }
 
     tft.init();
@@ -704,4 +710,5 @@ void loop()
 
     // --- AUDIO UPDATE ---
     Audio_Update();
+    AudioMic_Update();
 }

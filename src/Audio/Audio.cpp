@@ -439,3 +439,63 @@ void Audio_Update() {
     }
   }
 }
+
+// --- MIC INMP441 ---
+bool AudioMic_Init() {
+    i2s_config_t i2s_mic_config = {
+        .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
+        .sample_rate = 16000,
+        .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
+        .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
+        .communication_format = I2S_COMM_FORMAT_STAND_I2S,
+        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
+        .dma_buf_count = 4,
+        .dma_buf_len = 512,
+        .use_apll = false,
+        .tx_desc_auto_clear = false,
+        .fixed_mclk = 0
+    };
+    i2s_pin_config_t pin_mic_config = {
+        .bck_io_num = MIC_I2S_SCK,
+        .ws_io_num = MIC_I2S_WS,
+        .data_out_num = I2S_PIN_NO_CHANGE,
+        .data_in_num = MIC_I2S_SD
+    };
+    esp_err_t err = i2s_driver_install(I2S_NUM_0, &i2s_mic_config, 0, NULL);
+    if (err != ESP_OK) return false;
+    err = i2s_set_pin(I2S_NUM_0, &pin_mic_config);
+    if (err != ESP_OK) return false;
+    i2s_zero_dma_buffer(I2S_NUM_0);
+    return true;
+}
+
+void AudioMic_Update() {
+    static uint32_t lastMicMs = 0;
+    if (millis() - lastMicMs < 50) return; // 20Hz
+    lastMicMs = millis();
+    
+    size_t bytes_read = 0;
+    int32_t samples[256];
+    i2s_read(I2S_NUM_0, &samples, sizeof(samples), &bytes_read, 0);
+    int num_samples = bytes_read / 4;
+    if (num_samples == 0) return;
+    
+    int64_t sum_sq = 0;
+    int32_t max_val = 0;
+    for (int i = 0; i < num_samples; i++) {
+        int32_t val = samples[i] >> 12;
+        sum_sq += (int64_t)val * val;
+        if (abs(val) > max_val) max_val = abs(val);
+    }
+    int rms = 0;
+    if (num_samples > 0) {
+        rms = sqrt(sum_sq / num_samples);
+    }
+    
+    if (rms > 20) {
+        int bars = min(40, rms / 100);
+        String bar = "";
+        for (int i=0; i<bars; i++) bar += "=";
+        Serial.printf("[MIC] RMS: %5d MAX: %5d | %s\n", rms, max_val, bar.c_str());
+    }
+}

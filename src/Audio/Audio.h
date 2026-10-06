@@ -96,3 +96,9 @@ void Audio_SetVolume(uint8_t percent);
 
 // true neu dang co cue chay do.
 bool Audio_IsBusy();
+
+// Init microphone I2S
+bool AudioMic_Init();
+
+// Update microphone (VU meter print)
+void AudioMic_Update();
