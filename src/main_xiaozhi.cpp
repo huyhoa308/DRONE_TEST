@@ -42,7 +42,6 @@
 #include <TFT_eSPI.h>
 #include <math.h>
 #include <Wire.h>
-#include <Adafruit_SSD1306.h>
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <VL53L0X.h>
@@ -74,10 +73,6 @@ static uint32_t keyPressStartMs = 0;
 static bool keyWasPressed = false;
 static constexpr uint32_t POWER_OFF_HOLD_MS = 3000; // Giu 3 giay de tat
 #define BOOT_BTN_PIN 0
-
-static Adafruit_SSD1306 oled(128, 64, &Wire, -1);
-static bool oledReady = false;
-
 
 static TFT_eSPI tft = TFT_eSPI();
 
@@ -185,28 +180,13 @@ static void runLaserWipeIntro(uint32_t durationMs)
         }
 
         // OLED Wipe (reveal from top)
-        if (oledReady) {
-            oled.clearDisplay();
-            const int oledShown = static_cast<int>((elapsed * kLogoOledBigH) / durationMs);
-            oled.drawBitmap(kLogoX, 4, kLogoOledBig, kLogoOledBigW, kLogoOledBigH, SSD1306_WHITE);
-            oled.fillRect(kLogoX, 4 + oledShown, kLogoOledBigW, kLogoOledBigH - oledShown, SSD1306_BLACK);
-            oled.display();
-        }
+
 
         delay(8);
     }
 
     // Xoa vet tia laser khung cuoi
     renderLogoFrame(kFixedScale, COLOR_RESHAPE_ORANGE, SPRITE_H);
-    if (oledReady) {
-        oled.clearDisplay();
-        oled.drawBitmap(kLogoX, 4, kLogoOledBig, kLogoOledBigW, kLogoOledBigH, SSD1306_WHITE);
-        oled.setTextSize(1);
-        oled.setTextColor(SSD1306_WHITE);
-        oled.setCursor(30, 48);
-        oled.print("RESHAPE LAB");
-        oled.display();
-    }
 }
 
 // Phase 2: Breathing & Pulsing (To -> Nho -> To nhu Display_BootLogo cua js-controler)
@@ -292,70 +272,6 @@ static void updateHudStats()
     tft.drawString("ST7789", 4, 6, 1);
 }
 
-// --- OLED ANIMATIONS ---
-static void renderOledKawaiiFace(uint32_t elapsedMs) {
-    if (!oledReady) return;
-    oled.clearDisplay();
-    // Blink every 3 seconds
-    bool blink = (elapsedMs % 3000) < 150; 
-    int cx = 128 / 2;
-    int cy = 64 / 2;
-    
-    if (blink) {
-        oled.drawFastHLine(cx - 30, cy - 5, 20, SSD1306_WHITE);
-        oled.drawFastHLine(cx + 10, cy - 5, 20, SSD1306_WHITE);
-    } else {
-        oled.fillCircle(cx - 20, cy - 5, 12, SSD1306_WHITE);
-        oled.fillCircle(cx + 20, cy - 5, 12, SSD1306_WHITE);
-        // Kawaii reflection
-        oled.fillCircle(cx - 15, cy - 9, 3, SSD1306_BLACK);
-        oled.fillCircle(cx + 25, cy - 9, 3, SSD1306_BLACK);
-    }
-    
-    // Kawaii Mouth ^
-    oled.drawPixel(cx - 2, cy + 15, SSD1306_WHITE);
-    oled.drawPixel(cx - 1, cy + 16, SSD1306_WHITE);
-    oled.drawPixel(cx, cy + 16, SSD1306_WHITE);
-    oled.drawPixel(cx + 1, cy + 16, SSD1306_WHITE);
-    oled.drawPixel(cx + 2, cy + 15, SSD1306_WHITE);
-    
-    oled.display();
-}
-
-static void renderOledRoboEyes(uint32_t elapsedMs) {
-    if (!oledReady) return;
-    oled.clearDisplay();
-    
-    uint32_t cycle = elapsedMs % 4000;
-    // Chớp mắt kép (Double blink)
-    bool blink = (cycle > 1000 && cycle < 1150) || (cycle > 3000 && cycle < 3100);
-    
-    // Đảo mắt
-    int lookOffset = 0;
-    if (cycle > 1500 && cycle < 2500) lookOffset = -10;
-    else if (cycle > 3500) lookOffset = 10;
-    
-    int eyeW = 24;
-    int eyeH = 34;
-    int cx = 128 / 2 + lookOffset;
-    int cy = 64 / 2;
-    
-    if (blink) {
-        oled.fillRoundRect(cx - 35, cy, eyeW, 6, 2, SSD1306_WHITE);
-        oled.fillRoundRect(cx + 15, cy, eyeW, 6, 2, SSD1306_WHITE);
-    } else {
-        oled.fillRoundRect(cx - 35, cy - eyeH/2, eyeW, eyeH, 6, SSD1306_WHITE);
-        oled.fillRoundRect(cx + 15, cy - eyeH/2, eyeW, eyeH, 6, SSD1306_WHITE);
-        
-        // Biểu cảm tức giận (Angry) cắt xéo phía trên mắt
-        if (cycle > 1500 && cycle < 2500) {
-             oled.fillTriangle(cx - 40, cy - eyeH/2 - 5, cx - 8, cy - eyeH/2 - 5, cx - 8, cy - 2, SSD1306_BLACK);
-             oled.fillTriangle(cx + 13, cy - eyeH/2 - 5, cx + 45, cy - eyeH/2 - 5, cx + 13, cy - 2, SSD1306_BLACK);
-        }
-    }
-    
-    oled.display();
-}
 
 // State variables for smooth eye animation
 static float s_eyeX = 0;
@@ -576,14 +492,7 @@ void setup()
         }
     }
 
-    if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-        Serial.println("[ERR] Khong tim thay OLED SSD1306!");
-    } else {
-        Serial.println("[OK] OLED SSD1306 san sang.");
-        oled.clearDisplay();
-        oled.display();
-        oledReady = true;
-    }
+
 
     // MPU6050 tren bus I2C rieng (Wire1)
     Wire1.begin(I2C1_SDA, I2C1_SCL);
@@ -769,12 +678,7 @@ void loop()
         updateHudStats();
     }
 
-    // --- OLED ANIMATION UPDATE (ROBO EYES) ---
-    static uint32_t lastOledMs = 0;
-    if (oledReady && (now - lastOledMs >= 40)) { // ~25 FPS cho OLED
-        lastOledMs = now;
-        renderOledRoboEyes(now);
-    }
+
 
     // --- HARDWARE DIAGNOSTIC TEST (Every 2s) ---
     static uint32_t lastTestMs = 0;
