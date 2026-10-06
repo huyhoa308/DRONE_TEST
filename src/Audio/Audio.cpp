@@ -455,12 +455,13 @@ bool AudioMic_Init() {
         .tx_desc_auto_clear = false,
         .fixed_mclk = 0
     };
-    i2s_pin_config_t pin_mic_config = {
-        .bck_io_num = MIC_I2S_SCK,
-        .ws_io_num = MIC_I2S_WS,
-        .data_out_num = I2S_PIN_NO_CHANGE,
-        .data_in_num = MIC_I2S_SD
-    };
+    i2s_pin_config_t pin_mic_config;
+    memset(&pin_mic_config, 0xFF, sizeof(pin_mic_config));
+    pin_mic_config.bck_io_num = MIC_I2S_SCK;
+    pin_mic_config.ws_io_num = MIC_I2S_WS;
+    pin_mic_config.data_out_num = I2S_PIN_NO_CHANGE;
+    pin_mic_config.data_in_num = MIC_I2S_SD;
+    
     esp_err_t err = i2s_driver_install(I2S_NUM_0, &i2s_mic_config, 0, NULL);
     if (err != ESP_OK) return false;
     err = i2s_set_pin(I2S_NUM_0, &pin_mic_config);
