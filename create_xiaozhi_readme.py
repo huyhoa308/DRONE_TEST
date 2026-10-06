@@ -228,10 +228,15 @@ Vị trí chân thực tế trên board WeAct ESP32-S3 CoreBoard (Bản A):
 | | WS  | **GPIO 13** | 3.3V | I2S1 Word Select |
 | | DIN  | **GPIO 14** | 3.3V | I2S1 Data Out |
 | | SD | **GPIO 18** | 3.3V | Mute/Shutdown control |
-| **ToF VL53L0X/1X** | VIN | 3V3 | 3.3V | Cảm biến chạy 3.3V |
+| **ToF VL53L0X/1X** | VIN | 3V3 | 3.3V | Cảm biến khoảng cách chạy 3.3V |
 | | GND | GND | 0V | |
-| | SDA | **GPIO 8** | 3.3V | I2C Data |
-| | SCL | **GPIO 9** | 3.3V | I2C Clock |
+| | SDA | **GPIO 8** | 3.3V | I2C Data (Chung bus) |
+| | SCL | **GPIO 9** | 3.3V | I2C Clock (Chung bus) |
+| **Gia tốc/Góc nghiêng MPU6050** | VCC | 3V3 | 3.3V | Cấp 3.3V để đồng bộ mức logic I2C |
+| | GND | GND | 0V | |
+| | SDA | **GPIO 8** | 3.3V | I2C Data (Chung bus với ToF) |
+| | SCL | **GPIO 9** | 3.3V | I2C Clock (Chung bus với ToF) |
+| | INT | **GPIO 2** | 3.3V | Chân ngắt (Interrupt) báo dữ liệu sẵn sàng |
 | **4× Servo 180° (Chân)** | VCC (Đỏ) | **5V Boost** | 5.0V | **Tuyệt đối không lấy từ 3.3V của ESP32** |
 | | GND (Nâu/Đen) | GND | 0V | Nối mass chung về trạm nguồn |
 | | Signal (Vàng/Cam) | **GPIO 4, 5, 6, 7** | 3.3V | Điều khiển xung PWM cho 4 chân |
