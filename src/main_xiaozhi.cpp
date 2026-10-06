@@ -391,18 +391,7 @@ static void runPowerOffSequence() {
         delay(5);
     }
     
-    // Tat OLED
-    if (oledReady) {
-        oled.clearDisplay();
-        oled.setTextSize(1);
-        oled.setTextColor(SSD1306_WHITE);
-        oled.setCursor(20, 28);
-        oled.print("POWER OFF...");
-        oled.display();
-        delay(800);
-        oled.clearDisplay();
-        oled.display();
-    }
+
     
     // Tat LED RGB
     rgbLed.clear();
