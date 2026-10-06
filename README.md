@@ -96,8 +96,8 @@ Vị trí chân thực tế trên board WeAct ESP32-S3 CoreBoard (Bản A):
 | | SCL | **GPIO 9** | 3.3V | I2C Clock (Chung bus) |
 | **Gia tốc/Góc nghiêng MPU6050** | VCC | 3V3 | 3.3V | Cấp 3.3V để đồng bộ mức logic I2C |
 | | GND | GND | 0V | |
-| | SDA | **GPIO 8** | 3.3V | I2C Data (Chung bus với ToF) |
-| | SCL | **GPIO 9** | 3.3V | I2C Clock (Chung bus với ToF) |
+| | SDA | **GPIO 11** | 3.3V | I2C1 Data (Tách bus độc lập) |
+| | SCL | **GPIO 42** | 3.3V | I2C1 Clock (Tách bus độc lập) |
 | | INT | **GPIO 2** | 3.3V | Chân ngắt (Interrupt) báo dữ liệu sẵn sàng |
 | **4× Servo 180° (Chân)** | VCC (Đỏ) | **5V Boost** | 5.0V | **Tuyệt đối không lấy từ 3.3V của ESP32** |
 | | GND (Nâu/Đen) | GND | 0V | Nối mass chung về trạm nguồn |

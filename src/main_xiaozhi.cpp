@@ -489,8 +489,15 @@ static void runPowerOffSequence() {
     }
     
     // Tat LED RGB
-    rgbLed.setPixelColor(0, 0, 0, 0);
+    rgbLed.clear();
     rgbLed.show();
+    delay(50);
+    
+    // Giu chan data o muc thap de chong nhieu WS2812 khi sleep
+    pinMode(STATUS_LED_PIN, OUTPUT);
+    digitalWrite(STATUS_LED_PIN, LOW);
+    gpio_hold_en((gpio_num_t)STATUS_LED_PIN);
+
     
     // Dua servo ve trung tam roi detach (tiet kiem nguon)
     for (int i = 0; i < 4; i++) {
@@ -578,8 +585,10 @@ void setup()
         oledReady = true;
     }
 
-    // MPU6050
-    if(!mpu.begin()) {
+    // MPU6050 tren bus I2C rieng (Wire1)
+    Wire1.begin(I2C1_SDA, I2C1_SCL);
+    Wire1.setClock(400000);
+    if(!mpu.begin(0x68, &Wire1)) {
         Serial.println("[ERR] MPU6050 not found!");
     } else {
         Serial.println("[OK] MPU6050 ready");
