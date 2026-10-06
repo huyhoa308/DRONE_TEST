@@ -776,6 +776,36 @@ void loop()
         renderOledRoboEyes(now);
     }
 
+    // --- HARDWARE DIAGNOSTIC TEST (Every 2s) ---
+    static uint32_t lastTestMs = 0;
+    if (now - lastTestMs >= 2000) {
+        lastTestMs = now;
+        
+        // 1. Read Sensors
+        sensors_event_t a, g, temp;
+        mpu.getEvent(&a, &g, &temp);
+        
+        uint16_t dist = tof.readRangeSingleMillimeters();
+        
+        Serial.printf("\n--- DIAGNOSTIC [%lu ms] ---\n", now);
+        Serial.printf("Batt : %.2f V\n", filteredBattVoltage);
+        Serial.printf("IMU  : X=%.2f Y=%.2f Z=%.2f (m/s2)\n", a.acceleration.x, a.acceleration.y, a.acceleration.z);
+        if (tof.timeoutOccurred()) {
+            Serial.println("ToF  : TIMEOUT");
+        } else {
+            Serial.printf("ToF  : %u mm\n", dist);
+        }
+        
+        // 2. Wave Servos
+        static bool waveDir = false;
+        waveDir = !waveDir;
+        servoTargets[0] = waveDir ? 70 : 110; // PAN
+        servoTargets[1] = waveDir ? 80 : 100; // TILT
+        servoTargets[2] = waveDir ? 45 : 135; // ARM_L
+        servoTargets[3] = waveDir ? 135 : 45; // ARM_R
+        Serial.printf("Servo: Waving to %s\n", waveDir ? "Left" : "Right");
+    }
+
     // --- POWER BUTTON CHECK ---
     checkPowerButton();
 
