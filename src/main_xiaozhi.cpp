@@ -52,6 +52,7 @@
 #include <Adafruit_NeoPixel.h>
 #include "Logo/Logo.h"
 #include "Audio/Audio.h"
+#include "XiaozhiClient.h"
 
 // --- Hardware Globals ---
 static Adafruit_MPU6050 mpu;
@@ -430,7 +431,7 @@ static void runPowerOffSequence() {
 
 // Kiem tra nut KEY hoac BOOT: giu 3 giay -> tat nguon
 static void checkPowerButton() {
-    bool pressed = (digitalRead(BOOT_BTN_PIN) == LOW);
+    bool pressed = (digitalRead(KEY_PIN) == LOW);
     
     if (pressed && !keyWasPressed) {
         // Vua nhan xuong
@@ -450,7 +451,7 @@ static void checkPowerButton() {
         }
         
         if (holdTime >= POWER_OFF_HOLD_MS) {
-            runPowerOffSequence(); // Khong return - ESP32 se deep sleep
+            // runPowerOffSequence(); // Khong return - ESP32 se deep sleep
         }
     } else if (!pressed && keyWasPressed) {
         // Vua tha ra (nhan ngan - co the dung cho chuc nang khac)
@@ -522,6 +523,7 @@ void setup()
     // KEY button (GPIO45) & BOOT button (GPIO0) - Soft Power On/Off
     pinMode(KEY_PIN, INPUT_PULLUP);
     pinMode(BOOT_BTN_PIN, INPUT_PULLUP);
+    pinMode(WAKE_BTN_PIN, INPUT_PULLUP);
     Serial.println("[OK] Power buttons ready (KEY=GPIO45, BOOT=GPIO0) - Hold 3s to power off");
 
     // RGB LED (WS2812 on GPIO48)
@@ -539,8 +541,8 @@ void setup()
     // Init Audio
     if (Audio_Init()) {
         Serial.println("[OK] Audio I2S (Speaker) initialized.");
-        Audio_SetVolume(60);
-        Audio_PlayVoice(VOICE_FLIGHT_CTRL_READY);
+        Audio_SetVolume(30);
+        // Audio_PlayVoice(VOICE_FLIGHT_CTRL_READY);
     } else {
         Serial.println("[ERR] Audio I2S (Speaker) init failed.");
     }
@@ -550,6 +552,9 @@ void setup()
     } else {
         Serial.println("[ERR] Microphone I2S init failed.");
     }
+
+    // Init AI / WebSockets
+    Xiaozhi_Init();
 
     tft.init();
     tft.setRotation(3); // Landscape 320x240
@@ -581,7 +586,7 @@ void setup()
     Serial.println("[OK] Boot Animation hoan tat. Chuyen sang Loop mode.");
     
     // Test audio after boot animation
-    Audio_PlayVoice(VOICE_FLIGHT_CTRL_READY);
+    // Audio_PlayVoice(VOICE_FLIGHT_CTRL_READY);
 }
 
 void loop()
@@ -711,4 +716,7 @@ void loop()
     // --- AUDIO UPDATE ---
     Audio_Update();
     AudioMic_Update();
+
+    // --- AI UPDATE ---
+    Xiaozhi_Update();
 }

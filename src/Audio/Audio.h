@@ -102,3 +102,6 @@ bool AudioMic_Init();
 
 // Update microphone (VU meter print)
 void AudioMic_Update();
+
+// Play raw PCM stream
+void Audio_PlayStream(const uint8_t* data, size_t len);

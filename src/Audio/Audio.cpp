@@ -2,6 +2,7 @@
 #include <string.h>
 #include <math.h>
 #include <driver/i2s.h>
+#include "XiaozhiClient.h"
 
 // ---------------------------------------------------------------------------
 // 48kHz la sample rate chuan, nam trong bang PLL cua PCM5100A khi chan MC
@@ -279,7 +280,7 @@ bool Audio_Init() {
   cfg.bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT;
   cfg.channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT;
   cfg.communication_format = I2S_COMM_FORMAT_STAND_I2S;
-  cfg.intr_alloc_flags = ESP_INTR_FLAG_LEVEL1;
+  cfg.intr_alloc_flags = 0;
   cfg.dma_buf_count = 6;
   cfg.dma_buf_len = 256;
   cfg.use_apll = false;
@@ -440,6 +441,19 @@ void Audio_Update() {
   }
 }
 
+// --- STREAM BINARY AUDIO TO I2S ---
+void Audio_PlayStream(const uint8_t* data, size_t len) {
+    setSampleRate(16000); // Set to 16kHz for incoming audio
+    if (!sAmpOn) {
+        ampSet(true);
+        delay(AUDIO_AMP_WAKE_MS); // Doi amp bat 
+    }
+    sLastSoundMs = millis();
+    
+    size_t wrote = 0;
+    i2s_write(kPort, data, len, &wrote, portMAX_DELAY);
+}
+
 // --- MIC INMP441 ---
 bool AudioMic_Init() {
     i2s_config_t i2s_mic_config = {
@@ -448,7 +462,7 @@ bool AudioMic_Init() {
         .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
         .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
         .communication_format = I2S_COMM_FORMAT_STAND_I2S,
-        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
+        .intr_alloc_flags = 0, // Let ESP-IDF choose an available interrupt level
         .dma_buf_count = 4,
         .dma_buf_len = 512,
         .use_apll = false,
@@ -471,32 +485,43 @@ bool AudioMic_Init() {
 }
 
 void AudioMic_Update() {
-    static uint32_t lastMicMs = 0;
-    if (millis() - lastMicMs < 50) return; // 20Hz
-    lastMicMs = millis();
-    
     size_t bytes_read = 0;
     int32_t samples[256];
-    i2s_read(I2S_NUM_0, &samples, sizeof(samples), &bytes_read, 0);
-    int num_samples = bytes_read / 4;
-    if (num_samples == 0) return;
     
-    int64_t sum_sq = 0;
-    int32_t max_val = 0;
-    for (int i = 0; i < num_samples; i++) {
-        int32_t val = samples[i] >> 12;
-        sum_sq += (int64_t)val * val;
-        if (abs(val) > max_val) max_val = abs(val);
-    }
-    int rms = 0;
-    if (num_samples > 0) {
-        rms = sqrt(sum_sq / num_samples);
-    }
-    
-    if (rms > 20) {
-        int bars = min(40, rms / 100);
-        String bar = "";
-        for (int i=0; i<bars; i++) bar += "=";
-        Serial.printf("[MIC] RMS: %5d MAX: %5d | %s\n", rms, max_val, bar.c_str());
+    // Read all available data from I2S without waiting
+    while (true) {
+        i2s_read(I2S_NUM_0, &samples, sizeof(samples), &bytes_read, 0);
+        if (bytes_read == 0) break;
+        
+        int num_samples = bytes_read / 4;
+        bool isRecording = (digitalRead(WAKE_BTN_PIN) == LOW);
+        
+        if (isRecording) {
+            int16_t stereo_samples[512]; // 256 * 2
+            for (int i = 0; i < num_samples; i++) {
+                int32_t val = samples[i] >> 16;
+                // Optional volume boost if needed: val *= 2;
+                if (val > 32767) val = 32767;
+                if (val < -32768) val = -32768;
+                stereo_samples[i*2] = (int16_t)val;     // L
+                stereo_samples[i*2 + 1] = (int16_t)val; // R
+            }
+            Xiaozhi_SendAudio((const uint8_t*)stereo_samples, num_samples * 4);
+        } else {
+            // VU meter logic for debug (optional)
+            static uint32_t lastPrint = 0;
+            if (millis() - lastPrint > 500) {
+                lastPrint = millis();
+                int64_t sum_sq = 0;
+                int32_t max_val = 0;
+                for (int i = 0; i < num_samples; i++) {
+                    int32_t val = samples[i] >> 12;
+                    sum_sq += (int64_t)val * val;
+                    if (abs(val) > max_val) max_val = abs(val);
+                }
+                int rms = num_samples > 0 ? sqrt(sum_sq / num_samples) : 0;
+                Serial.printf("[MIC] RMS: %5d MAX: %5d\n", rms, max_val);
+            }
+        }
     }
 }
