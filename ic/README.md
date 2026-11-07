@@ -5,9 +5,10 @@ Thư mục cho phần thiết kế vi mạch (Cuộc thi Thiết kế vi mạch 
 | Bước | Trạng thái | Thư mục |
 |---|---|---|
 | 1. Mô hình fixed-point, chọn độ rộng bit | ✅ | [`model/`](model/) |
-| 2. RTL Verilog (PID + mixer) | ✅ biên dịch sạch (`vlog -lint`) | [`rtl/`](rtl/) |
+| 2. RTL Verilog (`pid_ctrl.v` + `spi_pid_wrapper.v`) | ✅ biên dịch sạch (`vlog -lint`) | [`rtl/`](rtl/) |
 | 3. Testbench so bit-exact với golden vectors | ✅ **PASS 16000/16000** (Icarus Verilog 14, cả cấu hình A và B) | [`tb/`](tb/), [`sim/`](sim/) |
-| 4. Tổng hợp / P&R (Genus, Innovus) | ⏳ | — |
+| 4. Tổng hợp / STA (Cadence Genus) | 🟧 Script tự động [`syn/syn_genus.tcl`](syn/syn_genus.tcl) | [`syn/`](syn/) |
+| 5. Bộ Slide & Tài liệu Báo cáo Bán kết | ✅ HTML + PDF 16:9 ([`FPOLY_UAV_Bao_Cao_Ban_Ket_Slides.pdf`](doc/FPOLY_UAV_Bao_Cao_Ban_Ket_Slides.pdf)) | [`doc/`](doc/) |
 
 ## RTL
 
