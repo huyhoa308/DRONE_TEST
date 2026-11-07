@@ -517,7 +517,7 @@ def build_html():
         <td><b>Độ rộng Datapath / I/O</b></td>
         <td>Không tràn số với góc ±180°, gyro ±2000°/s</td>
         <td><b>In 22b (Q.10), Mul 14×29b, 7-pin SPI</b></td>
-        <td><code>[RTL / Post-Synth]</code> Corner chuẩn: <code>TT (1.8V/1.2V, 25°C)</code> &amp; <code>SS (125°C)</code></td>
+        <td><code>[RTL Sim]</code> đã kiểm · <code>[Post-Synth]</code> kế hoạch ở corner <code>TT 25°C</code> &amp; <code>SS 125°C</code></td>
       </tr>
     </table>
   </div>
@@ -724,7 +724,7 @@ def build_html():
             <br/>(1) Hover có gió nhiễu (2.400 mẫu), (2) Bước nhảy Roll/Pitch (2.400 mẫu), (3) Xoay Yaw (2.400 mẫu), (4) Gạt cần ngẫu nhiên (3.200 mẫu), (5) Kẹt cơ khí gây bão hòa Anti-windup (1.600 mẫu), (6) Ngẫu nhiên toàn dải Worst-case (2.000 mẫu), (7) Arm/Disarm liên tục (2.000 mẫu).</li>
           <li><b>Kiểm tra chéo đa công cụ (Multi-Simulator):</b> Chạy sạch với <code>-Wall</code> và <code>vlog -lint</code> trên <b>Icarus Verilog 14</b>, <b>ModelSim/Questa</b> và <b>Cadence Xcelium</b>.</li>
           <li><b>Tiêm lỗi kiểm chứng Testbench (Fault Injection):</b> Thử sửa sai 1 LSB tại 1 mẫu trong <code>vectors.txt</code> ➔ Testbench lập tức bắt đúng <code>FAIL: 1/16000</code>.</li>
-          <li><b>Cải tiến an toàn so với Firmware gốc:</b> Bổ sung chân <code>clear</code> đồng bộ xóa sạch tích phân cũ trước khi Re-arm, khắc phục lỗi tiềm ẩn giữ tích phân trên STM32.</li>
+          <li><b>Cải tiến an toàn so với Firmware gốc:</b> Firmware STM32 giữ tích phân từ lần bay trước sang lần arm sau; chip giữ y hệt để khớp bit-exact, và có thêm cổng <code>clear</code> đồng bộ để MCU xóa trạng thái PID ở cạnh lên của Arm.</li>
         </ul>
       </div>
 
@@ -767,7 +767,7 @@ def build_html():
       <tbody>
         <tr class="our-row">
           <td><b>Nhóm em — Cấu hình A</b><br/><span style="font-size:7.8pt; font-weight:600;">(3-Axis PID + Mixer, 14×29b Mul)</span></td>
-          <td><b>[Node PDK Cadence]</b><br/><span class="tag-pill">Post-Synth · TT 25°C / SS 125°C</span></td>
+          <td><b>[Node PDK Cadence]</b><br/><span class="tag-pill">Ước tính · chờ Post-Synth TT/SS</span></td>
           <td><b>10 MHz</b><br/><span style="font-size:7.6pt;">(20 clk/sample)</span></td>
           <td><b>[__] mm²</b><br/><span style="font-size:7.6pt;">(~2.8k–3.5k GE)</span></td>
           <td><b>[__] mW</b><br/><span style="font-size:7.6pt;">(Est: ~0.25 mW)</span></td>
@@ -776,7 +776,7 @@ def build_html():
         </tr>
         <tr class="our-row-b">
           <td><b>Nhóm em — Cấu hình B</b><br/><span style="font-size:7.8pt;">(Tối ưu diện tích, 11×21b Mul)</span></td>
-          <td><b>[Node PDK Cadence]</b><br/><span class="tag-pill">Post-Synth · TT 25°C / SS 125°C</span></td>
+          <td><b>[Node PDK Cadence]</b><br/><span class="tag-pill">Ước tính · chờ Post-Synth TT/SS</span></td>
           <td><b>10 MHz</b><br/><span style="font-size:7.6pt;">(20 clk/sample)</span></td>
           <td><b>[__] mm²</b><br/><span style="font-size:7.6pt;">(~2.1k GE, −25%)</span></td>
           <td><b>[__] mW</b><br/><span style="font-size:7.6pt;">(Est: ~0.18 mW)</span></td>
@@ -784,26 +784,11 @@ def build_html():
           <td><b>[__] nJ/loop</b><br/><span style="font-size:7.6pt;">(Est: ~0.36 nJ)</span></td>
         </tr>
         <tr>
-          <td><b>[1] Lee et al., IEEE Access 2021</b><br/><span style="font-size:7.8pt; color:#4a5568;">Multi-Axis Digital PID ASIC</span></td>
-          <td>CMOS 180 nm (1.8V)<br/><span style="font-size:7.6pt; color:#4a5568;">[Post-Layout · TT 25°C]</span></td>
-          <td>50 MHz</td>
-          <td>0.140 mm²<br/><span style="font-size:7.6pt; color:#4a5568;">(~14.2k GE)</span></td>
-          <td>4.20 mW</td>
-          <td>0.8 µs / loop<br/><span style="font-size:7.6pt; color:#4a5568;">(1.25 MLoops/s)</span></td>
-          <td>3.36 nJ/loop</td>
-        </tr>
-        <tr>
-          <td><b>[2] Hassan et al., IEEE 2020</b><br/><span style="font-size:7.8pt; color:#4a5568;">Parallel Quadcopter PID Core</span></td>
-          <td>Xilinx Artix-7 (28 nm)<br/><span style="font-size:7.6pt; color:#4a5568;">[Post-P&amp;R FPGA · 1.0V]</span></td>
-          <td>100 MHz</td>
-          <td>1,840 LUTs<br/><span style="font-size:7.6pt; color:#4a5568;">+ 3 DSP48 Slices</span></td>
-          <td>42.0 mW<br/><span style="font-size:7.6pt; color:#4a5568;">(Dynamic Power)</span></td>
-          <td>0.25 µs / loop<br/><span style="font-size:7.6pt; color:#4a5568;">(4.0 MLoops/s)</span></td>
-          <td>10.50 nJ/loop</td>
+          <td colspan="7" style="font-size:8pt; color:#4a5568; font-style:italic;">Hàng thiết kế đã công bố (ASIC/FPGA PID cho quadcopter) chỉ được đưa vào sau khi đối chiếu DOI và số liệu gốc của bài báo.</td>
         </tr>
         <tr class="mcu-row">
-          <td><b>[3] Software trên CPU/MCU</b><br/><span style="font-size:7.8pt; color:#1e4e8c;">(Baseline thực tế trên Drone nhóm)</span></td>
-          <td><b>STM32F103C8T6</b><br/><span style="font-size:7.6pt;">[Measured Silicon · 90nm, 3.3V]</span></td>
+          <td><b>[1] Software trên CPU/MCU</b><br/><span style="font-size:7.8pt; color:#1e4e8c;">(Baseline thực tế trên Drone nhóm)</span></td>
+          <td><b>STM32F103C8T6</b><br/><span style="font-size:7.6pt;">[Datasheet DS5319 · 3.3V · thời gian ước tính]</span></td>
           <td><b>72 MHz</b></td>
           <td>—<br/><span style="font-size:7.6pt;">(MCU 48-pin rời)</span></td>
           <td><b>118.8 mW</b><br/><span style="font-size:7.6pt;">(36 mA @ 3.3V)</span></td>
@@ -818,7 +803,7 @@ def build_html():
     <div class="card" style="padding: 2mm 3mm;">
       <div style="font-size:9.3pt; font-weight:800; color:#c86428;">So cùng loại &amp; Nguồn trích dẫn</div>
       <p style="font-size:8.2pt; color:#2d3748; margin-top:0.8mm;">
-        <b>[1]</b> J. Lee et al., <i>IEEE Access</i> (180nm ASIC PID); <b>[2]</b> M. Hassan et al., <i>IEEE ICAC</i> (Artix-7 FPGA Quadcopter PID); <b>[3]</b> Thực đo trên <code>STM32F103C8</code> của nhóm (Datasheet DS5319 &amp; <code>Flight.cpp</code>).
+        <b>[1]</b> <code>STM32F103C8</code> chạy <code>Flight.cpp</code> của nhóm: dòng 36 mA theo Datasheet DS5319; 18.5 µs là ước tính, sẽ đo bằng <code>DWT-&gt;CYCCNT</code>. Bài công bố chỉ thêm khi đã đối chiếu DOI.
       </p>
     </div>
     <div class="card" style="padding: 2mm 3mm;">
@@ -867,7 +852,7 @@ def build_html():
       <!-- [4] Bottom bar: Speed tag + Subtitle -->
       <div style="display:flex; align-items:center; gap:3mm;">
         <div style="background:#ea8030; color:#141c2b; font-weight:900; font-size:9.2pt; padding:2mm 3.5mm; border-radius:8px; white-space:nowrap;">
-          Thực thi 1×: 0.42 giây / 16.000 mẫu
+          Thực thi 1×: ≈ 5 giây / 16.000 mẫu
         </div>
         <div style="flex:1; background:#1e293b; border:1.5px solid #ea8030; border-radius:8px; padding:2mm 3.5mm; color:#f8fafc; font-size:9.5pt; font-weight:700; display:flex; align-items:center; justify-content:space-between;">
           <span>Output RTL (<code>m1..m4, mix_r/p/y</code>) khớp Bit-Exact 100% với Golden Model Python trên cả 7 kịch bản bay</span>
@@ -885,12 +870,11 @@ def build_html():
         </div>
         <div style="font-size:8.4pt; color:#cbd5e1; line-height:1.38;">
           <div>$ powershell -File ic/sim/run_demo_ban_ket.ps1</div>
-          <div style="color:#94a3b8;">[1] hover_gio_nhieu  : 2400/2400 OK</div>
-          <div style="color:#94a3b8;">[2] buoc_roll_pitch  : 2400/2400 OK</div>
-          <div style="color:#94a3b8;">[3] yaw_quay         : 2400/2400 OK</div>
-          <div style="color:#94a3b8;">[4] can_gat_ngau_nhien: 3200/3200 OK</div>
-          <div style="color:#94a3b8;">[5] ket_bao_hoa      : 1600/1600 OK</div>
-          <div style="color:#94a3b8;">[6..7] worst_case+arm: 4000/4000 OK</div>
+          <div style="color:#94a3b8;">[A] 7 kich ban, 16000 mau,</div>
+          <div style="color:#94a3b8;">    do tre toi da 20 chu ky clock / mau</div>
+          <div style="color:#94a3b8;">[A] PASS: 16000/16000 mau khop bit-exact</div>
+          <div style="color:#94a3b8;">[B] PASS: 16000/16000 mau khop bit-exact</div>
+          <div style="color:#94a3b8;">[SPI] PASS: 100/100 mau (MOSI va MISO)</div>
           <div style="color:#4ade80; font-size:11pt; font-weight:900; margin-top:1.5mm; background:#052e16; padding:1.5mm 2.5mm; border-radius:5px; border:1px solid #22c55e;">
             PASS 16000 / 16000 test (0 lỗi)
           </div>
@@ -931,7 +915,7 @@ def build_html():
         <b>Simulation RTL + Buồng lái 3D HIL, kịch bản đã tập:</b>
       </p>
       <ul class="clean" style="color:#cbd5e1;">
-        <li>Chạy script 1 lệnh <code>ic/sim/run_demo_ban_ket.ps1</code> kiểm chứng trực tiếp <b>16.000 mẫu PASS</b> cho cả Cấu hình A &amp; B trong 1 giây.</li>
+        <li>Chạy script 1 lệnh <code>ic/sim/run_demo_ban_ket.ps1</code> kiểm chứng trực tiếp <b>16.000 mẫu PASS</b> cho cả Cấu hình A &amp; B, cộng 100 mẫu qua giao tiếp SPI, trong vài giây.</li>
         <li>Mở trực tiếp <code>gcs_drone_simulator.html</code> trên Chrome nối với Tay cầm PCB qua USB Serial (<code>$SIMTEL</code>) để biểu diễn phản hồi PFD &amp; PID.</li>
       </ul>
     </div>
@@ -991,8 +975,8 @@ def build_html():
         <ul class="check-list">
           <li><b>Spec có số và điều kiện:</b> Đã lập bảng Spec tại Slide 2 (<code>10 MHz</code>, <code>dt = 2.5 ms</code>, <code>20 clk = 2.0 µs</code>, lệch <code>≤ 1 µs</code>, dải góc <code>±180°</code>, gyro <code>±2000°/s</code>).</li>
           <li><b>Slide vị trí trên design flow:</b> Đã mở đầu tại Slide 2, tách rõ nhánh Digital (<code>pid_ctrl</code>) và nhánh System (<code>UAV &amp; PCB</code>).</li>
-          <li><b>Mỗi số gắn nhãn bậc, corner:</b> Đã gắn rõ <code>[RTL Sim]</code>, <code>[Post-Synth · TT 25°C / SS 125°C]</code>, <code>[Measured Silicon]</code> tại Slide 7.</li>
-          <li><b>Bảng so sánh có nguồn:</b> Đã trích dẫn đầy đủ bài báo IEEE [1], [2] và thông số thực đo <code>STM32F103C8</code> [3] tại Slide 7.</li>
+          <li><b>Mỗi số gắn nhãn bậc, corner:</b> Đã gắn rõ <code>[RTL Sim]</code>, <code>[Ước tính · chờ Post-Synth TT/SS]</code>, <code>[Datasheet]</code> tại Slide 7.</li>
+          <li><b>Bảng so sánh có nguồn:</b> Baseline <code>STM32F103C8</code> theo Datasheet DS5319 [1]; bài công bố chỉ đưa vào khi đã đối chiếu DOI.</li>
         </ul>
       </div>
       <div class="card-accent" style="font-size:8.6pt;">
@@ -1054,7 +1038,7 @@ def build_html():
             <br/>Xuất phát từ thanh ghi toán hạng <code>mul_a[13:0]</code> / <code>mul_b[28:0]</code> ➔ đi qua <b>Bộ nhân có dấu 14×29-bit (<code>prod[42:0]</code>)</b> ➔ đi qua hàm <b>cộng làm tròn 1/2 LSB &amp; dịch phải <code>shr(prod, sh_d)</code></b> ➔ đi qua <b>bộ cộng 3 số hạng 28-bit (<code>p_w + i_w + d_term</code>)</b> ở trạng thái <code>S_D</code> ➔ chốt vào thanh ghi <code>u_w[27:0]</code>.</li>
           <li><b>Đánh giá Slack &amp; Tần số Cực đại (<code>f_max</code>):</b>
             <br/>Tổng độ trễ tổ hợp của chuỗi <code>Mul(14×29) + RoundAdder + Add(28b)</code> trên tiến trình CMOS 180nm/130nm/45nm chỉ khoảng <b>4.5 ns – 12.0 ns</b>.</li>
-          <li>Tại <code>10 MHz (100 ns)</code>, mạch đạt <b>Positive Slack rất lớn (&gt; +85 ns)</b>, đảm bảo <b>0 Timing Violation</b> ngay cả ở góc chậm nhất (<code>Slow-Slow Corner, 125°C, Vdd − 10%</code>).</li>
+          <li>Ước tính tại <code>10 MHz (100 ns)</code>, mạch có <b>Positive Slack rất lớn (&gt; +85 ns)</b>, đảm bảo <b>0 Timing Violation</b> ngay cả ở góc chậm nhất (<code>Slow-Slow Corner, 125°C, Vdd − 10%</code>).</li>
         </ul>
       </div>
       <div class="card-accent" style="font-size:8.8pt;">
@@ -1088,11 +1072,11 @@ def build_html():
         <ul class="clean">
           <li><b>Tại sao công suất của <code>pid_ctrl</code> siêu thấp?</b>
             <br/>Trong RTL (dòng 208–236 <code>pid_ctrl.v</code>), các thanh ghi <code>mul_a, mul_b, e_w, p_w, i_w, u_w</code> chỉ nạp dữ liệu mới khi <code>state != S_IDLE</code>. Trong <b>99.92%</b> thời gian còn lại, đầu vào bộ nhân đứng yên tuyệt đối, không sinh công suất động (Dynamic Glitch Power = 0).</li>
-          <li>Khi bật <b>Automated Clock Gating (ICG cell)</b> trong Cadence Genus, xung clock cấp cho 234 Flip-Flops được ngắt hoàn toàn khi <code>state == S_IDLE &amp;&amp; !sample_valid</code>.</li>
+          <li>Script <code>syn_genus.tcl</code> bật <b>Automated Clock Gating (ICG cell)</b> (<code>lp_insert_clock_gating</code>); xung clock cấp cho 234 Flip-Flops được ngắt hoàn toàn khi <code>state == S_IDLE &amp;&amp; !sample_valid</code>.</li>
         </ul>
       </div>
       <div class="card-dark" style="font-size:8.6pt;">
-        <b style="color:#f6ad55;">Lệnh kiểm tra trên Cadence Genus:</b> <code>genus -f ic/syn/syn_genus.tcl</code> ➔ xuất trực tiếp <code>reports/pid_ctrl_timing.rpt</code> và <code>reports/pid_ctrl_power.rpt</code>.
+        <b style="color:#f6ad55;">Lệnh kiểm tra trên Cadence Genus:</b> <code>CORNER=SS genus -f ic/syn/syn_genus.tcl</code> (chạy lại với <code>CORNER=TT</code>) ➔ xuất <code>reports/pid_ctrl_SS_timing.rpt</code>, <code>pid_ctrl_TT_power.rpt</code> và <code>pid_ctrl_*_clock_gating.rpt</code>.
       </div>
     </div>
   </div>
@@ -1165,10 +1149,10 @@ def build_html():
           <li><b>Vấn đề nếu đưa thẳng <code>pid_ctrl.v</code> ra chân chip:</b>
             <br/>Tổng số bit cổng song song là <code>6×22 (in) + 11 (thr) + 4×11 (motor) + 3×10 (mix) + 6 (ctrl) ≈ 223 chân I/O</code> ➔ Diện tích Pad Ring sẽ lớn gấp nhiều lần diện tích Core!</li>
           <li><b>Giải pháp đã hiện thực hóa trong <code>ic/rtl/spi_pid_wrapper.v</code>:</b>
-            <br/>Bọc lõi <code>pid_ctrl</code> trong bộ thu phát <b>SPI Slave Mode 0 (khung 192-bit)</b> có đồng bộ 2-FF chống Metastability:</li>
+            <br/>Bọc lõi <code>pid_ctrl</code> trong bộ thu phát <b>SPI Slave Mode 0 (khung 192-bit)</b> có đồng bộ chống Metastability (3-FF cho <code>sclk</code>/<code>cs_n</code>, 2-FF cho <code>mosi</code>), đã kiểm thử <b>PASS 16.000/16.000 mẫu qua SPI</b>:</li>
           <li><b>Chỉ cần đúng 7 chân (Pins) cho toàn bộ con chip:</b>
-            <br/><code>clk</code>, <code>rst_n</code>, <code>spi_sclk</code>, <code>spi_cs_n</code>, <code>spi_mosi</code>, <code>spi_miso</code>, <code>irq_out_valid</code> (cộng <code>VDD, VSS</code> là đóng gói vừa khít vỏ <b>SOIC-8 / QFN-16</b>!).</li>
-          <li>Ở tốc độ SPI <code>10 MHz</code>, truyền 192-bit chỉ mất <b>19.2 µs</b> + tính PID <b>2.0 µs</b> = <b>21.2 µs</b> (vẫn nhỏ hơn 118 lần so với chu kỳ IMU 2.500 µs!).</li>
+            <br/><code>clk</code>, <code>rst_n</code>, <code>spi_sclk</code>, <code>spi_cs_n</code>, <code>spi_mosi</code>, <code>spi_miso</code>, <code>irq_out_valid</code> (cộng <code>VDD, VSS</code> là 9 chân, vừa vỏ <b>QFN-16</b>; cổng <code>busy</code> của RTL là tùy chọn vì đã có ở bit 191 của MISO).</li>
+          <li>SCLK được lấy mẫu bằng <code>clk</code> nên phải ≤ <code>f_clk/4</code> (≈ 2.5 MHz). Ở SPI <code>2 MHz</code>, truyền 192-bit mất <b>96 µs</b> + tính PID <b>2.0 µs</b> = <b>98 µs</b> (chưa tới 4% chu kỳ IMU 2.500 µs).</li>
         </ul>
       </div>
       <div class="card-dark" style="font-family:Consolas, monospace; font-size:8.3pt;">

@@ -3,9 +3,11 @@
 // Nhom FPOLY UAV - Cuoc thi Thiet ke vi mach cho Do thi thong minh lan 3
 //
 // Giai quyet bai toan "Pad-Limited" khi Tape-out ASIC hoac nhung FPGA:
-//   - Loi pid_ctrl co ~160 bit dau vao/ra song song.
+//   - Loi pid_ctrl co ~223 chan vao/ra song song (6x22 + 11 + 4x11 + 3x10 + dieu khien).
 //   - Wrapper nay gom toan bo giao tiep voi MCU (ESP32) ve 4 chan SPI Mode 0
-//     (sclk, cs_n, mosi, miso) + clk, rst_n, irq_out_valid -> Tong cong 7 chan!
+//     (sclk, cs_n, mosi, miso) + clk, rst_n, irq_out_valid -> Tong cong 7 chan
+//     (cong busy la tuy chon: busy da co o bit 191 cua MISO).
+//   - SCLK duoc lay mau bang clk qua 3 flip-flop: f_sclk phai <= ~f_clk/4.
 //
 // Khung truyen SPI (192-bit = 24 byte moi giao dich khi cs_n = 0):
 //   * MOSI (ESP32 -> Chip):

@@ -7,8 +7,9 @@ Thư mục cho phần thiết kế vi mạch (Cuộc thi Thiết kế vi mạch 
 | 1. Mô hình fixed-point, chọn độ rộng bit | ✅ | [`model/`](model/) |
 | 2. RTL Verilog (`pid_ctrl.v` + `spi_pid_wrapper.v`) | ✅ biên dịch sạch (`vlog -lint`) | [`rtl/`](rtl/) |
 | 3. Testbench so bit-exact với golden vectors | ✅ **PASS 16000/16000** (Icarus Verilog 14, cả cấu hình A và B) | [`tb/`](tb/), [`sim/`](sim/) |
-| 4. Tổng hợp / STA (Cadence Genus) | 🟧 Script tự động [`syn/syn_genus.tcl`](syn/syn_genus.tcl) | [`syn/`](syn/) |
-| 5. Bộ Slide & Tài liệu Báo cáo Bán kết | ✅ HTML + PDF 16:9 ([`FPOLY_UAV_Bao_Cao_Ban_Ket_Slides.pdf`](doc/FPOLY_UAV_Bao_Cao_Ban_Ket_Slides.pdf)) | [`doc/`](doc/) |
+| 3b. Testbench SPI `spi_pid_wrapper` (khung 192 bit, Mode 0) | ✅ **PASS 16000/16000** qua SPI, MOSI và MISO bit-exact ([`tb/tb_spi_pid_wrapper.v`](tb/tb_spi_pid_wrapper.v)) | [`tb/`](tb/) |
+| 4. Tổng hợp / STA (Cadence Genus) | 🟧 Script tự động [`syn/syn_genus.tcl`](syn/syn_genus.tcl), mỗi corner một lần (`CORNER=SS/TT`), có clock gating; chưa chạy trên server | [`syn/`](syn/) |
+| 5. Bộ Slide, Kịch bản & Q&A Bán kết | ✅ HTML + PDF 16:9 ([`FPOLY_UAV_Bao_Cao_Ban_Ket_Slides.pdf`](doc/FPOLY_UAV_Bao_Cao_Ban_Ket_Slides.pdf)) | [`doc/`](doc/) |
 
 ## RTL
 
@@ -40,6 +41,7 @@ Testbench [`tb/tb_pid_ctrl.v`](tb/tb_pid_ctrl.v) đọc `tb/vectors.txt` (16.000
 | Công cụ | Lệnh (từ thư mục gốc repo) |
 |---|---|
 | Icarus Verilog (miễn phí) | `sh ic/sim/run_iverilog.sh` |
+| Demo 1 lệnh (A, B và SPI, chỉ PASS khi mô phỏng thật PASS) | `powershell -ExecutionPolicy Bypass -File ic/sim/run_demo_ban_ket.ps1` |
 | Cadence Xcelium | `sh ic/sim/run_xcelium.sh` |
 | ModelSim/Questa | `cd ic/sim && vsim -c -do run_modelsim.do` |
 

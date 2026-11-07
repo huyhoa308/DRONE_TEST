@@ -37,7 +37,7 @@
 
 <div class="note"><b>Đọc nhanh:</b> nhóm đã có drone bay được với thuật toán PID chạy trên STM32. Tài liệu này giải thích cách biến
 thuật toán đó thành một con chip riêng: đã làm được gì (mô hình số nguyên, mạch Verilog, bộ kiểm thử đã PASS), vì sao chọn như vậy,
-và còn phải làm gì tiếp. Mục 8 có bảng giải nghĩa các thuật ngữ.</div>
+và còn phải làm gì tiếp. Mục 6–8 khớp với bộ slide Bán kết (waveform, đóng gói SPI, bảng so sánh). Mục 11 có bảng giải nghĩa các thuật ngữ.</div>
 
 <h1>1. Thiết kế chip khác gì lập trình vi điều khiển?</h1>
 <p><b>Vi điều khiển (MCU) như STM32 giống một đầu bếp đa năng.</b> Bên trong có một bộ xử lý (CPU) biết làm mọi việc. Ta đưa
@@ -57,7 +57,7 @@ cho kết quả giống hệt bản đã bay thử.</p>
 <tr><td>2. Mô hình fixed-point</td><td>Chuyển số thập phân sang số nguyên để mạch tính được</td><td>Python</td><td>Xong</td></tr>
 <tr><td>3. RTL</td><td>"Vẽ" mạch điện bằng ngôn ngữ Verilog</td><td>Verilog</td><td>Xong, biên dịch không lỗi</td></tr>
 <tr><td>4. Mô phỏng</td><td>Chạy thử mạch trên máy tính, so với đáp án</td><td>Icarus Verilog</td><td>Xong — PASS 16.000/16.000 mẫu</td></tr>
-<tr><td>5. Tổng hợp</td><td>Đổi Verilog thành hàng nghìn cổng logic thật</td><td>Cadence Genus</td><td>Chưa làm</td></tr>
+<tr><td>5. Tổng hợp</td><td>Đổi Verilog thành hàng nghìn cổng logic thật</td><td>Cadence Genus</td><td>Đang làm — đã có script <code>syn/syn_genus.tcl</code>, chưa có số đo</td></tr>
 <tr><td>6. Layout</td><td>Xếp cổng lên mặt silicon và đi dây</td><td>Cadence Innovus</td><td>Chưa làm</td></tr>
 <tr><td>7. Kiểm tra cuối</td><td>Kiểm tra tốc độ, luật vẽ; xuất file gửi nhà máy</td><td>Tempus, Pegasus</td><td>Chưa làm</td></tr>
 </table>
@@ -176,7 +176,100 @@ Python tính sẵn.</li>
 </ul>
 <div class="ok"><b>Kết quả:</b> mô phỏng bằng Icarus Verilog 14 cho <b>PASS 16.000/16.000 mẫu</b> — mạch khớp từng bit với mô hình Python, mỗi mẫu tính xong trong đúng 20 chu kỳ clock, biên dịch với <code>-Wall</code> không có cảnh báo nào. Cả cấu hình A và B đều PASS. Để chắc testbench thật sự bắt được lỗi, nhóm đã thử sửa sai 1 đáp án trong bộ đề: testbench báo đúng <code>FAIL: 1/16000</code> và chỉ ra mẫu bị sai. Chạy lại bằng lệnh <code>sh ic/sim/run_iverilog.sh</code>.</div>
 
-<h1>6. Các file trong thư mục <code>ic/</code></h1>
+<h1 class="wide" style="page-break-before:always">6. Waveform: một mẫu IMU trong 20 chu kỳ clock</h1>
+<p class="wide">Hình dưới là dạng sóng mô phỏng của <b>một mẫu IMU</b> trong kịch bản đổi góc roll/pitch, phóng to vào đúng 20 nhịp clock
+(10 MHz, mỗi nhịp 0,1 µs). Đây là hình dùng ở vùng số 1 của Slide 8.</p>
+<p class="fig wide"><img src="png/waveform_zoom.png" width="660" data-maxh="9.5"></p>
+<p class="caption wide">Hình 5. <code>pid_ctrl.v</code> xử lý một mẫu IMU: FSM đi qua LOAD → FILT → P → I → D → SAT cho từng trục rồi MIX.
+Con trỏ đặt tại +2,0 µs (chu kỳ thứ 20): <code>m1..m4</code> được chốt và <code>out_valid</code> lên 1 nhịp.</p>
+<h2>6.1. Đọc hình từ trên xuống</h2>
+<ul>
+<li><b><code>sample_valid</code></b> (c0): xung 1 nhịp báo có mẫu IMU mới. Mạch chốt toàn bộ đầu vào (setpoint, góc, gyro, ga, arm) vào thanh ghi.</li>
+<li><b><code>busy</code></b> lên từ c1 đến hết c19: mạch đang tính. Trong lúc này đầu vào bên ngoài có đổi cũng không ảnh hưởng.</li>
+<li><b><code>axis</code></b>: 6 nhịp cho roll, 6 nhịp cho pitch, 6 nhịp cho yaw — <b>một bộ nhân dùng lần lượt</b> cho cả ba trục.</li>
+<li><b><code>state</code></b>: mỗi trục đi qua 6 bước. LOAD tính sai số e; FILT, P, I, D lấy kết quả bộ nhân; SAT bão hoà, chống tràn tích phân và ghi trạng thái.</li>
+<li><b><code>prod</code></b>: bộ nhân cho lần lượt 4 tích α·(ΔE − Df), KP'·e, KI'·A, KD'·Df. Ô "hold" là lúc bộ nhân không cần dùng.
+Nhờ nạp toán hạng cho phép nhân kế tiếp ngay khi đang lấy kết quả phép trước, bộ nhân bận 4 trên 6 nhịp mỗi trục.</li>
+<li><b><code>mix_r/p/y</code></b>: đầu ra từng trục được cập nhật ngay sau bước SAT của trục đó (r = +142, rồi p = −85, rồi y = +18).</li>
+<li><b><code>m1..m4</code></b> giữ giá trị của mẫu trước suốt quá trình tính, chỉ đổi một lần ở bước MIX, nên 4 động cơ luôn nhận lệnh nhất quán.</li>
+<li><b>Con trỏ +2,0 µs</b>: <code>out_valid</code> lên đúng 1 nhịp, 4 lệnh động cơ mới (1539, 1291, 1425, 1745 µs) sẵn sàng. Từ đây mạch
+nghỉ tới mẫu IMU sau — 2.498 µs còn lại của chu kỳ 2.500 µs.</li>
+</ul>
+<div class="ok"><b>Ý chính khi trình bày:</b> 20 nhịp = 1 nhịp chốt đầu vào + 3 trục × 6 nhịp + 1 nhịp mixer. Ở 10 MHz là 2,0 µs, tức chỉ
+0,08% chu kỳ điều khiển. Testbench đo độ trễ của cả 16.000 mẫu và báo tối đa đúng 20 chu kỳ.</div>
+
+<h1>7. Đóng gói giao tiếp: <code>spi_pid_wrapper.v</code> (chống pad-limited)</h1>
+<h2>7.1. Vấn đề: lõi PID có quá nhiều chân</h2>
+<p>Nếu đưa thẳng lõi <code>pid_ctrl</code> ra chân chip, mỗi bit dữ liệu là một chân (pad):</p>
+<table width="640">
+<tr><th>Nhóm tín hiệu</th><th>Phép tính</th><th>Số chân</th></tr>
+<tr><td>6 đầu vào setpoint và đo đạc</td><td>6 × 22 bit</td><td>132</td></tr>
+<tr><td>Ga (throttle)</td><td>11 bit</td><td>11</td></tr>
+<tr><td>4 lệnh động cơ</td><td>4 × 11 bit</td><td>44</td></tr>
+<tr><td>3 đầu ra PID từng trục</td><td>3 × 10 bit</td><td>30</td></tr>
+<tr><td>Điều khiển (clk, rst_n, clear, sample_valid, armed, out_valid, busy…)</td><td>khoảng 6</td><td>6</td></tr>
+<tr><td><b>Tổng</b></td><td></td><td><b>≈ 223</b></td></tr>
+</table>
+<p>Mỗi pad trên chip là một ô lớn (thường cỡ 50–100 µm mỗi cạnh). Với hơn 200 pad, <b>vành pad bao quanh chip lớn hơn lõi
+logic rất nhiều lần</b>: diện tích chip bị quyết định bởi số chân chứ không phải bởi mạch. Đó gọi là <b>pad-limited</b>.</p>
+
+<h2>7.2. Giải pháp: gom hết vào 4 dây SPI</h2>
+<p><code>ic/rtl/spi_pid_wrapper.v</code> bọc lõi PID trong một <b>SPI slave Mode 0</b> (CPOL = 0, CPHA = 0, bit cao gửi trước).
+ESP32 làm master, mỗi lần gửi một <b>khung 192 bit</b> (24 byte):</p>
+<table width="640">
+<tr><th>Chiều</th><th>Nội dung khung 192 bit</th></tr>
+<tr><td>MOSI (ESP32 → chip)</td><td><code>[191]</code> clear · <code>[190]</code> armed · <code>[189:179]</code> throttle · 6 trường 22 bit: sp_roll, sp_pitch, sp_yaw, roll, pitch, gz · 47 bit dự trữ (dành cho CRC)</td></tr>
+<tr><td>MISO (chip → ESP32)</td><td><code>[191]</code> busy · m1, m2, m3, m4 (11 bit mỗi cái) · mix_roll, mix_pitch, mix_yaw (10 bit mỗi cái) · phần còn lại là 0. Đây là <b>kết quả của mẫu trước</b>.</td></tr>
+</table>
+<ul>
+<li><b>Chân của chip:</b> <code>clk</code>, <code>rst_n</code>, <code>spi_sclk</code>, <code>spi_cs_n</code>, <code>spi_mosi</code>, <code>spi_miso</code>,
+<code>irq_out_valid</code> — <b>7 chân</b> (cộng VDD, VSS). File RTL còn đưa ra chân <code>busy</code>, nhưng busy đã nằm ở bit 191 của MISO nên
+có thể bỏ chân này khi đóng gói.</li>
+<li><b>Chống metastability:</b> SCLK, CS và MOSI đến từ ESP32 với clock khác, nên không dùng SCLK làm clock. SCLK và CS đi qua chuỗi
+3 flip-flop trong miền <code>clk</code> (2 tầng đồng bộ + 1 tầng phát hiện cạnh), MOSI qua 2 flip-flop. Cả chip chỉ có một miền clock.</li>
+<li><b>Chỉ nhận khung đủ:</b> khi CS lên, khung chỉ được đưa vào lõi nếu đã đếm đủ ít nhất 145 bit. Khung bị đứt giữa chừng không làm hỏng
+trạng thái PID. Bit <code>clear</code> = 1 thì khung đó chỉ xoá trạng thái, không tính mẫu.</li>
+<li><b>Tốc độ SPI:</b> vì SCLK được lấy mẫu bằng <code>clk</code>, SCLK phải chậm hơn khoảng <b>f_clk / 4</b> (≈ 2,5 MHz với clk 10 MHz).
+Ví dụ SCLK 2 MHz: 192 bit mất 96 µs, cộng 2 µs tính là khoảng 98 µs — vẫn chưa tới 4% chu kỳ IMU 2.500 µs.</li>
+</ul>
+<div class="note"><b>Kiểm thử:</b> testbench <code>tb/tb_spi_pid_wrapper.v</code> đóng vai ESP32, gửi 100 mẫu đầu của <code>vectors.txt</code>
+qua SPI, kiểm tra bit-exact cả chiều MOSI (giá trị đưa vào lõi) và MISO (kết quả đọc ở khung kế tiếp). Kết quả Icarus Verilog 12, SCLK 1 MHz: <b>PASS 100/100</b>, chạy đủ bộ đề cũng <b>PASS 16.000/16.000</b>; sửa sai 1 đáp án thì báo đúng FAIL. Lệnh chạy ghi ở đầu file testbench.</div>
+
+<h1 class="wide" style="page-break-before:always">8. So sánh với các thiết kế đã công bố</h1>
+<p class="wide">Bảng dùng ở Slide 7. Hiện chỉ có baseline MCU của nhóm; thiết kế đã công bố sẽ được thêm khi đối chiếu xong DOI. Mỗi số đều kèm <b>bậc</b> (RTL sim, post-synthesis, post-layout, đo trên silicon) và <b>corner</b>
+(điều kiện điện áp, nhiệt độ). Ô của nhóm ghi "ước tính" vì chưa có báo cáo Genus.</p>
+<table class="wide" width="640">
+<tr><th>Thiết kế &amp; nguồn</th><th>Node / bậc / corner</th><th>Tần số</th><th>Diện tích</th><th>Công suất</th><th>Độ trễ mỗi vòng</th><th>FoM (nJ/loop)</th></tr>
+<tr><td><b>Nhóm — cấu hình A</b> (PID 3 trục + mixer, nhân 14×29)</td><td>PDK Cadence · post-synth (chờ) · TT 25°C / SS 125°C</td><td>10 MHz (20 clk/mẫu)</td><td>chờ Genus (ước tính 2,8k–3,5k GE)</td><td>chờ Genus (ước tính 0,25 mW)</td><td>2,0 µs</td><td>ước tính 0,50</td></tr>
+<tr><td><b>Nhóm — cấu hình B</b> (nhân 11×21)</td><td>PDK Cadence · post-synth (chờ) · TT 25°C / SS 125°C</td><td>10 MHz (20 clk/mẫu)</td><td>chờ Genus (ước tính 2,1k GE)</td><td>chờ Genus (ước tính 0,18 mW)</td><td>2,0 µs</td><td>ước tính 0,36</td></tr>
+<tr><td>[1] Phần mềm trên STM32F103C8 (baseline của nhóm)</td><td>MCU 72 MHz, 3,3 V · datasheet DS5319, thời gian ước tính</td><td>72 MHz</td><td>— (chip MCU rời)</td><td>118,8 mW (36 mA × 3,3 V)</td><td>≈ 18,5 µs</td><td>≈ 2.198</td></tr>
+</table>
+
+<h2>8.1. FoM: thước đo đúng cho chip điều khiển</h2>
+<p>Chip mạng đo bằng Gbps; chip điều khiển bay chạy pin cần biết <b>tốn bao nhiêu năng lượng cho mỗi lần cập nhật 3 trục</b>:</p>
+<p><code>FoM = P × t_loop = P × (20 / f_clk)</code> [nJ/loop] — càng nhỏ càng tốt.</p>
+<ul>
+<li>Cấu hình A (ước tính): 0,25 mW × 2,0 µs = <b>0,50 nJ/loop</b>.</li>
+<li>STM32: 118,8 mW × 18,5 µs ≈ <b>2.198 nJ/loop</b>, tức gấp hơn 4.000 lần.</li>
+<li>FoM trên chỉ tính <b>lúc đang tính</b>. Năng lượng thật mỗi chu kỳ 2,5 ms còn cộng thêm điện rò lúc nghỉ:
+<code>E = P_active × 2 µs + P_leak × 2.498 µs</code>. Khi có báo cáo Genus, nhóm sẽ ghi cả hai con số.</li>
+</ul>
+
+<h2>8.2. Normalization: so sánh khi khác công nghệ</h2>
+<ul>
+<li><b>Diện tích → gate equivalent (GE):</b> chia diện tích cho diện tích một cổng NAND2 của chính thư viện đó. GE gần như không phụ
+thuộc node, nên so được chip 180 nm với chip 45 nm.</li>
+<li><b>Quy đổi theo kích thước node (Dennard):</b> <code>Area_norm = Area × (L_target / L_ref)<sup>2</sup></code>,
+<code>Power_norm = Power × (V_target / V_ref)<sup>2</sup> × (L_target / L_ref)</code>. Công thức này kém chính xác dưới khoảng 90 nm,
+nên chỉ dùng để so bậc độ lớn.</li>
+<li><b>FPGA</b> không quy ra GE tin cậy được: giữ nguyên LUT/DSP và so bằng FoM năng lượng.</li>
+<li>Chỉ so <b>cùng chức năng</b>: PID 3 trục + mixer.</li>
+</ul>
+<div class="note"><b>Trước khi nộp:</b> (1) điền số post-synthesis từ <code>reports/pid_ctrl_area.rpt</code> và <code>pid_ctrl_power.rpt</code>
+thay cho các ô "ước tính"; (2) chỉ thêm hàng thiết kế đã công bố khi có DOI và đã đối chiếu từng con số với bài báo gốc (hai trích dẫn cũ Lee 2021 và Hassan 2020 không tìm thấy nên đã gỡ);
+(3) số 18,5 µs của STM32 nên đo lại bằng bộ đếm <code>DWT-&gt;CYCCNT</code> trên board, còn 36 mA là số trong datasheet.</div>
+
+<h1>9. Các file trong thư mục <code>ic/</code></h1>
 <table width="640">
 <tr><th>File</th><th>Vai trò</th></tr>
 <tr><td><code>model/pid_model.py</code></td><td>Hai bản PID: số thực (chép STM32) và số nguyên (giống mạch)</td></tr>
@@ -185,11 +278,14 @@ Python tính sẵn.</li>
 <tr><td><code>model/export_rtl.py</code></td><td>Sinh file tham số và bộ đề cho mạch (chọn cấu hình A hoặc B)</td></tr>
 <tr><td><code>rtl/pid_ctrl.v</code></td><td><b>Mạch PID</b> — sản phẩm chính</td></tr>
 <tr><td><code>rtl/pid_params.vh</code></td><td>Số bit, hệ số, giới hạn — sinh tự động, không sửa tay</td></tr>
+<tr><td><code>rtl/spi_pid_wrapper.v</code></td><td>Vỏ SPI 192 bit bọc lõi PID, giảm số chân từ ≈ 223 xuống 7</td></tr>
 <tr><td><code>tb/tb_pid_ctrl.v</code>, <code>tb/vectors.txt</code></td><td>Người chấm bài và bộ đề</td></tr>
+<tr><td><code>tb/tb_spi_pid_wrapper.v</code></td><td>Kiểm thử giao tiếp SPI với 100 mẫu đầu của bộ đề</td></tr>
+<tr><td><code>syn/syn_genus.tcl</code></td><td>Script tổng hợp và xuất báo cáo diện tích, công suất, timing trên Cadence Genus</td></tr>
 <tr><td><code>sim/</code></td><td>Lệnh chạy mô phỏng cho Icarus, Xcelium, ModelSim</td></tr>
 </table>
 
-<h1>7. Việc tiếp theo và điểm nhóm cần quyết định</h1>
+<h1>10. Việc tiếp theo và điểm nhóm cần quyết định</h1>
 <table width="640">
 <tr><th>#</th><th>Việc</th><th>Ghi chú</th></tr>
 <tr><td>1</td><td>Mô phỏng RTL</td><td>Đã xong: PASS 16.000/16.000 (Icarus Verilog)</td></tr>
@@ -201,7 +297,7 @@ Python tính sẵn.</li>
 <tr><td>7</td><td>Buổi đào tạo Cadence</td><td>Chạy lại mô phỏng bằng Xcelium, rồi hỏi thẳng vào bước 5–7 (Genus, Innovus, kiểm tra cuối)</td></tr>
 </table>
 
-<h1>8. Thuật ngữ</h1>
+<h1>11. Thuật ngữ</h1>
 <table width="640">
 <tr><th>Thuật ngữ</th><th>Nghĩa</th></tr>
 <tr><td>Bit</td><td>Chữ số nhị phân (0 hoặc 1). Càng nhiều bit, số càng lớn/chính xác nhưng mạch càng to</td></tr>
