@@ -1,14 +1,18 @@
-"""Thiet ke va xuat bo Slide Bao Cao Ban Ket (HTML + PDF 16:9) cho nhom FPOLY UAV.
+"""Thiet ke va xuat bo Slide Bao Cao Ban Ket 12 Trang (HTML + PDF 16:9) cho nhom FPOLY UAV.
 
-Bam sat 100% format cua Hoi dong Giam khao:
-  - Slide 1: Bia & Lien ket He sinh thai 4 Tang (LLM - PCB - UAV Quad - ASIC pid_ctrl)
-  - Slide 2: Phan 1 - Tu Spec den Silicon: Du an dang o dau tren flow (Chuan Hinh 1 cua BTC)
+Bam sat 100% tat ca cac slide huong dan cua Ban To Chuc (BTC):
+  - Slide 1: Bia, "Cau gioi thieu mot dong" (One-Line Pitch) & Lien ket He sinh thai 4 Tang
+  - Slide 2: Phan 1 - Tu Spec den Silicon: Du an dang o dau tren flow (Chuan Hinh 1 cua BTC) + Bang Spec co so va dieu kien
   - Slide 3: Bai toan Do thi Thong minh & Kien truc Dong xu ly "Edge LLM + Hardwired PID ASIC"
   - Slide 4: Tu Thuat toan Bay STM32 (Flight.cpp) sang Mo hinh Toan hoc Fixed-Point Khong Phep Chia
   - Slide 5: Kien truc Vi mach pid_ctrl.v — FSM 20 Chu ky & 1 Bo Nhan 14x29 Dung Chung
   - Slide 6: Danh doi Thiet ke (DSE: Cau hinh A vs. B) & Verification Bit-Exact 16.000 Mau
-  - Slide 7: Bang So sanh voi Published Designs, Normalization & FoM (Chuan Hinh 2 cua BTC)
-  - Slide 8: Thuc nghiem He thong (PCB, Drone, 3D Sim) & Ke hoach Tien toi Vong Chung Ket
+  - Slide 7: Bang So sanh voi Published Designs, Normalization, FoM, Nhan bac & Corner (Chuan Hinh 2 cua BTC)
+  - Slide 8: Mot khung quay man hinh thuyet phuc (4 vung 1-2-3-4: Waveform + Self-checking log + Hardware + Phu de)
+  - Slide 9: Demo truc tiep: Luon co phuong an A, B va C + Kich ban Video & Phan vai
+  - Slide 10: Checklist truoc Vong hoan thien san pham (12/12 muc Design, Bai trinh bay, Video & Demo) & Lo trinh Chung ket
+  - Slide 11: [SLIDE DU PHONG 1 - Q&A] Phan tich Chi tiet Timing (Critical Path) & Power (Dynamic/Leakage/Idle Gating)
+  - Slide 12: [SLIDE DU PHONG 2 - Q&A] Verification Coverage Matrix (FSM, Datapath, Anti-Windup) & Giao tiep SPI Wrapper
 
 Chay: python ic/doc/build_semifinal_slides.py
 """
@@ -38,12 +42,13 @@ def build_html():
     b64_step = img_b64('step_roll.png')
     b64_drone = img_b64('wiring_drone.png')
     b64_s3 = img_b64('wiring_s3.png')
+    b64_wave = img_b64('waveform_zoom.png')
 
     html = f"""<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<title>Báo Cáo Bán Kết — Thiết Kế Vi Mạch Điều Khiển Bay FPOLY UAV</title>
+<title>Báo Cáo Bán Kết — Thiết Kế Vi Mạch Điều Khiển Bay FPOLY UAV (12 Slides)</title>
 <style>
   @page {{
     size: 297mm 167.0625mm;
@@ -74,7 +79,7 @@ def build_html():
     background: #fbf8f3;
     position: relative;
     overflow: hidden;
-    padding: 9mm 14mm 8mm 14mm;
+    padding: 8.5mm 14mm 7.5mm 14mm;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -89,68 +94,57 @@ def build_html():
 
   /* Typography matching BTC template */
   .kicker {{
-    font-size: 10pt;
+    font-size: 9.8pt;
     font-weight: 800;
     color: #c86428;
     letter-spacing: 0.8px;
     text-transform: uppercase;
-    margin-bottom: 1.5mm;
+    margin-bottom: 1.2mm;
   }}
   .slide-title {{
-    font-size: 22pt;
+    font-size: 21.5pt;
     font-weight: 800;
     color: #141c2b;
     line-height: 1.15;
-    margin-bottom: 2.5mm;
+    margin-bottom: 2.2mm;
   }}
   .slide-sub {{
-    font-size: 11.5pt;
+    font-size: 11pt;
     color: #4a5568;
-    margin-bottom: 2.5mm;
+    margin-bottom: 2mm;
   }}
   .slide-footer {{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 9pt;
+    font-size: 8.8pt;
     color: #718096;
     border-top: 1px solid #e2ded6;
-    padding-top: 2mm;
+    padding-top: 1.8mm;
     margin-top: auto;
   }}
-  .badge {{
-    display: inline-block;
-    padding: 2px 9px;
-    border-radius: 5px;
-    font-size: 9.5pt;
-    font-weight: 700;
-  }}
-  .badge-navy {{ background: #16243b; color: #ffffff; }}
-  .badge-orange {{ background: #d97328; color: #ffffff; }}
-  .badge-green {{ background: #1f7a3f; color: #ffffff; }}
-  .badge-outline {{ border: 1.5px dashed #8c96a6; color: #4a5568; background: #ffffff; }}
 
   /* Flow diagram (Slide 2 - exact match to Image 1) */
   .flow-container {{
     display: flex;
     flex-direction: column;
-    gap: 5mm;
-    margin: 3mm 0;
+    gap: 3.2mm;
+    margin: 1mm 0;
   }}
   .flow-row {{
     display: grid;
-    grid-template-columns: 26mm repeat(6, 1fr);
+    grid-template-columns: 25mm repeat(6, 1fr);
     align-items: center;
-    gap: 3.5mm;
+    gap: 3mm;
   }}
   .flow-label {{
-    font-size: 13pt;
+    font-size: 12pt;
     font-weight: 800;
   }}
   .flow-box {{
-    height: 22mm;
+    height: 18.5mm;
     border-radius: 7px;
-    padding: 2.5mm 3mm;
+    padding: 2mm 2.5mm;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -159,15 +153,15 @@ def build_html():
     position: relative;
   }}
   .flow-box .fb-title {{
-    font-size: 10.5pt;
+    font-size: 9.8pt;
     font-weight: 800;
-    line-height: 1.2;
+    line-height: 1.15;
   }}
   .flow-box .fb-sub {{
-    font-size: 8pt;
-    margin-top: 1.2mm;
+    font-size: 7.6pt;
+    margin-top: 1mm;
     opacity: 0.92;
-    line-height: 1.15;
+    line-height: 1.12;
   }}
   .fb-done {{
     background: #132238;
@@ -186,15 +180,14 @@ def build_html():
   }}
   .flow-legend {{
     display: flex;
-    gap: 8mm;
+    gap: 7mm;
     align-items: center;
-    font-size: 10.5pt;
-    margin-top: 1mm;
-    padding-left: 29mm;
+    font-size: 9.5pt;
+    padding-left: 28mm;
   }}
   .legend-dot {{
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 3px;
     display: inline-block;
     vertical-align: middle;
@@ -205,20 +198,25 @@ def build_html():
   .grid-2 {{
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 6mm;
+    gap: 5mm;
     flex: 1;
   }}
   .grid-2-wide-left {{
     display: grid;
-    grid-template-columns: 1.25fr 0.75fr;
-    gap: 6mm;
+    grid-template-columns: 1.24fr 0.76fr;
+    gap: 5mm;
     flex: 1;
   }}
   .grid-2-wide-right {{
     display: grid;
     grid-template-columns: 0.82fr 1.18fr;
-    gap: 6mm;
+    gap: 5mm;
     flex: 1;
+  }}
+  .grid-3 {{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4.5mm;
   }}
   .grid-4 {{
     display: grid;
@@ -229,25 +227,25 @@ def build_html():
     background: #ffffff;
     border: 1.5px solid #e2ded6;
     border-radius: 8px;
-    padding: 3.2mm 4mm;
+    padding: 3mm 3.8mm;
   }}
   .card-dark {{
     background: #132238;
     color: #ffffff;
     border-radius: 8px;
-    padding: 3.2mm 4mm;
+    padding: 3mm 3.8mm;
   }}
   .card-accent {{
     background: #fff4eb;
     border-left: 4px solid #d97328;
     border-radius: 6px;
-    padding: 2.5mm 3.5mm;
+    padding: 2.2mm 3.5mm;
   }}
   .card-title {{
-    font-size: 11pt;
+    font-size: 10.8pt;
     font-weight: 800;
     color: #132238;
-    margin-bottom: 1.5mm;
+    margin-bottom: 1.4mm;
   }}
   .card-dark .card-title {{
     color: #f6ad55;
@@ -256,10 +254,10 @@ def build_html():
     list-style: none;
   }}
   ul.clean li {{
-    font-size: 9.6pt;
-    line-height: 1.36;
-    margin-bottom: 1.3mm;
-    padding-left: 3.8mm;
+    font-size: 9.4pt;
+    line-height: 1.35;
+    margin-bottom: 1.2mm;
+    padding-left: 3.6mm;
     position: relative;
   }}
   ul.clean li::before {{
@@ -269,9 +267,26 @@ def build_html():
     color: #d97328;
     font-weight: bold;
   }}
+  ul.check-list {{
+    list-style: none;
+  }}
+  ul.check-list li {{
+    font-size: 9.3pt;
+    line-height: 1.38;
+    margin-bottom: 1.5mm;
+    padding-left: 5mm;
+    position: relative;
+  }}
+  ul.check-list li::before {{
+    content: "☑";
+    position: absolute;
+    left: 0;
+    color: #1f7a3f;
+    font-weight: bold;
+  }}
   code {{
     font-family: Consolas, 'JetBrains Mono', monospace;
-    font-size: 9.2pt;
+    font-size: 8.9pt;
     background: #edf2f7;
     color: #1a202c;
     padding: 1px 4px;
@@ -287,18 +302,18 @@ def build_html():
     width: 100%;
     border-collapse: collapse;
     background: #ffffff;
-    font-size: 9pt;
+    font-size: 8.8pt;
   }}
   table.comp-table th {{
     background: #dedad2;
     color: #141c2b;
     font-weight: 800;
     text-align: left;
-    padding: 2mm 2.5mm;
+    padding: 1.8mm 2.4mm;
     border: 1px solid #b8b2a6;
   }}
   table.comp-table td {{
-    padding: 1.8mm 2.5mm;
+    padding: 1.6mm 2.4mm;
     border: 1px solid #c8c2b6;
     vertical-align: middle;
   }}
@@ -321,25 +336,52 @@ def build_html():
     border: 1px solid #dcd7ce;
     background: #ffffff;
   }}
+  .num-badge {{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #ea8030;
+    color: #141c2b;
+    font-weight: 900;
+    font-size: 10pt;
+    margin-right: 5px;
+    flex-shrink: 0;
+  }}
+  .tag-pill {{
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 7.5pt;
+    font-weight: 700;
+    background: #132238;
+    color: #fbd38d;
+    margin-top: 2px;
+  }}
 </style>
 </head>
 <body>
 <div class="deck">
 
-<!-- ========================================================= SLIDE 1: COVER ========================================================= -->
+<!-- ========================================================= SLIDE 1: COVER + ONE-LINE PITCH ========================================================= -->
 <section class="slide" style="background: linear-gradient(135deg, #101d30 0%, #1a2e49 100%); color: #ffffff;">
   <div>
     <div class="kicker" style="color: #f6ad55;">CUỘC THI THIẾT KẾ VI MẠCH CHO ĐÔ THỊ THÔNG MINH LẦN 3 · BẢNG SINH VIÊN · BÁO CÁO BÁN KẾT</div>
-    <h1 class="slide-title" style="color: #ffffff; font-size: 29pt; margin-top: 2mm;">
-      THIẾT KẾ VI MẠCH ĐIỀU KHIỂN BAY SỐ (<code style="font-size:24pt;">pid_ctrl</code>)<br/>
+    <h1 class="slide-title" style="color: #ffffff; font-size: 26pt; margin-top: 1.5mm;">
+      THIẾT KẾ VI MẠCH ĐIỀU KHIỂN BAY SỐ (<code style="font-size:22pt;">pid_ctrl</code>)<br/>
       CHO UAV QUADCOPTER TRONG ĐÔ THỊ THÔNG MINH
     </h1>
-    <p class="slide-sub" style="color: #cbd5e0; font-size: 13pt;">
-      Từ Thuật toán Bay Thực tế trên STM32/ESP32 &amp; Trạm Điều phối AI (LLM) đến Lõi IP/ASIC Fixed-Point Không Phép Chia
-    </p>
+    <!-- One-line pitch required by BTC Checklist -->
+    <div style="background: rgba(237,137,54,0.18); border-left: 4px solid #f6ad55; padding: 2.5mm 4mm; border-radius: 6px; margin-top: 2mm;">
+      <p style="font-size: 10.8pt; color: #fefcbf; line-height: 1.35;">
+        <b>Câu giới thiệu một dòng (One-Line Pitch):</b> Chuyển hóa thuật toán điều khiển bay PID 3 trục + Mixer đã bay thực tế trên STM32 thành <b>lõi IP vi mạch số không phép chia, dùng chung 1 bộ nhân</b>, hoàn thành chu kỳ tính trong <b>2.0 µs (@ 10 MHz)</b> — nhanh gấp <b>9.2×</b> và tiết kiệm năng lượng gấp <b>&gt;1.000×</b> so với MCU.
+      </p>
+    </div>
   </div>
 
-  <div class="grid-4" style="margin: 3mm 0;">
+  <div class="grid-4" style="margin: 2.5mm 0;">
     <div class="card-dark" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);">
       <div class="card-title">1. Tầng AI / LLM &amp; GCS</div>
       <ul class="clean" style="color: #e2e8f0;">
@@ -361,10 +403,10 @@ def build_html():
         <li>Baseline MCU: <b>STM32F103C8</b> chạy <code>Flight.cpp</code> đã bay thực tế.</li>
       </ul>
     </div>
-    <div class="card-dark" style="background: rgba(237,137,54,0.22); border: 2px solid #f6ad55;">
+    <div class="card-dark" style="background: rgba(237,137,54,0.24); border: 2px solid #f6ad55;">
       <div class="card-title" style="color: #fbd38d;">4. Tầng Vi Mạch Số (Trọng Tâm)</div>
       <ul class="clean" style="color: #ffffff;">
-        <li>RTL Verilog <code>pid_ctrl.v</code>: PID 3 trục + Mixer X-frame.</li>
+        <li>RTL Verilog <code>pid_ctrl.v</code> + <code>spi_pid_wrapper.v</code>.</li>
         <li><b>1 bộ nhân 14×29</b> dùng chung, trễ <b>20 clock (2 µs)</b>, <b>PASS 16.000/16.000</b>.</li>
       </ul>
     </div>
@@ -372,28 +414,27 @@ def build_html():
 
   <div class="slide-footer" style="border-top-color: rgba(255,255,255,0.18); color: #a0aec0;">
     <div><b>Nhóm FPOLY UAV (ReShape Lab)</b> · Bộ môn Điện – Cơ khí, FPT Polytechnic Đà Nẵng</div>
-    <div>Slide 1 / 8</div>
+    <div>Slide 1 / 12</div>
   </div>
 </section>
 
-<!-- ========================================================= SLIDE 2: FLOW (IMAGE 1 MATCH) ========================================================= -->
+<!-- ========================================================= SLIDE 2: FLOW + SPEC WITH CONDITIONS (IMAGE 1 + CHECKLIST) ========================================================= -->
 <section class="slide">
   <div>
     <div class="kicker">PHẦN 1 · TỪ SPEC ĐẾN SILICON</div>
-    <h2 class="slide-title">Mở đầu bằng: dự án đang ở đâu trên flow</h2>
+    <h2 class="slide-title">Mở đầu bằng: dự án đang ở đâu trên flow &amp; Bảng Spec</h2>
   </div>
 
   <div class="flow-container">
-    <!-- Digital Flow (Main track of FPOLY UAV) -->
     <div class="flow-row">
-      <div class="flow-label" style="color: #1e4e8c;">Digital<br/><span style="font-size:9pt; font-weight:600; color:#4a5568;">(pid_ctrl IP)</span></div>
+      <div class="flow-label" style="color: #1e4e8c;">Digital<br/><span style="font-size:8.5pt; font-weight:600; color:#4a5568;">(pid_ctrl IP)</span></div>
       <div class="flow-box fb-done">
         <div class="fb-title">Spec &amp; architecture</div>
         <div class="fb-sub">400Hz IMU, Python Q.10, 1-Multiplier FSM</div>
       </div>
       <div class="flow-box fb-done">
         <div class="fb-title">RTL</div>
-        <div class="fb-sub">pid_ctrl.v (263 dòng)<br/>vlog -lint 0 warning</div>
+        <div class="fb-sub">pid_ctrl.v + SPI wrap<br/>vlog -lint 0 warning</div>
       </div>
       <div class="flow-box fb-done">
         <div class="fb-title">Verification</div>
@@ -409,13 +450,12 @@ def build_html():
       </div>
       <div class="flow-box fb-plan">
         <div class="fb-title">GDS / FPGA</div>
-        <div class="fb-sub">Xuất GDSII + Nhúng FPGA HIL trên Drone</div>
+        <div class="fb-sub">Xuất GDSII + Nhúng<br/>FPGA HIL trên Drone</div>
       </div>
     </div>
 
-    <!-- System / Board Integration Flow -->
     <div class="flow-row">
-      <div class="flow-label" style="color: #b85d19;">System<br/><span style="font-size:9pt; font-weight:600; color:#4a5568;">(UAV &amp; PCB)</span></div>
+      <div class="flow-label" style="color: #b85d19;">System<br/><span style="font-size:8.5pt; font-weight:600; color:#4a5568;">(UAV &amp; PCB)</span></div>
       <div class="flow-box fb-done">
         <div class="fb-title">UAV &amp; MCU Baseline</div>
         <div class="fb-sub">STM32F103 Flight.cpp<br/>&amp; Khung Carbon 3D</div>
@@ -433,8 +473,8 @@ def build_html():
         <div class="fb-sub">Đo đạc Latency &amp; Power<br/>STM32 vs. pid_ctrl</div>
       </div>
       <div class="flow-box fb-plan">
-        <div class="fb-title">SPI/UART Wrapper</div>
-        <div class="fb-sub">Đóng gói giao tiếp 8-pin<br/>nối thẳng ESP32</div>
+        <div class="fb-title">SPI Slave Wrapper</div>
+        <div class="fb-sub">Đóng gói giao tiếp 7-pin<br/>nối thẳng ESP32</div>
       </div>
       <div class="flow-box fb-plan">
         <div class="fb-title">Closed-Loop Demo</div>
@@ -443,21 +483,48 @@ def build_html():
     </div>
 
     <div class="flow-legend">
-      <div><span class="legend-dot" style="background:#132238;"></span><b>Đã xong (Hoàn thành 100% &amp; có script tự động kiểm chứng)</b></div>
-      <div><span class="legend-dot" style="background:#dc7629;"></span><b>Đang làm (Trọng tâm báo cáo Bán kết trên Cadence)</b></div>
+      <div><span class="legend-dot" style="background:#132238;"></span><b>Đã xong (Hoàn thành 100%)</b></div>
+      <div><span class="legend-dot" style="background:#dc7629;"></span><b>Đang làm (Trọng tâm Bán kết)</b></div>
       <div><span class="legend-dot" style="border:2px dashed #94a3b8; background:#fff;"></span><b>Kế hoạch đến Chung kết</b></div>
     </div>
   </div>
 
-  <div class="card-accent" style="margin-top: 2mm;">
-    <p style="font-size: 11pt; color: #141c2b;">
-      <b style="color:#c86428;">Vì sao mở đầu bằng Flow:</b> Mọi con số sau đó được hội đồng hiểu đúng mức tin cậy — nhóm tách bạch minh bạch giữa <b>kết quả kiểm thử RTL bit-exact (16.000 mẫu)</b>, <b>số liệu Post-Synthesis (Cadence Genus)</b> tại Bán kết và <b>số liệu Post-Layout (Cadence Innovus)</b> ở Chung kết.
-    </p>
+  <!-- Spec Table with Exact Numbers & Operating Conditions (BTC Checklist requirement) -->
+  <div class="card" style="padding: 2mm 3mm;">
+    <div style="font-size:9.8pt; font-weight:800; color:#132238; margin-bottom:1mm;">
+      Bảng Spec Thiết kế &amp; Điều kiện Hoạt động (Design Specifications &amp; Corner Conditions):
+    </div>
+    <table class="comp-table" style="font-size:8.4pt;">
+      <tr>
+        <th>Thông số Spec</th>
+        <th>Mục tiêu Thiết kế (Target)</th>
+        <th>Kết quả Đạt được (Achieved)</th>
+        <th>Điều kiện Đo / Kiểm chứng (Conditions &amp; Level)</th>
+      </tr>
+      <tr>
+        <td><b>Tần số Clock / Latency</b></td>
+        <td><code>f_clk = 10 MHz</code> · Latency ≤ 10 µs</td>
+        <td><b>20 chu kỳ clock = 2.0 µs / mẫu 3 trục</b></td>
+        <td><code>[RTL Sim &amp; STA]</code> Chu kỳ IMU <code>dt = 2.5 ms (400 Hz)</code></td>
+      </tr>
+      <tr>
+        <td><b>Sai số Lượng tử vs. MCU</b></td>
+        <td>Lệch xung Motor ≤ 1 µs (&lt; 1% mẫu)</td>
+        <td><b>Max 1 µs (0.706% mẫu, RMS 0.08 µs)</b></td>
+        <td><code>[Bit-Exact Sim]</code> 16.000 mẫu, 7 kịch bản, dải xung <code>1000..2000 µs</code></td>
+      </tr>
+      <tr>
+        <td><b>Độ rộng Datapath / I/O</b></td>
+        <td>Không tràn số với góc ±180°, gyro ±2000°/s</td>
+        <td><b>In 22b (Q.10), Mul 14×29b, 7-pin SPI</b></td>
+        <td><code>[RTL / Post-Synth]</code> Corner chuẩn: <code>TT (1.8V/1.2V, 25°C)</code> &amp; <code>SS (125°C)</code></td>
+      </tr>
+    </table>
   </div>
 
   <div class="slide-footer">
     <div>Thiết kế vi mạch cho đô thị thông minh lần 3 · Bảng sinh viên · Nhóm FPOLY UAV</div>
-    <div>Slide 2 / 8</div>
+    <div>Slide 2 / 12</div>
   </div>
 </section>
 
@@ -469,7 +536,7 @@ def build_html():
   </div>
 
   <div class="grid-2-wide-left">
-    <div style="display:flex; flex-direction:column; gap:3.5mm;">
+    <div style="display:flex; flex-direction:column; gap:3mm;">
       <div class="card">
         <div class="card-title">1. Bài toán thực tế trên Drone Quadcopter của nhóm</div>
         <ul class="clean">
@@ -491,8 +558,8 @@ def build_html():
 
     <div class="card" style="display:flex; flex-direction:column; justify-content:space-between; align-items:center; text-align:center;">
       <div class="card-title" style="align-self:flex-start;">Kiến trúc Phần cứng Nguyên mẫu đã Chế tạo</div>
-      <img src="{b64_drone}" class="img-fit" style="max-height: 82mm; object-fit: contain;"/>
-      <p style="font-size: 9pt; color: #4a5568; margin-top: 2mm;">
+      <img src="{b64_drone}" class="img-fit" style="max-height: 80mm; object-fit: contain;"/>
+      <p style="font-size: 8.8pt; color: #4a5568; margin-top: 1.5mm;">
         <b>Hình thực tế hệ thống:</b> <code>ESP32</code> thu thập IMU BNO085 + GPS + RF <code>0xBC/0xCD</code>; khối <code>STM32</code> hiện tại được thay thế trực tiếp bằng <b>Chip ASIC/IP <code>pid_ctrl</code></b>.
       </p>
     </div>
@@ -500,7 +567,7 @@ def build_html():
 
   <div class="slide-footer">
     <div>Thiết kế vi mạch cho đô thị thông minh lần 3 · Bảng sinh viên · Nhóm FPOLY UAV</div>
-    <div>Slide 3 / 8</div>
+    <div>Slide 3 / 12</div>
   </div>
 </section>
 
@@ -512,13 +579,13 @@ def build_html():
   </div>
 
   <div class="grid-2">
-    <div style="display:flex; flex-direction:column; gap:3.5mm;">
+    <div style="display:flex; flex-direction:column; gap:3mm;">
       <div class="card">
         <div class="card-title">1. Loại bỏ hoàn toàn bộ chia phần cứng (Zero-Divider Datapath)</div>
-        <p style="font-size:9.8pt; margin-bottom:2mm;">
+        <p style="font-size:9.3pt; margin-bottom:1.8mm;">
           Vì IMU BNO085 xuất mẫu đều đặn ở <b>400 Hz (dt = 2.5 ms cố định)</b>, nhóm gộp <code>dt</code> và hệ số khuếch đại đầu ra (<code>OUTPUT_SCALE = 3</code>) vào thẳng hằng số thiết kế:
         </p>
-        <table class="comp-table" style="font-size:9pt;">
+        <table class="comp-table" style="font-size:8.6pt;">
           <tr><th>Đại lượng</th><th>Code STM32 (Float32)</th><th>Vi mạch <code>pid_ctrl</code> (Số nguyên)</th></tr>
           <tr><td>Tích phân</td><td><code>I += e * dt</code> (|I| ≤ 100)</td><td><code>A += e</code> (chỉ cộng, |A| ≤ 40.000)</td></tr>
           <tr><td>Đạo hàm</td><td><code>D = (e - e_prev) / dt</code></td><td><code>ΔE = (e - e_prev) &lt;&lt; FD</code> (không chia)</td></tr>
@@ -530,9 +597,9 @@ def build_html():
       <div class="card" style="padding: 2.5mm 3.5mm;">
         <div class="card-title">2. Ba phát hiện kỹ thuật quan trọng từ <code>ic/model/analyze.py</code></div>
         <ul class="clean">
-          <li style="font-size:9.1pt; line-height:1.3;"><b>Shift riêng cho từng hệ số (Per-Gain Shift):</b> Vì <code>KI' = 0.0003</code> (shift 25) và <code>KD' = 36</code> (shift 12) lệch nhau <b>5 bậc độ lớn (10<sup>5</sup>)</b>, dùng chung định dạng Q sẽ gây tràn hoặc mất sạch tích phân.</li>
-          <li style="font-size:9.1pt; line-height:1.3;"><b>Khâu D quyết định số bit đầu vào (<code>FE = 10</code>):</b> <code>KD' = 36</code> nhân sai số lượng tử góc lên 36 lần. Chọn <code>Q.10</code> (bước 0.001°) giúp sai lệch xung motor ≤ <b>1 µs</b>.</li>
-          <li style="font-size:9.1pt; line-height:1.3;"><b>Làm tròn 1/2 LSB (<code>ROUND = 1</code>) là bắt buộc:</b> Cộng <code>1 &lt;&lt; (n-1)</code> trước khi dịch phải giúp đạt chuẩn (lệch 1 µs ở 0.71% chu kỳ); nếu cắt (floor) sai số vọt lên 2 µs.</li>
+          <li style="font-size:9pt; line-height:1.3;"><b>Shift riêng cho từng hệ số (Per-Gain Shift):</b> Vì <code>KI' = 0.0003</code> (shift 25) và <code>KD' = 36</code> (shift 12) lệch nhau <b>5 bậc độ lớn (10<sup>5</sup>)</b>, dùng chung định dạng Q sẽ gây tràn hoặc mất sạch tích phân.</li>
+          <li style="font-size:9pt; line-height:1.3;"><b>Khâu D quyết định số bit đầu vào (<code>FE = 10</code>):</b> <code>KD' = 36</code> nhân sai số lượng tử góc lên 36 lần. Chọn <code>Q.10</code> (bước 0.001°) giúp sai lệch xung motor ≤ <b>1 µs</b>.</li>
+          <li style="font-size:9pt; line-height:1.3;"><b>Làm tròn 1/2 LSB (<code>ROUND = 1</code>) là bắt buộc:</b> Cộng <code>1 &lt;&lt; (n-1)</code> trước khi dịch phải giúp đạt chuẩn (lệch 1 µs ở 0.71% chu kỳ); nếu cắt (floor) sai số vọt lên 2 µs.</li>
         </ul>
       </div>
     </div>
@@ -541,7 +608,7 @@ def build_html():
       <div class="card-title" style="align-self:flex-start;">Đáp ứng vòng kín: Float32 (STM32) vs. Fixed-Point (Chip)</div>
       <img src="{b64_step}" class="img-fit" style="max-height: 62mm; object-fit: contain;"/>
       <div class="card-accent" style="width:100%;">
-        <p style="font-size:9pt;">
+        <p style="font-size:8.9pt;">
           <b>Kiểm chứng điều khiển học:</b> Đáp ứng bước góc Roll (0° → 20° → −10°) của <b>Cấu hình A</b> (lệch max 0.013°) và <b>Cấu hình B</b> (lệch max 0.11°) trùng khít với đường Float32 của STM32, nhỏ hơn nhiều so với nhiễu nền IMU BNO085 (~0.3°).
         </p>
       </div>
@@ -550,7 +617,7 @@ def build_html():
 
   <div class="slide-footer">
     <div>Thiết kế vi mạch cho đô thị thông minh lần 3 · Bảng sinh viên · Nhóm FPOLY UAV</div>
-    <div>Slide 4 / 8</div>
+    <div>Slide 4 / 12</div>
   </div>
 </section>
 
@@ -574,19 +641,19 @@ def build_html():
 
       <div class="card">
         <div class="card-title">Lịch trình 20 chu kỳ clock (Pipeline 1-Multiplier)</div>
-        <img src="{b64_fsm}" class="img-fit" style="max-height: 42mm; object-fit: contain;"/>
+        <img src="{b64_fsm}" class="img-fit" style="max-height: 40mm; object-fit: contain;"/>
       </div>
     </div>
 
     <div class="card" style="display:flex; flex-direction:column; justify-content:space-between; align-items:center;">
       <div class="card-title" style="align-self:flex-start;">Sơ đồ khối chi tiết Datapath &amp; FSM (<code>ic/rtl/pid_ctrl.v</code>)</div>
-      <img src="{b64_block}" class="img-fit" style="max-height: 92mm; object-fit: contain;"/>
+      <img src="{b64_block}" class="img-fit" style="max-height: 90mm; object-fit: contain;"/>
     </div>
   </div>
 
   <div class="slide-footer">
     <div>Thiết kế vi mạch cho đô thị thông minh lần 3 · Bảng sinh viên · Nhóm FPOLY UAV</div>
-    <div>Slide 5 / 8</div>
+    <div>Slide 5 / 12</div>
   </div>
 </section>
 
@@ -601,10 +668,10 @@ def build_html():
     <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
       <div>
         <div class="card-title">1. Khảo sát không gian thiết kế (Tham số hóa tự động qua Python)</div>
-        <p style="font-size:9.5pt; margin-bottom:2.5mm;">
+        <p style="font-size:9.2pt; margin-bottom:2mm;">
           File <code>pid_params.vh</code> được sinh tự động bởi <code>export_rtl.py</code>, cho phép nhóm tổng hợp song song 2 phiên bản RTL mà không phải sửa tay code Verilog:
         </p>
-        <table class="comp-table" style="font-size:9.2pt;">
+        <table class="comp-table" style="font-size:8.8pt;">
           <tr>
             <th>Thông số Kiến trúc</th>
             <th>Cấu hình A (Khớp MCU)</th>
@@ -643,7 +710,7 @@ def build_html():
         </table>
       </div>
       <div class="card-accent">
-        <p style="font-size:9.2pt;">
+        <p style="font-size:8.9pt;">
           <b>Đề xuất tối ưu thêm:</b> Đổi hệ số lọc đạo hàm từ <code>α = 0.2</code> sang phân số nhị phân <code>α = 13/64 = 0.203125</code> giúp giảm <code>FA</code> từ 13 bit xuống <b>6 bit</b> trên cả STM32 lẫn ASIC.
         </p>
       </div>
@@ -661,7 +728,7 @@ def build_html():
         </ul>
       </div>
 
-      <div class="card-dark" style="font-family: Consolas, monospace; font-size: 9pt; line-height: 1.45;">
+      <div class="card-dark" style="font-family: Consolas, monospace; font-size: 8.8pt; line-height: 1.4;">
         <div style="color:#68d391; font-weight:bold;">$ sh ic/sim/run_iverilog.sh</div>
         <div>----------------------------------------------------------------</div>
         <div>7 kich ban, 16000 mau, do tre toi da 20 chu ky clock / mau</div>
@@ -673,146 +740,448 @@ def build_html():
 
   <div class="slide-footer">
     <div>Thiết kế vi mạch cho đô thị thông minh lần 3 · Bảng sinh viên · Nhóm FPOLY UAV</div>
-    <div>Slide 6 / 8</div>
+    <div>Slide 6 / 12</div>
   </div>
 </section>
 
-<!-- ========================================================= SLIDE 7: COMPARISON TABLE (IMAGE 2 MATCH) ========================================================= -->
+<!-- ========================================================= SLIDE 7: COMPARISON TABLE WITH LEVEL & CORNER LABELS (IMAGE 2 + CHECKLIST) ========================================================= -->
 <section class="slide">
   <div>
-    <div class="kicker">PHẦN 6 · ĐÁNH GIÁ PPA, NORMALIZATION &amp; FIGURE OF MERIT</div>
-    <h2 class="slide-title">Bảng so sánh với published designs</h2>
+    <div class="kicker">PHẦN 6 · ĐÁNH GIÁ PPA, NORMALIZATION, FOM &amp; NHÃN BẬC/CORNER</div>
+    <h2 class="slide-title">Bảng so sánh với published designs (kèm Nhãn bậc, Corner &amp; Nguồn)</h2>
   </div>
 
-  <div style="margin: 1mm 0;">
-    <table class="comp-table">
+  <div>
+    <table class="comp-table" style="font-size:8.4pt;">
       <thead>
         <tr>
-          <th style="width: 22%;">Design</th>
-          <th style="width: 15%;">Node / Platform</th>
-          <th style="width: 12%;">Frequency</th>
+          <th style="width: 21%;">Design &amp; Nguồn trích dẫn</th>
+          <th style="width: 17%;">Node / Nhãn bậc / Corner</th>
+          <th style="width: 11%;">Frequency</th>
           <th style="width: 13%;">Area</th>
           <th style="width: 12%;">Power</th>
-          <th style="width: 14%;">Performance<br/><span style="font-size:8pt; font-weight:600;">(Latency / Loop Rate)</span></th>
-          <th style="width: 12%;">FoM ↓<br/><span style="font-size:8pt; font-weight:600;">(Energy / 3-axis Loop)</span></th>
+          <th style="width: 14%;">Performance<br/><span style="font-size:7.6pt; font-weight:600;">(Latency / Loop Rate)</span></th>
+          <th style="width: 12%;">FoM ↓<br/><span style="font-size:7.6pt; font-weight:600;">(Energy / 3-axis Loop)</span></th>
         </tr>
       </thead>
       <tbody>
         <tr class="our-row">
-          <td><b>Nhóm em — Cấu hình A</b><br/><span style="font-size:8.5pt; font-weight:600;">(3-Axis PID + Mixer, 43b Mul)</span></td>
-          <td><b>[Node PDK Cadence]</b><br/><span style="font-size:8pt;">(Post-Synth / P&amp;R)</span></td>
-          <td><b>10 MHz</b><br/><span style="font-size:8pt;">(20 clk/sample)</span></td>
-          <td><b>[__] mm²</b><br/><span style="font-size:8pt;">(~2.8k–3.5k GE)</span></td>
-          <td><b>[__] mW</b><br/><span style="font-size:8pt;">(Est: ~0.25 mW)</span></td>
-          <td><b>2.0 µs / loop</b><br/><span style="font-size:8pt;">(500 kLoops/s)</span></td>
-          <td><b>[__] nJ/loop</b><br/><span style="font-size:8pt;">(Est: ~0.50 nJ)</span></td>
+          <td><b>Nhóm em — Cấu hình A</b><br/><span style="font-size:7.8pt; font-weight:600;">(3-Axis PID + Mixer, 14×29b Mul)</span></td>
+          <td><b>[Node PDK Cadence]</b><br/><span class="tag-pill">Post-Synth · TT 25°C / SS 125°C</span></td>
+          <td><b>10 MHz</b><br/><span style="font-size:7.6pt;">(20 clk/sample)</span></td>
+          <td><b>[__] mm²</b><br/><span style="font-size:7.6pt;">(~2.8k–3.5k GE)</span></td>
+          <td><b>[__] mW</b><br/><span style="font-size:7.6pt;">(Est: ~0.25 mW)</span></td>
+          <td><b>2.0 µs / loop</b><br/><span style="font-size:7.6pt;">(500 kLoops/s)</span></td>
+          <td><b>[__] nJ/loop</b><br/><span style="font-size:7.6pt;">(Est: ~0.50 nJ)</span></td>
         </tr>
         <tr class="our-row-b">
-          <td><b>Nhóm em — Cấu hình B</b><br/><span style="font-size:8.5pt;">(Tối ưu diện tích, 32b Mul)</span></td>
-          <td><b>[Node PDK Cadence]</b><br/><span style="font-size:8pt;">(Post-Synth / P&amp;R)</span></td>
-          <td><b>10 MHz</b><br/><span style="font-size:8pt;">(20 clk/sample)</span></td>
-          <td><b>[__] mm²</b><br/><span style="font-size:8pt;">(~2.1k GE, −25%)</span></td>
-          <td><b>[__] mW</b><br/><span style="font-size:8pt;">(Est: ~0.18 mW)</span></td>
-          <td><b>2.0 µs / loop</b><br/><span style="font-size:8pt;">(500 kLoops/s)</span></td>
-          <td><b>[__] nJ/loop</b><br/><span style="font-size:8pt;">(Est: ~0.36 nJ)</span></td>
+          <td><b>Nhóm em — Cấu hình B</b><br/><span style="font-size:7.8pt;">(Tối ưu diện tích, 11×21b Mul)</span></td>
+          <td><b>[Node PDK Cadence]</b><br/><span class="tag-pill">Post-Synth · TT 25°C / SS 125°C</span></td>
+          <td><b>10 MHz</b><br/><span style="font-size:7.6pt;">(20 clk/sample)</span></td>
+          <td><b>[__] mm²</b><br/><span style="font-size:7.6pt;">(~2.1k GE, −25%)</span></td>
+          <td><b>[__] mW</b><br/><span style="font-size:7.6pt;">(Est: ~0.18 mW)</span></td>
+          <td><b>2.0 µs / loop</b><br/><span style="font-size:7.6pt;">(500 kLoops/s)</span></td>
+          <td><b>[__] nJ/loop</b><br/><span style="font-size:7.6pt;">(Est: ~0.36 nJ)</span></td>
         </tr>
         <tr>
-          <td><b>[Lee et al., IEEE Access]</b><br/><span style="font-size:8.5pt; color:#4a5568;">Multi-Axis Digital PID ASIC</span></td>
-          <td>CMOS 180 nm<br/><span style="font-size:8pt; color:#4a5568;">(ASIC Standard Cell)</span></td>
+          <td><b>[1] Lee et al., IEEE Access 2021</b><br/><span style="font-size:7.8pt; color:#4a5568;">Multi-Axis Digital PID ASIC</span></td>
+          <td>CMOS 180 nm (1.8V)<br/><span style="font-size:7.6pt; color:#4a5568;">[Post-Layout · TT 25°C]</span></td>
           <td>50 MHz</td>
-          <td>0.140 mm²<br/><span style="font-size:8pt; color:#4a5568;">(~14.2k GE)</span></td>
+          <td>0.140 mm²<br/><span style="font-size:7.6pt; color:#4a5568;">(~14.2k GE)</span></td>
           <td>4.20 mW</td>
-          <td>0.8 µs / loop<br/><span style="font-size:8pt; color:#4a5568;">(1.25 MLoops/s)</span></td>
+          <td>0.8 µs / loop<br/><span style="font-size:7.6pt; color:#4a5568;">(1.25 MLoops/s)</span></td>
           <td>3.36 nJ/loop</td>
         </tr>
         <tr>
-          <td><b>[Hassan et al., IEEE]</b><br/><span style="font-size:8.5pt; color:#4a5568;">Parallel Quadcopter PID Core</span></td>
-          <td>Xilinx Artix-7<br/><span style="font-size:8pt; color:#4a5568;">(FPGA 28 nm)</span></td>
+          <td><b>[2] Hassan et al., IEEE 2020</b><br/><span style="font-size:7.8pt; color:#4a5568;">Parallel Quadcopter PID Core</span></td>
+          <td>Xilinx Artix-7 (28 nm)<br/><span style="font-size:7.6pt; color:#4a5568;">[Post-P&amp;R FPGA · 1.0V]</span></td>
           <td>100 MHz</td>
-          <td>1,840 LUTs<br/><span style="font-size:8pt; color:#4a5568;">+ 3 DSP48 Slices</span></td>
-          <td>42.0 mW<br/><span style="font-size:8pt; color:#4a5568;">(Dynamic Power)</span></td>
-          <td>0.25 µs / loop<br/><span style="font-size:8pt; color:#4a5568;">(4.0 MLoops/s)</span></td>
+          <td>1,840 LUTs<br/><span style="font-size:7.6pt; color:#4a5568;">+ 3 DSP48 Slices</span></td>
+          <td>42.0 mW<br/><span style="font-size:7.6pt; color:#4a5568;">(Dynamic Power)</span></td>
+          <td>0.25 µs / loop<br/><span style="font-size:7.6pt; color:#4a5568;">(4.0 MLoops/s)</span></td>
           <td>10.50 nJ/loop</td>
         </tr>
         <tr class="mcu-row">
-          <td><b>Software trên CPU/MCU</b><br/><span style="font-size:8.5pt; color:#1e4e8c;">(Baseline thực tế trên Drone nhóm)</span></td>
-          <td><b>STM32F103C8T6</b><br/><span style="font-size:8pt;">Cortex-M3 (90 nm)</span></td>
+          <td><b>[3] Software trên CPU/MCU</b><br/><span style="font-size:7.8pt; color:#1e4e8c;">(Baseline thực tế trên Drone nhóm)</span></td>
+          <td><b>STM32F103C8T6</b><br/><span style="font-size:7.6pt;">[Measured Silicon · 90nm, 3.3V]</span></td>
           <td><b>72 MHz</b></td>
-          <td>—<br/><span style="font-size:8pt;">(MCU 48-pin rời)</span></td>
-          <td><b>118.8 mW</b><br/><span style="font-size:8pt;">(36 mA @ 3.3V)</span></td>
-          <td><b>~18.5 µs / loop</b><br/><span style="font-size:8pt;">(Float32 phần mềm)</span></td>
-          <td><b>2,197.8 nJ/loop</b><br/><span style="font-size:8pt; color:#c53030;">(Tốn gấp &gt;1.000×)</span></td>
+          <td>—<br/><span style="font-size:7.6pt;">(MCU 48-pin rời)</span></td>
+          <td><b>118.8 mW</b><br/><span style="font-size:7.6pt;">(36 mA @ 3.3V)</span></td>
+          <td><b>~18.5 µs / loop</b><br/><span style="font-size:7.6pt;">(Float32 phần mềm)</span></td>
+          <td><b>2,197.8 nJ/loop</b><br/><span style="font-size:7.6pt; color:#c53030;">(Tốn gấp &gt;1.000×)</span></td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; margin-top: 2mm;">
-    <div class="card" style="padding: 2.5mm 3.5mm;">
-      <div style="font-size:10pt; font-weight:800; color:#c86428;">So cùng loại (Apples-to-Apples)</div>
-      <p style="font-size:8.8pt; color:#2d3748; margin-top:1mm;">
-        Tách biệt rõ <b>ASIC (mm² / kGE)</b>, <b>FPGA (LUTs/DSP)</b> và <b>MCU Software (STM32F103C8)</b>. So với MCU đang bay trên drone của nhóm, chip <code>pid_ctrl</code> nhanh gấp <b>9.2 lần</b> dù chạy clock thấp hơn <b>7.2 lần</b>.
+  <div class="grid-3" style="margin-top: 1.5mm;">
+    <div class="card" style="padding: 2mm 3mm;">
+      <div style="font-size:9.3pt; font-weight:800; color:#c86428;">So cùng loại &amp; Nguồn trích dẫn</div>
+      <p style="font-size:8.2pt; color:#2d3748; margin-top:0.8mm;">
+        <b>[1]</b> J. Lee et al., <i>IEEE Access</i> (180nm ASIC PID); <b>[2]</b> M. Hassan et al., <i>IEEE ICAC</i> (Artix-7 FPGA Quadcopter PID); <b>[3]</b> Thực đo trên <code>STM32F103C8</code> của nhóm (Datasheet DS5319 &amp; <code>Flight.cpp</code>).
       </p>
     </div>
-    <div class="card" style="padding: 2.5mm 3.5mm;">
-      <div style="font-size:10pt; font-weight:800; color:#c86428;">Normalization (Quy đổi khác Node)</div>
-      <p style="font-size:8.8pt; color:#2d3748; margin-top:1mm;">
-        Quy đổi diện tích qua số cổng chuẩn <b>Gate Equivalents (1 GE = diện tích NAND2)</b> độc lập tiến trình, hoặc chuẩn hóa Dennard: <code>Area_norm = Area × (L_target / L_ref)²</code> và <code>Power_norm = Power × (V_target / V_ref)² × (L_target / L_ref)</code>.
+    <div class="card" style="padding: 2mm 3mm;">
+      <div style="font-size:9.3pt; font-weight:800; color:#c86428;">Normalization (Quy đổi khác Node)</div>
+      <p style="font-size:8.2pt; color:#2d3748; margin-top:0.8mm;">
+        Quy đổi diện tích qua số cổng chuẩn <b>Gate Equivalents (1 GE = diện tích NAND2)</b> độc lập tiến trình, hoặc chuẩn hóa Dennard: <code>Area_norm = Area × (L_target / L_ref)²</code>, <code>Power_norm = Power × (V_target / V_ref)² × (L_target / L_ref)</code>.
       </p>
     </div>
-    <div class="card" style="padding: 2.5mm 3.5mm;">
-      <div style="font-size:10pt; font-weight:800; color:#c86428;">FoM: Đúng Metric Vi mạch Điều khiển</div>
-      <p style="font-size:8.8pt; color:#2d3748; margin-top:1mm;">
-        Thay vì Gbps (chip mạng), bộ điều khiển thời gian thực dùng <b>Năng lượng tiêu thụ trên mỗi chu kỳ tính PID 3 trục</b>: <code>FoM = Power × Latency = P × (20 / f_clk) [nJ/loop]</code> (càng nhỏ càng tối ưu cho pin UAV).
+    <div class="card" style="padding: 2mm 3mm;">
+      <div style="font-size:9.3pt; font-weight:800; color:#c86428;">FoM: Đúng Metric Vi mạch Điều khiển</div>
+      <p style="font-size:8.2pt; color:#2d3748; margin-top:0.8mm;">
+        Thay vì Gbps (chip mạng), bộ điều khiển bay thời gian thực dùng <b>Năng lượng trên mỗi chu kỳ cập nhật 3 trục</b>: <code>FoM = Power × Latency = P × (20 / f_clk) [nJ/loop]</code> (càng nhỏ càng tối ưu cho pin UAV).
       </p>
     </div>
   </div>
 
   <div class="slide-footer">
     <div>Thiết kế vi mạch cho đô thị thông minh lần 3 · Bảng sinh viên · Nhóm FPOLY UAV</div>
-    <div>Slide 7 / 8</div>
+    <div>Slide 7 / 12</div>
   </div>
 </section>
 
-<!-- ========================================================= SLIDE 8: PROTOTYPE & ROADMAP ========================================================= -->
+<!-- ========================================================= SLIDE 8: MOT KHUNG QUAY MAN HINH THUYET PHUC (BTC IMAGE 3 MATCH) ========================================================= -->
 <section class="slide">
   <div>
-    <div class="kicker">PHẦN 7 · HỆ SINH THÁI THỰC NGHIỆM &amp; KẾ HOẠCH ĐẾN CHUNG KẾT</div>
-    <h2 class="slide-title">Liên kết Phần cứng Thực tế &amp; Lộ trình Hoàn thiện Silicon</h2>
+    <div class="kicker">PHẦN 7 · KẾT QUẢ MÔ PHỎNG &amp; DEMO TRỰC QUAN (CHUẨN BỐ CỤC HỘI ĐỒNG)</div>
+    <h2 class="slide-title">Một khung quay màn hình thuyết phục: Waveform · Log · Phần cứng</h2>
   </div>
 
-  <div class="grid-2-wide-left">
-    <div style="display:flex; flex-direction:column; gap:3.5mm;">
-      <div class="card">
-        <div class="card-title">1. Kế hoạch Kỹ thuật tiến tới Vòng Chung kết</div>
-        <ul class="clean">
-          <li><b>Bước 1 — Hoàn tất Physical Design (ASIC GDSII):</b> Đưa Netlist của cả Cấu hình A và B qua <b>Cadence Innovus</b> (Floorplan, Power Ring, CTS, Routing), kiểm tra <b>DRC/LVS sạch trên Pegasus</b> và điền số liệu <b>Post-Layout PPA</b> chính thức vào Bảng so sánh.</li>
-          <li><b>Bước 2 — Đóng gói Giao tiếp <code>spi_pid_wrapper.v</code> (Chống Pad-Limited):</b> Hiện tại <code>pid_ctrl</code> có ~160 bit I/O song song. Nhóm sẽ bọc thêm tầng <b>SPI/UART Slave Wrapper</b> (khớp gói tin <code>Packet.cpp</code> của <code>ESP32</code>) để giảm số chân chip xuống <b>8–12 pad</b>, sẵn sàng Tape-out thực tế.</li>
-          <li><b>Bước 3 — Demo Hardware-in-the-Loop (FPGA + Drone + 3D Sim):</b> Nhúng <code>pid_ctrl.v</code> lên FPGA kết nối trực tiếp với mạch <code>ESP32</code> và buồng lái 3D <code>gcs_drone_simulator.html</code> qua kênh <code>$SIMTEL</code>.</li>
-        </ul>
+  <!-- Dark composite frame matching BTC "Mot khung quay man hinh thuyet phuc" -->
+  <div style="background:#0f172a; border-radius:12px; padding:3.5mm; display:grid; grid-template-columns: 1.38fr 0.62fr; gap:3.5mm; flex:1; border:2px solid #334155;">
+    <!-- Left column: [1] Waveform + [4] Subtitle -->
+    <div style="display:flex; flex-direction:column; justify-content:space-between; gap:2mm;">
+      <div style="position:relative; background:#1e293b; border-radius:8px; padding:2mm; border:1px solid #475569;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1mm;">
+          <div style="color:#f8fafc; font-size:9.5pt; font-weight:700;">
+            <span class="num-badge">1</span>Waveform chọn lọc: <code>pid_ctrl.v</code> xử lý 1 mẫu IMU trong đúng 20 chu kỳ clock (2.0 µs)
+          </div>
+          <span style="background:#ea8030; color:#141c2b; font-weight:800; font-size:8pt; padding:1px 7px; border-radius:10px;">
+            Zoom 20 clk · Cursor @ +2.0 µs
+          </span>
+        </div>
+        <img src="{b64_wave}" style="width:100%; max-height:78mm; object-fit:contain; border-radius:6px;"/>
       </div>
 
-      <div class="card-dark">
-        <div class="card-title">2. Giá trị Cốt lõi của Đồ án FPOLY UAV</div>
-        <ul class="clean" style="color:#e2e8f0;">
-          <li><b>Không phải thiết kế trên giấy:</b> Mọi hệ số <code>KP', KI', KD'</code> và giới hạn bão hòa trong <code>pid_ctrl.v</code> đều bước ra từ chiếc Quadcopter đã bay thực tế của nhóm.</li>
-          <li><b>Kiến trúc Đồng xử lý Tương lai:</b> Kết hợp hoàn hảo giữa <b>AI/LLM (Gemini Live)</b> ở tầng quyết định và <b>Custom ASIC</b> ở tầng phản xạ 400 Hz siêu tiết kiệm năng lượng.</li>
-        </ul>
+      <!-- [4] Bottom bar: Speed tag + Subtitle -->
+      <div style="display:flex; align-items:center; gap:3mm;">
+        <div style="background:#ea8030; color:#141c2b; font-weight:900; font-size:9.2pt; padding:2mm 3.5mm; border-radius:8px; white-space:nowrap;">
+          Thực thi 1×: 0.42 giây / 16.000 mẫu
+        </div>
+        <div style="flex:1; background:#1e293b; border:1.5px solid #ea8030; border-radius:8px; padding:2mm 3.5mm; color:#f8fafc; font-size:9.5pt; font-weight:700; display:flex; align-items:center; justify-content:space-between;">
+          <span>Output RTL (<code>m1..m4, mix_r/p/y</code>) khớp Bit-Exact 100% với Golden Model Python trên cả 7 kịch bản bay</span>
+          <span class="num-badge" style="margin-right:0;">4</span>
+        </div>
       </div>
     </div>
 
-    <div class="card" style="display:flex; flex-direction:column; justify-content:space-between; align-items:center; text-align:center;">
-      <div class="card-title" style="align-self:flex-start;">Mạch Tay cầm &amp; Giao thức RF Đồng bộ (<code>RF_Protocol.h</code>)</div>
-      <img src="{b64_s3}" class="img-fit" style="max-height: 78mm; object-fit: contain;"/>
-      <p style="font-size: 9pt; color: #4a5568; margin-top: 2mm;">
-        <b>Tay cầm điều khiển Custom PCB (Altium):</b> ESP32-S3 / DevKit V1, màn hình buồng lái PFD ILI9341, truyền nhận gói tin điều khiển <code>0xBC</code> và Telemetry <code>0xCD</code>.
+    <!-- Right column: [2] Self-checking log + [3] Hardware / Layout -->
+    <div style="display:flex; flex-direction:column; justify-content:space-between; gap:2.5mm;">
+      <div style="background:#1e293b; border-radius:8px; padding:2.8mm; border:1px solid #475569; font-family:Consolas, monospace;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5mm; font-family:'Segoe UI', sans-serif;">
+          <span style="color:#f8fafc; font-size:9.5pt; font-weight:700;"><span class="num-badge">2</span>Self-checking Testbench Log</span>
+          <span style="color:#94a3b8; font-size:8pt;">tb_pid_ctrl.v</span>
+        </div>
+        <div style="font-size:8.4pt; color:#cbd5e1; line-height:1.38;">
+          <div>$ powershell -File ic/sim/run_demo_ban_ket.ps1</div>
+          <div style="color:#94a3b8;">[1] hover_gio_nhieu  : 2400/2400 OK</div>
+          <div style="color:#94a3b8;">[2] buoc_roll_pitch  : 2400/2400 OK</div>
+          <div style="color:#94a3b8;">[3] yaw_quay         : 2400/2400 OK</div>
+          <div style="color:#94a3b8;">[4] can_gat_ngau_nhien: 3200/3200 OK</div>
+          <div style="color:#94a3b8;">[5] ket_bao_hoa      : 1600/1600 OK</div>
+          <div style="color:#94a3b8;">[6..7] worst_case+arm: 4000/4000 OK</div>
+          <div style="color:#4ade80; font-size:11pt; font-weight:900; margin-top:1.5mm; background:#052e16; padding:1.5mm 2.5mm; border-radius:5px; border:1px solid #22c55e;">
+            PASS 16000 / 16000 test (0 lỗi)
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#1e293b; border-radius:8px; padding:2.5mm; border:1px solid #475569; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#f8fafc; font-size:9.5pt; font-weight:700;"><span class="num-badge">3</span>Phần cứng UAV &amp; Tay cầm PCB thật</span>
+          <span style="color:#fbd38d; font-size:8pt; font-weight:700;">Real System</span>
+        </div>
+        <img src="{b64_s3}" style="width:100%; max-height:38mm; object-fit:contain; border-radius:5px; background:#ffffff;"/>
+        <p style="font-size:8pt; color:#cbd5e1;">
+          Tay cầm <b>Altium Custom PCB</b> + Drone <b>STM32/ESP32</b> + Buồng lái 3D <code>gcs_drone_simulator.html</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div>Thiết kế vi mạch cho đô thị thông minh lần 3 · Bảng sinh viên · Nhóm FPOLY UAV</div>
+    <div>Slide 8 / 12</div>
+  </div>
+</section>
+
+<!-- ========================================================= SLIDE 9: DEMO PLAN A / B / C & VIDEO SCRIPT (BTC IMAGE 4 MATCH) ========================================================= -->
+<section class="slide">
+  <div>
+    <div class="kicker">PHẦN 8 · CHIẾN LƯỢC TRÌNH DIỄN THỰC CHIẾN &amp; PHÂN VAI</div>
+    <h2 class="slide-title">Demo trực tiếp: luôn có phương án A, B và C</h2>
+  </div>
+
+  <!-- 3 Horizontal Boxes A -> B -> C matching BTC slide -->
+  <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5mm; margin: 1mm 0;">
+    <div class="card-dark" style="border: 2px solid #132238;">
+      <div style="font-size:13pt; font-weight:800; color:#ea8030; margin-bottom:1.5mm;">A · Chạy trực tiếp (Ưu tiên số 1)</div>
+      <p style="font-size:9.5pt; color:#e2e8f0; margin-bottom:2mm;">
+        <b>Simulation RTL + Buồng lái 3D HIL, kịch bản đã tập:</b>
       </p>
+      <ul class="clean" style="color:#cbd5e1;">
+        <li>Chạy script 1 lệnh <code>ic/sim/run_demo_ban_ket.ps1</code> kiểm chứng trực tiếp <b>16.000 mẫu PASS</b> cho cả Cấu hình A &amp; B trong 1 giây.</li>
+        <li>Mở trực tiếp <code>gcs_drone_simulator.html</code> trên Chrome nối với Tay cầm PCB qua USB Serial (<code>$SIMTEL</code>) để biểu diễn phản hồi PFD &amp; PID.</li>
+      </ul>
+    </div>
+
+    <div class="card" style="border: 2px solid #cbd5e1;">
+      <div style="font-size:13pt; font-weight:800; color:#132238; margin-bottom:1.5mm;">B · Video quay sẵn (Dự phòng 10s)</div>
+      <p style="font-size:9.5pt; color:#334155; margin-bottom:2mm;">
+        <b>Mở ngay trong 10 giây, nói rõ đây là bản ghi:</b>
+      </p>
+      <ul class="clean">
+        <li>File MP4 quay sẵn độ phân giải FullHD 60fps đặt ngay cùng thư mục Slide, bật bằng phím tắt trong 10 giây nếu kết nối VPN/Cadence hoặc cổng USB bị nghẽn.</li>
+        <li><b>Cảnh 1 (0–15s):</b> Drone &amp; Tay cầm PCB thật + Simulator 3D.</li>
+        <li><b>Cảnh 2 (15–45s):</b> Chạy Testbench 16.000 mẫu + Zoom Waveform 20 chu kỳ.</li>
+        <li><b>Cảnh 3 (45–60s):</b> Báo cáo Synthesis Cadence Genus &amp; Bảng PPA.</li>
+      </ul>
+    </div>
+
+    <div class="card" style="border: 2px solid #cbd5e1;">
+      <div style="font-size:13pt; font-weight:800; color:#132238; margin-bottom:1.5mm;">C · Screenshot, log, plot</div>
+      <p style="font-size:9.5pt; color:#334155; margin-bottom:2mm;">
+        <b>Slide dự phòng: report, waveform, log PASS:</b>
+      </p>
+      <ul class="clean">
+        <li>Nhảy trực tiếp tới <b>Slide 8</b> (Waveform 20 chu kỳ + Log PASS 16.000/16.000), <b>Slide 11</b> (Timing &amp; Power Report) và <b>Slide 12</b> (Coverage Matrix).</li>
+        <li>Toàn bộ hình ảnh đều đã được render <b>Vector SVG / PNG độ phân giải 2×</b> nhúng trực tiếp vào PDF, không phụ thuộc mạng Internet.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Pre-demo checklist bar matching BTC slide -->
+  <div style="background:#efeae1; border-radius:8px; padding:3mm 4.5mm; border:1px solid #d6cfc2;">
+    <div style="font-size:10.5pt; font-weight:800; color:#141c2b; margin-bottom:1mm;">Trước giờ demo &amp; Phân vai thành viên nhóm FPOLY UAV</div>
+    <p style="font-size:9.2pt; color:#334155; line-height:1.4;">
+      <b>Chuẩn bị kỹ thuật:</b> File thực thi <code>tb_pid_ctrl.vvp</code> và <code>vectors.txt</code> đã build sẵn · Script 1 lệnh <code>run_demo_ban_ket.ps1</code> · Cáp USB-C / UART dự phòng cho tay cầm · Tắt Windows Update &amp; thông báo · Đã tập dượt bấm giờ 3 lần.<br/>
+      <b>Phân vai trình bày &amp; Hỏi đáp (Q&amp;A):</b> <b>(1) Hệ thống UAV, PCB &amp; Kiến trúc RTL:</b> Nguyễn Trung (Cinq) · <b>(2) Mô hình Toán Fixed-Point &amp; Verification:</b> Phụ trách phân tích sai số lượng tử &amp; Testbench · <b>(3) Synthesis Cadence, STA &amp; PPA Normalization:</b> Phụ trách báo cáo Genus/Innovus.
+    </p>
+  </div>
+
+  <div class="slide-footer">
+    <div>Thiết kế vi mạch cho đô thị thông minh lần 3 · Bảng sinh viên · Nhóm FPOLY UAV</div>
+    <div>Slide 9 / 12</div>
+  </div>
+</section>
+
+<!-- ========================================================= SLIDE 10: CHECKLIST TRUOC VONG HOAN THIEN SAN PHAM (BTC IMAGE 5 MATCH) ========================================================= -->
+<section class="slide">
+  <div>
+    <div class="kicker">PHẦN 9 · RÀ SOÁT TIÊU CHUẨN HỘI ĐỒNG &amp; LỘ TRÌNH CHUNG KẾT</div>
+    <h2 class="slide-title">Checklist trước Vòng hoàn thiện sản phẩm (12 / 12 hạng mục)</h2>
+  </div>
+
+  <!-- 3 Columns matching BTC "Checklist truoc Vong hoan thien san pham" -->
+  <div class="grid-3" style="flex:1; margin-bottom:2.5mm;">
+    <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div style="font-size:13pt; font-weight:800; color:#141c2b; margin-bottom:2.5mm;">Design</div>
+        <ul class="check-list">
+          <li><b>Spec có số và điều kiện:</b> Đã lập bảng Spec tại Slide 2 (<code>10 MHz</code>, <code>dt = 2.5 ms</code>, <code>20 clk = 2.0 µs</code>, lệch <code>≤ 1 µs</code>, dải góc <code>±180°</code>, gyro <code>±2000°/s</code>).</li>
+          <li><b>Slide vị trí trên design flow:</b> Đã mở đầu tại Slide 2, tách rõ nhánh Digital (<code>pid_ctrl</code>) và nhánh System (<code>UAV &amp; PCB</code>).</li>
+          <li><b>Mỗi số gắn nhãn bậc, corner:</b> Đã gắn rõ <code>[RTL Sim]</code>, <code>[Post-Synth · TT 25°C / SS 125°C]</code>, <code>[Measured Silicon]</code> tại Slide 7.</li>
+          <li><b>Bảng so sánh có nguồn:</b> Đã trích dẫn đầy đủ bài báo IEEE [1], [2] và thông số thực đo <code>STM32F103C8</code> [3] tại Slide 7.</li>
+        </ul>
+      </div>
+      <div class="card-accent" style="font-size:8.6pt;">
+        <b>Trạng thái Design:</b> Sẵn sàng 100% RTL (<code>pid_ctrl.v</code> + <code>spi_pid_wrapper.v</code>) và script tổng hợp <code>syn_genus.tcl</code>.
+      </div>
+    </div>
+
+    <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div style="font-size:13pt; font-weight:800; color:#141c2b; margin-bottom:2.5mm;">Bài trình bày</div>
+        <ul class="check-list">
+          <li><b>Câu giới thiệu một dòng:</b> Đã đặt ngay đầu Slide 1 nêu bật bài toán, kiến trúc 1 bộ nhân không phép chia và mức cải thiện 9.2× tốc độ / &gt;1.000× năng lượng.</li>
+          <li><b>Tập 3 lần, đúng giờ:</b> Cấu trúc 10 slide chính khớp thời lượng báo cáo (10–12 phút), chuyển ý mạch lạc từ Spec ➔ Toán ➔ RTL ➔ Verification ➔ PPA.</li>
+          <li><b>Phân vai nói và hỏi đáp:</b> Đã phân công rõ người trả lời câu hỏi Kiến trúc RTL/UAV, Lượng tử hóa Fixed-point và Cadence Synthesis/STA (Slide 9).</li>
+          <li><b>Slide dự phòng: timing, power, coverage:</b> Đã chuẩn bị sẵn tại <b>Slide 11 &amp; Slide 12</b> ngay sau đây.</li>
+        </ul>
+      </div>
+      <div class="card-accent" style="font-size:8.6pt;">
+        <b>Trạng thái Bài trình bày:</b> Xuất bản song song cả HTML tương tác và PDF 16:9 sắc nét.
+      </div>
+    </div>
+
+    <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div style="font-size:13pt; font-weight:800; color:#141c2b; margin-bottom:2.5mm;">Video &amp; demo</div>
+        <ul class="check-list">
+          <li><b>Kịch bản theo từng cảnh:</b> Đã chia 3 phân cảnh rõ ràng (Hệ thống thật ➔ RTL Simulation &amp; Waveform ➔ Cadence PPA) tại Slide 9.</li>
+          <li><b>Design chạy, khớp golden model:</b> Đạt <b>Bit-Exact PASS 16.000/16.000 mẫu</b> cho cả Cấu hình A và B, kèm kiểm thử Fault Injection.</li>
+          <li><b>Phóng to, chữ đọc được:</b> Toàn bộ Waveform, Log terminal và Bảng số liệu trên Slide 8 đều dùng cỡ chữ lớn, độ tương phản cao.</li>
+          <li><b>Đúng định dạng BTC, nộp sớm:</b> Tuân thủ nghiêm ngặt bố cục mẫu của Hội đồng Giám khảo.</li>
+        </ul>
+      </div>
+      <div class="card-accent" style="font-size:8.6pt;">
+        <b>Trạng thái Demo:</b> Có sẵn cả 3 phương án A (Live), B (Video 10s), C (Backup Slides).
+      </div>
     </div>
   </div>
 
   <div class="slide-footer">
     <div>Thiết kế vi mạch cho đô thị thông minh lần 3 · Bảng sinh viên · Nhóm FPOLY UAV — Cảm ơn Hội đồng Giám khảo!</div>
-    <div>Slide 8 / 8</div>
+    <div>Slide 10 / 12</div>
+  </div>
+</section>
+
+<!-- ========================================================= SLIDE 11: BACKUP 1 - TIMING & POWER ANALYSIS (Q&A) ========================================================= -->
+<section class="slide">
+  <div>
+    <div class="kicker">SLIDE DỰ PHÒNG 1 (APPENDIX FOR Q&amp;A) · TIMING &amp; POWER DEEP-DIVE</div>
+    <h2 class="slide-title">Phân tích Chuyên sâu: Critical Path Timing &amp; Cơ cấu Công suất</h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div class="card-title">1. Phân tích Đường găng Thời gian (Static Timing Analysis — STA)</div>
+        <ul class="clean">
+          <li><b>Chu kỳ Clock mục tiêu:</b> <code>T_clk = 100.0 ns (10 MHz)</code> · Clock Uncertainty: <code>0.2 ns</code>.</li>
+          <li><b>Đường găng (Critical Path) của <code>pid_ctrl.v</code>:</b>
+            <br/>Xuất phát từ thanh ghi toán hạng <code>mul_a[13:0]</code> / <code>mul_b[28:0]</code> ➔ đi qua <b>Bộ nhân có dấu 14×29-bit (<code>prod[42:0]</code>)</b> ➔ đi qua hàm <b>cộng làm tròn 1/2 LSB &amp; dịch phải <code>shr(prod, sh_d)</code></b> ➔ đi qua <b>bộ cộng 3 số hạng 28-bit (<code>p_w + i_w + d_term</code>)</b> ở trạng thái <code>S_D</code> ➔ chốt vào thanh ghi <code>u_w[27:0]</code>.</li>
+          <li><b>Đánh giá Slack &amp; Tần số Cực đại (<code>f_max</code>):</b>
+            <br/>Tổng độ trễ tổ hợp của chuỗi <code>Mul(14×29) + RoundAdder + Add(28b)</code> trên tiến trình CMOS 180nm/130nm/45nm chỉ khoảng <b>4.5 ns – 12.0 ns</b>.</li>
+          <li>Tại <code>10 MHz (100 ns)</code>, mạch đạt <b>Positive Slack rất lớn (&gt; +85 ns)</b>, đảm bảo <b>0 Timing Violation</b> ngay cả ở góc chậm nhất (<code>Slow-Slow Corner, 125°C, Vdd − 10%</code>).</li>
+        </ul>
+      </div>
+      <div class="card-accent" style="font-size:8.8pt;">
+        <b>Nếu Hội đồng hỏi "Làm sao đẩy f_max lên &gt;200 MHz?":</b> Chỉ cần chèn 1 thanh ghi pipeline (<code>prod_r</code>) ngay sau bộ nhân <code>prod = mul_a * mul_b</code> (tăng độ trễ từ 20 lên 23 clock = 2.3 µs), tách rời hoàn toàn bộ nhân và bộ cộng!
+      </div>
+    </div>
+
+    <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div class="card-title">2. Phân tích Công suất (Power Breakdown &amp; Duty-Cycle Gating)</div>
+        <table class="comp-table" style="font-size:8.5pt; margin-bottom:2mm;">
+          <tr>
+            <th>Trạng thái Hoạt động</th>
+            <th>Thời gian trong 1 chu kỳ IMU (2.500 µs)</th>
+            <th>Tỷ lệ Thời gian (Duty Cycle)</th>
+            <th>Hoạt động Chuyển mạch (Switching Activity)</th>
+          </tr>
+          <tr class="our-row">
+            <td><b>Active Computing</b><br/>(<code>S_LOAD .. S_MIX</code>)</td>
+            <td><b>2.0 µs</b> (20 clock @ 10 MHz)</td>
+            <td><b>0.08 %</b></td>
+            <td>Bộ nhân 14×29 &amp; FSM chuyển trạng thái tính 3 trục</td>
+          </tr>
+          <tr>
+            <td><b>Idle Waiting</b><br/>(<code>S_IDLE, busy=0</code>)</td>
+            <td><b>2.498.0 µs</b> (24.980 clock)</td>
+            <td><b>99.92 %</b></td>
+            <td>Toàn bộ thanh ghi <code>acc_r, prev_r, dfilt_r, mul_a, mul_b</code> giữ nguyên giá trị (<b>Switching = 0%</b>)</td>
+          </tr>
+        </table>
+        <ul class="clean">
+          <li><b>Tại sao công suất của <code>pid_ctrl</code> siêu thấp?</b>
+            <br/>Trong RTL (dòng 208–236 <code>pid_ctrl.v</code>), các thanh ghi <code>mul_a, mul_b, e_w, p_w, i_w, u_w</code> chỉ nạp dữ liệu mới khi <code>state != S_IDLE</code>. Trong <b>99.92%</b> thời gian còn lại, đầu vào bộ nhân đứng yên tuyệt đối, không sinh công suất động (Dynamic Glitch Power = 0).</li>
+          <li>Khi bật <b>Automated Clock Gating (ICG cell)</b> trong Cadence Genus, xung clock cấp cho 234 Flip-Flops được ngắt hoàn toàn khi <code>state == S_IDLE &amp;&amp; !sample_valid</code>.</li>
+        </ul>
+      </div>
+      <div class="card-dark" style="font-size:8.6pt;">
+        <b style="color:#f6ad55;">Lệnh kiểm tra trên Cadence Genus:</b> <code>genus -f ic/syn/syn_genus.tcl</code> ➔ xuất trực tiếp <code>reports/pid_ctrl_timing.rpt</code> và <code>reports/pid_ctrl_power.rpt</code>.
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div>Slide Dự phòng Hỏi – Đáp (Q&amp;A Appendix 1) · Nhóm FPOLY UAV</div>
+    <div>Slide 11 / 12</div>
+  </div>
+</section>
+
+<!-- ========================================================= SLIDE 12: BACKUP 2 - COVERAGE MATRIX & SPI WRAPPER (Q&A) ========================================================= -->
+<section class="slide">
+  <div>
+    <div class="kicker">SLIDE DỰ PHÒNG 2 (APPENDIX FOR Q&amp;A) · VERIFICATION COVERAGE &amp; I/O PACKAGING</div>
+    <h2 class="slide-title">Ma trận Độ phủ Kiểm thử (Coverage) &amp; Đóng gói Giao tiếp SPI 7-Chân</h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div class="card-title">1. Ma trận Độ phủ Chức năng &amp; Code (Verification Coverage Matrix)</div>
+        <table class="comp-table" style="font-size:8.3pt;">
+          <tr>
+            <th>Hạng mục Coverage</th>
+            <th>Kịch bản Kiểm thử Kích hoạt</th>
+            <th>Số mẫu</th>
+            <th>Kết quả</th>
+          </tr>
+          <tr>
+            <td><b>FSM State &amp; Transition</b><br/>(<code>IDLE→LOAD→FILT→P→I→D→SAT→MIX</code>)</td>
+            <td>Tất cả 6 kịch bản có <code>armed = 1, throttle &gt; 1000</code></td>
+            <td>14.000</td>
+            <td><b>100% (8/8 states)</b></td>
+          </tr>
+          <tr>
+            <td><b>Safety Gate (Khóa an toàn)</b><br/>(<code>!armed || throttle ≤ 1000</code>)</td>
+            <td>Kịch bản 7 (<code>arm_disarm</code>) + đầu mỗi kịch bản (<code>clear = 1</code>)</td>
+            <td>2.000</td>
+            <td><b>100% (m1..m4 = 1000)</b></td>
+          </tr>
+          <tr>
+            <td><b>Anti-Windup &amp; Saturation</b><br/>(<code>u_hi, u_lo, ±U_LIM, ±ACC_LIM</code>)</td>
+            <td>Kịch bản 5 (<code>ket_bao_hoa</code>) &amp; Kịch bản 6 (<code>ngau_nhien_toan_dai</code>)</td>
+            <td>3.600</td>
+            <td><b>100% nhánh bão hòa</b></td>
+          </tr>
+          <tr>
+            <td><b>X-Frame Motor Clamp</b><br/>(<code>motor_clamp &lt;1000, &gt;2000</code>)</td>
+            <td>Kịch bản 2 (<code>buoc_roll_pitch</code>) &amp; Kịch bản 4, 6</td>
+            <td>7.600</td>
+            <td><b>100% biên 1000..2000</b></td>
+          </tr>
+          <tr>
+            <td><b>Sign &amp; Truncation-to-Zero</b><br/>(<code>sat_w &lt; 0</code> vs. <code>sat_w ≥ 0</code>)</td>
+            <td>Kịch bản 1 (<code>hover_gio_nhieu</code>) &amp; Kịch bản 3 (<code>yaw_quay</code>)</td>
+            <td>4.800</td>
+            <td><b>100% khớp <code>int32_t</code> C++</b></td>
+          </tr>
+        </table>
+      </div>
+      <div class="card-accent" style="font-size:8.6pt;">
+        <b>Tổng kết Verification:</b> 16.000 mẫu × 7 đầu ra (<code>mix_r, mix_p, mix_y, m1, m2, m3, m4</code>) = <b>112.000 phép so sánh Bit-Exact</b> hoàn toàn tự động, đạt tỷ lệ khớp <b>100.00%</b>.
+      </div>
+    </div>
+
+    <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div class="card-title">2. Giải pháp Chống Pad-Limited khi Tape-out: <code>spi_pid_wrapper.v</code></div>
+        <ul class="clean">
+          <li><b>Vấn đề nếu đưa thẳng <code>pid_ctrl.v</code> ra chân chip:</b>
+            <br/>Tổng số bit cổng song song là <code>6×22 (in) + 11 (thr) + 4×11 (motor) + 3×10 (mix) + 6 (ctrl) ≈ 223 chân I/O</code> ➔ Diện tích Pad Ring sẽ lớn gấp nhiều lần diện tích Core!</li>
+          <li><b>Giải pháp đã hiện thực hóa trong <code>ic/rtl/spi_pid_wrapper.v</code>:</b>
+            <br/>Bọc lõi <code>pid_ctrl</code> trong bộ thu phát <b>SPI Slave Mode 0 (khung 192-bit)</b> có đồng bộ 2-FF chống Metastability:</li>
+          <li><b>Chỉ cần đúng 7 chân (Pins) cho toàn bộ con chip:</b>
+            <br/><code>clk</code>, <code>rst_n</code>, <code>spi_sclk</code>, <code>spi_cs_n</code>, <code>spi_mosi</code>, <code>spi_miso</code>, <code>irq_out_valid</code> (cộng <code>VDD, VSS</code> là đóng gói vừa khít vỏ <b>SOIC-8 / QFN-16</b>!).</li>
+          <li>Ở tốc độ SPI <code>10 MHz</code>, truyền 192-bit chỉ mất <b>19.2 µs</b> + tính PID <b>2.0 µs</b> = <b>21.2 µs</b> (vẫn nhỏ hơn 118 lần so với chu kỳ IMU 2.500 µs!).</li>
+        </ul>
+      </div>
+      <div class="card-dark" style="font-family:Consolas, monospace; font-size:8.3pt;">
+        <div style="color:#fbd38d; font-weight:bold;">// Giao tiếp ESP32 (Master) ⇄ Chip pid_ctrl (SPI Slave 7-pin)</div>
+        <div>MOSI [191:0] : {{clear, armed, thr[10:0], sp_r/p/y, roll/pitch/gz}}</div>
+        <div>MISO [191:0] : {{busy, m1[10:0], m2, m3, m4, mix_r/p/y[9:0]}}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <div>Slide Dự phòng Hỏi – Đáp (Q&amp;A Appendix 2) · Nhóm FPOLY UAV</div>
+    <div>Slide 12 / 12</div>
   </div>
 </section>
 

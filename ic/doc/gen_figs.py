@@ -239,8 +239,138 @@ def design_flow():
     s.save('design_flow.svg')
 
 
+# --------------------------------------------------- waveform 20 chu ky ----
+def waveform_zoom():
+    """Ve waveform chon loc 20 chu ky clock cua pid_ctrl.v (chuan style SimVision/GTKWave)."""
+    ncyc = 22
+    cw = 48
+    x0 = 185
+    w = x0 + ncyc * cw + 35
+    h = 470
+    s = Svg(w, h)
+    # Dark theme background inside waveform frame
+    s.o.append(f'<rect x="0" y="0" width="{w}" height="{h}" rx="12" fill="#0f172a"/>')
+    s.text(22, 28, 'Waveform chọn lọc: 1 mẫu IMU (20 chu kỳ clock = 2.0 µs @ 10 MHz) — kịch bản bước nhảy Roll/Pitch',
+           14, 'start', 700, '#f8fafc')
+
+    # Grid lines for clock cycles
+    y_top, y_bot = 46, 425
+    for c in range(ncyc + 1):
+        xc = x0 + c * cw
+        s.o.append(f'<line x1="{xc}" y1="{y_top}" x2="{xc}" y2="{y_bot}" stroke="#1e293b" stroke-width="1"/>')
+        if c < ncyc:
+            s.text(xc + cw / 2, y_top - 4, f'c{c}', 10, 'middle', 600, '#64748b')
+
+    # Helper for digital 1-bit wave (clk, sample_valid, busy, out_valid)
+    def wave_1bit(label, y_mid, high_cycles, color='#38bdf8', is_clk=False):
+        s.text(x0 - 14, y_mid + 4, label, 12.5, 'end', 700, color)
+        pts = []
+        hi, lo = y_mid - 11, y_mid + 11
+        if is_clk:
+            for c in range(ncyc):
+                x_l = x0 + c * cw
+                x_m = x_l + cw / 2
+                x_r = x_l + cw
+                pts.extend([(x_l, lo), (x_l, hi), (x_m, hi), (x_m, lo), (x_r, lo)])
+        else:
+            prev_v = 0
+            pts.append((x0, lo))
+            for c in range(ncyc):
+                v = 1 if c in high_cycles else 0
+                x_l = x0 + c * cw
+                x_r = x_l + cw
+                y_v = hi if v else lo
+                if v != prev_v:
+                    pts.append((x_l, hi if prev_v else lo))
+                    pts.append((x_l, y_v))
+                pts.append((x_r, y_v))
+                prev_v = v
+        d = ' '.join(f'{px},{py}' for px, py in pts)
+        s.o.append(f'<polyline points="{d}" fill="none" stroke="{color}" stroke-width="2.2"/>')
+
+    # Helper for bus wave with hexagon segments
+    def wave_bus(label, y_mid, segments, default_stroke='#94a3b8'):
+        s.text(x0 - 14, y_mid + 4, label, 12.5, 'end', 700, default_stroke)
+        hi, lo = y_mid - 13, y_mid + 13
+        k = 5
+        for c_start, c_end, txt, stroke, fill in segments:
+            xa = x0 + c_start * cw
+            xb = x0 + c_end * cw
+            poly = f'{xa},{y_mid} {xa+k},{hi} {xb-k},{hi} {xb},{y_mid} {xb-k},{lo} {xa+k},{lo}'
+            s.o.append(f'<polygon points="{poly}" fill="{fill}" stroke="{stroke}" stroke-width="1.8"/>')
+            if txt:
+                fs = 10.5 if (c_end - c_start) >= 2 else 9.5
+                s.text((xa + xb) / 2, y_mid + 4, txt, fs, 'middle', 700, '#f8fafc')
+
+    # 1. clk (10 MHz)
+    wave_1bit('clk (10 MHz)', 70, [], '#94a3b8', is_clk=True)
+    # 2. sample_valid (pulse at c0)
+    wave_1bit('sample_valid', 112, [0], '#38bdf8')
+    # 3. busy (high c1..c19)
+    wave_1bit('busy', 154, list(range(1, 20)), '#a78bfa')
+
+    # 4. axis[1:0]
+    wave_bus('axis[1:0]', 198, [
+        (0, 1, '0', '#64748b', '#1e293b'),
+        (1, 7, '0: ROLL (6 clk)', '#fb923c', '#431407'),
+        (7, 13, '1: PITCH (6 clk)', '#38bdf8', '#082f49'),
+        (13, 19, '2: YAW (6 clk)', '#4ade80', '#052e16'),
+        (19, 22, '2', '#64748b', '#1e293b'),
+    ], '#cbd5e1')
+
+    # 5. state[2:0] (FSM)
+    st_names = ['LOAD', 'FILT', 'P', 'I', 'D', 'SAT']
+    st_segs = [(0, 1, 'IDLE', '#94a3b8', '#1e293b')]
+    for base, col, bg in ((1, '#fb923c', '#3b180c'), (7, '#38bdf8', '#0c2a40'), (13, '#4ade80', '#092e1a')):
+        for idx, nm in enumerate(st_names):
+            st_segs.append((base + idx, base + idx + 1, nm, col, bg))
+    st_segs.append((19, 20, 'MIX', '#2dd4bf', '#042f2e'))
+    st_segs.append((20, 22, 'IDLE', '#94a3b8', '#1e293b'))
+    wave_bus('state[2:0]', 244, st_segs, '#e2e8f0')
+
+    # 6. Shared multiplier prod = mul_a * mul_b (active during FILT, P, I, D)
+    mul_segs = [(0, 2, '—', '#64748b', '#1e293b')]
+    for base in (1, 7, 13):
+        mul_segs.extend([
+            (base + 1, base + 2, 'α·diff', '#f472b6', '#500724'),
+            (base + 2, base + 3, 'KP·e', '#f472b6', '#500724'),
+            (base + 3, base + 4, 'KI·A', '#f472b6', '#500724'),
+            (base + 4, base + 5, 'KD·Df', '#f472b6', '#500724'),
+            (base + 5, base + 7 if base < 13 else 19, 'hold', '#64748b', '#1e293b'),
+        ])
+    mul_segs.append((19, 22, 'idle', '#64748b', '#1e293b'))
+    wave_bus('prod[42:0]', 290, mul_segs, '#f472b6')
+
+    # 7. mix_roll / pitch / yaw
+    wave_bus('mix_r/p/y', 336, [
+        (0, 7, '0, 0, 0', '#64748b', '#1e293b'),
+        (7, 13, 'r=+142, 0, 0', '#fb923c', '#431407'),
+        (13, 19, 'r=+142, p=-85, 0', '#38bdf8', '#082f49'),
+        (19, 22, 'r=+142, p=-85, y=+18', '#4ade80', '#052e16'),
+    ], '#cbd5e1')
+
+    # 8. m1..m4[10:0] (motor commands in us)
+    wave_bus('m1..m4 [µs]', 382, [
+        (0, 20, '1500, 1500, 1500, 1500 (giữ mẫu trước)', '#94a3b8', '#1e293b'),
+        (20, 22, '1539, 1291, 1425, 1745', '#fb923c', '#7c2d12'),
+    ], '#fb923c')
+
+    # 9. out_valid (pulse at c20)
+    wave_1bit('out_valid', 420, [20], '#fb923c')
+
+    # Orange dashed cursor at cycle 20 (t = 2.0 us) matching BTC slide
+    x_cur = x0 + 20 * cw
+    s.o.append(f'<line x1="{x_cur}" y1="{y_top - 8}" x2="{x_cur}" y2="{y_bot + 12}" '
+               f'stroke="#f97316" stroke-width="2.5" stroke-dasharray="6 4"/>')
+    s.box(x_cur - 165, 434, 330, 26, '#f97316', 'none', 0, 6)
+    s.text(x_cur, 452, 'Cursor t = +2.0 µs (20 clk): chốt m1..m4 & out_valid = 1', 11.5, 'middle', 700, '#ffffff')
+
+    s.save('waveform_zoom.svg')
+
+
 if __name__ == '__main__':
     block_diagram()
     fsm_timeline()
     design_flow()
+    waveform_zoom()
     print('ok ->', FIGS)

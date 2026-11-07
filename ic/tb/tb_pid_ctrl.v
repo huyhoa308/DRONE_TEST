@@ -33,11 +33,16 @@ module tb_pid_ctrl;
     );
 
     reg [8*512-1:0] vec_file;
+    reg [8*512-1:0] vcd_file;
     integer fd, n, samples, errors, lat, max_lat, scenario;
     integer v_clear, v_armed, v_thr, v_spr, v_spp, v_spy, v_r, v_p, v_gz;
     integer x_mr, x_mp, x_my, x_m1, x_m2, x_m3, x_m4;
 
     initial begin
+        if ($value$plusargs("VCD=%s", vcd_file)) begin
+            $dumpfile(vcd_file);
+            $dumpvars(0, tb_pid_ctrl);
+        end
         if (!$value$plusargs("VEC=%s", vec_file)) vec_file = "vectors.txt";
         fd = $fopen(vec_file, "r");
         if (fd == 0) begin

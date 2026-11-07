@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1276 470" width="1276" height="470" font-family="Segoe UI, Arial, Helvetica, sans-serif">
+<defs></defs>
+<rect width="1276" height="470" fill="#ffffff"/>
+<rect x="0" y="0" width="1276" height="470" rx="12" fill="#0f172a"/>
+<text x="22" y="28" font-size="14" text-anchor="start" font-weight="700" fill="#f8fafc">Waveform chọn lọc: 1 mẫu IMU (20 chu kỳ clock = 2.0 µs @ 10 MHz) — kịch bản bước nhảy Roll/Pitch</text>
+<line x1="185" y1="46" x2="185" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="209.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c0</text>
+<line x1="233" y1="46" x2="233" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="257.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c1</text>
+<line x1="281" y1="46" x2="281" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="305.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c2</text>
+<line x1="329" y1="46" x2="329" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="353.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c3</text>
+<line x1="377" y1="46" x2="377" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="401.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c4</text>
+<line x1="425" y1="46" x2="425" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="449.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c5</text>
+<line x1="473" y1="46" x2="473" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="497.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c6</text>
+<line x1="521" y1="46" x2="521" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="545.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c7</text>
+<line x1="569" y1="46" x2="569" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="593.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c8</text>
+<line x1="617" y1="46" x2="617" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="641.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c9</text>
+<line x1="665" y1="46" x2="665" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="689.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c10</text>
+<line x1="713" y1="46" x2="713" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="737.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c11</text>
+<line x1="761" y1="46" x2="761" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="785.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c12</text>
+<line x1="809" y1="46" x2="809" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="833.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c13</text>
+<line x1="857" y1="46" x2="857" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="881.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c14</text>
+<line x1="905" y1="46" x2="905" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="929.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c15</text>
+<line x1="953" y1="46" x2="953" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="977.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c16</text>
+<line x1="1001" y1="46" x2="1001" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="1025.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c17</text>
+<line x1="1049" y1="46" x2="1049" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="1073.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c18</text>
+<line x1="1097" y1="46" x2="1097" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="1121.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c19</text>
+<line x1="1145" y1="46" x2="1145" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="1169.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c20</text>
+<line x1="1193" y1="46" x2="1193" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="1217.0" y="42" font-size="10" text-anchor="middle" font-weight="600" fill="#64748b">c21</text>
+<line x1="1241" y1="46" x2="1241" y2="425" stroke="#1e293b" stroke-width="1"/>
+<text x="171" y="74" font-size="12.5" text-anchor="end" font-weight="700" fill="#94a3b8">clk (10 MHz)</text>
+<polyline points="185,81 185,59 209.0,59 209.0,81 233,81 233,81 233,59 257.0,59 257.0,81 281,81 281,81 281,59 305.0,59 305.0,81 329,81 329,81 329,59 353.0,59 353.0,81 377,81 377,81 377,59 401.0,59 401.0,81 425,81 425,81 425,59 449.0,59 449.0,81 473,81 473,81 473,59 497.0,59 497.0,81 521,81 521,81 521,59 545.0,59 545.0,81 569,81 569,81 569,59 593.0,59 593.0,81 617,81 617,81 617,59 641.0,59 641.0,81 665,81 665,81 665,59 689.0,59 689.0,81 713,81 713,81 713,59 737.0,59 737.0,81 761,81 761,81 761,59 785.0,59 785.0,81 809,81 809,81 809,59 833.0,59 833.0,81 857,81 857,81 857,59 881.0,59 881.0,81 905,81 905,81 905,59 929.0,59 929.0,81 953,81 953,81 953,59 977.0,59 977.0,81 1001,81 1001,81 1001,59 1025.0,59 1025.0,81 1049,81 1049,81 1049,59 1073.0,59 1073.0,81 1097,81 1097,81 1097,59 1121.0,59 1121.0,81 1145,81 1145,81 1145,59 1169.0,59 1169.0,81 1193,81 1193,81 1193,59 1217.0,59 1217.0,81 1241,81" fill="none" stroke="#94a3b8" stroke-width="2.2"/>
+<text x="171" y="116" font-size="12.5" text-anchor="end" font-weight="700" fill="#38bdf8">sample_valid</text>
+<polyline points="185,123 185,123 185,101 233,101 233,101 233,123 281,123 329,123 377,123 425,123 473,123 521,123 569,123 617,123 665,123 713,123 761,123 809,123 857,123 905,123 953,123 1001,123 1049,123 1097,123 1145,123 1193,123 1241,123" fill="none" stroke="#38bdf8" stroke-width="2.2"/>
+<text x="171" y="158" font-size="12.5" text-anchor="end" font-weight="700" fill="#a78bfa">busy</text>
+<polyline points="185,165 233,165 233,165 233,143 281,143 329,143 377,143 425,143 473,143 521,143 569,143 617,143 665,143 713,143 761,143 809,143 857,143 905,143 953,143 1001,143 1049,143 1097,143 1145,143 1145,143 1145,165 1193,165 1241,165" fill="none" stroke="#a78bfa" stroke-width="2.2"/>
+<text x="171" y="202" font-size="12.5" text-anchor="end" font-weight="700" fill="#cbd5e1">axis[1:0]</text>
+<polygon points="185,198 190,185 228,185 233,198 228,211 190,211" fill="#1e293b" stroke="#64748b" stroke-width="1.8"/>
+<text x="209.0" y="202" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">0</text>
+<polygon points="233,198 238,185 516,185 521,198 516,211 238,211" fill="#431407" stroke="#fb923c" stroke-width="1.8"/>
+<text x="377.0" y="202" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">0: ROLL (6 clk)</text>
+<polygon points="521,198 526,185 804,185 809,198 804,211 526,211" fill="#082f49" stroke="#38bdf8" stroke-width="1.8"/>
+<text x="665.0" y="202" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">1: PITCH (6 clk)</text>
+<polygon points="809,198 814,185 1092,185 1097,198 1092,211 814,211" fill="#052e16" stroke="#4ade80" stroke-width="1.8"/>
+<text x="953.0" y="202" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">2: YAW (6 clk)</text>
+<polygon points="1097,198 1102,185 1236,185 1241,198 1236,211 1102,211" fill="#1e293b" stroke="#64748b" stroke-width="1.8"/>
+<text x="1169.0" y="202" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">2</text>
+<text x="171" y="248" font-size="12.5" text-anchor="end" font-weight="700" fill="#e2e8f0">state[2:0]</text>
+<polygon points="185,244 190,231 228,231 233,244 228,257 190,257" fill="#1e293b" stroke="#94a3b8" stroke-width="1.8"/>
+<text x="209.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">IDLE</text>
+<polygon points="233,244 238,231 276,231 281,244 276,257 238,257" fill="#3b180c" stroke="#fb923c" stroke-width="1.8"/>
+<text x="257.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">LOAD</text>
+<polygon points="281,244 286,231 324,231 329,244 324,257 286,257" fill="#3b180c" stroke="#fb923c" stroke-width="1.8"/>
+<text x="305.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">FILT</text>
+<polygon points="329,244 334,231 372,231 377,244 372,257 334,257" fill="#3b180c" stroke="#fb923c" stroke-width="1.8"/>
+<text x="353.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">P</text>
+<polygon points="377,244 382,231 420,231 425,244 420,257 382,257" fill="#3b180c" stroke="#fb923c" stroke-width="1.8"/>
+<text x="401.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">I</text>
+<polygon points="425,244 430,231 468,231 473,244 468,257 430,257" fill="#3b180c" stroke="#fb923c" stroke-width="1.8"/>
+<text x="449.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">D</text>
+<polygon points="473,244 478,231 516,231 521,244 516,257 478,257" fill="#3b180c" stroke="#fb923c" stroke-width="1.8"/>
+<text x="497.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">SAT</text>
+<polygon points="521,244 526,231 564,231 569,244 564,257 526,257" fill="#0c2a40" stroke="#38bdf8" stroke-width="1.8"/>
+<text x="545.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">LOAD</text>
+<polygon points="569,244 574,231 612,231 617,244 612,257 574,257" fill="#0c2a40" stroke="#38bdf8" stroke-width="1.8"/>
+<text x="593.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">FILT</text>
+<polygon points="617,244 622,231 660,231 665,244 660,257 622,257" fill="#0c2a40" stroke="#38bdf8" stroke-width="1.8"/>
+<text x="641.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">P</text>
+<polygon points="665,244 670,231 708,231 713,244 708,257 670,257" fill="#0c2a40" stroke="#38bdf8" stroke-width="1.8"/>
+<text x="689.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">I</text>
+<polygon points="713,244 718,231 756,231 761,244 756,257 718,257" fill="#0c2a40" stroke="#38bdf8" stroke-width="1.8"/>
+<text x="737.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">D</text>
+<polygon points="761,244 766,231 804,231 809,244 804,257 766,257" fill="#0c2a40" stroke="#38bdf8" stroke-width="1.8"/>
+<text x="785.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">SAT</text>
+<polygon points="809,244 814,231 852,231 857,244 852,257 814,257" fill="#092e1a" stroke="#4ade80" stroke-width="1.8"/>
+<text x="833.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">LOAD</text>
+<polygon points="857,244 862,231 900,231 905,244 900,257 862,257" fill="#092e1a" stroke="#4ade80" stroke-width="1.8"/>
+<text x="881.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">FILT</text>
+<polygon points="905,244 910,231 948,231 953,244 948,257 910,257" fill="#092e1a" stroke="#4ade80" stroke-width="1.8"/>
+<text x="929.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">P</text>
+<polygon points="953,244 958,231 996,231 1001,244 996,257 958,257" fill="#092e1a" stroke="#4ade80" stroke-width="1.8"/>
+<text x="977.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">I</text>
+<polygon points="1001,244 1006,231 1044,231 1049,244 1044,257 1006,257" fill="#092e1a" stroke="#4ade80" stroke-width="1.8"/>
+<text x="1025.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">D</text>
+<polygon points="1049,244 1054,231 1092,231 1097,244 1092,257 1054,257" fill="#092e1a" stroke="#4ade80" stroke-width="1.8"/>
+<text x="1073.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">SAT</text>
+<polygon points="1097,244 1102,231 1140,231 1145,244 1140,257 1102,257" fill="#042f2e" stroke="#2dd4bf" stroke-width="1.8"/>
+<text x="1121.0" y="248" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">MIX</text>
+<polygon points="1145,244 1150,231 1236,231 1241,244 1236,257 1150,257" fill="#1e293b" stroke="#94a3b8" stroke-width="1.8"/>
+<text x="1193.0" y="248" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">IDLE</text>
+<text x="171" y="294" font-size="12.5" text-anchor="end" font-weight="700" fill="#f472b6">prod[42:0]</text>
+<polygon points="185,290 190,277 276,277 281,290 276,303 190,303" fill="#1e293b" stroke="#64748b" stroke-width="1.8"/>
+<text x="233.0" y="294" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">—</text>
+<polygon points="281,290 286,277 324,277 329,290 324,303 286,303" fill="#500724" stroke="#f472b6" stroke-width="1.8"/>
+<text x="305.0" y="294" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">α·diff</text>
+<polygon points="329,290 334,277 372,277 377,290 372,303 334,303" fill="#500724" stroke="#f472b6" stroke-width="1.8"/>
+<text x="353.0" y="294" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">KP·e</text>
+<polygon points="377,290 382,277 420,277 425,290 420,303 382,303" fill="#500724" stroke="#f472b6" stroke-width="1.8"/>
+<text x="401.0" y="294" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">KI·A</text>
+<polygon points="425,290 430,277 468,277 473,290 468,303 430,303" fill="#500724" stroke="#f472b6" stroke-width="1.8"/>
+<text x="449.0" y="294" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">KD·Df</text>
+<polygon points="473,290 478,277 564,277 569,290 564,303 478,303" fill="#1e293b" stroke="#64748b" stroke-width="1.8"/>
+<text x="521.0" y="294" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">hold</text>
+<polygon points="569,290 574,277 612,277 617,290 612,303 574,303" fill="#500724" stroke="#f472b6" stroke-width="1.8"/>
+<text x="593.0" y="294" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">α·diff</text>
+<polygon points="617,290 622,277 660,277 665,290 660,303 622,303" fill="#500724" stroke="#f472b6" stroke-width="1.8"/>
+<text x="641.0" y="294" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">KP·e</text>
+<polygon points="665,290 670,277 708,277 713,290 708,303 670,303" fill="#500724" stroke="#f472b6" stroke-width="1.8"/>
+<text x="689.0" y="294" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">KI·A</text>
+<polygon points="713,290 718,277 756,277 761,290 756,303 718,303" fill="#500724" stroke="#f472b6" stroke-width="1.8"/>
+<text x="737.0" y="294" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">KD·Df</text>
+<polygon points="761,290 766,277 852,277 857,290 852,303 766,303" fill="#1e293b" stroke="#64748b" stroke-width="1.8"/>
+<text x="809.0" y="294" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">hold</text>
+<polygon points="857,290 862,277 900,277 905,290 900,303 862,303" fill="#500724" stroke="#f472b6" stroke-width="1.8"/>
+<text x="881.0" y="294" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">α·diff</text>
+<polygon points="905,290 910,277 948,277 953,290 948,303 910,303" fill="#500724" stroke="#f472b6" stroke-width="1.8"/>
+<text x="929.0" y="294" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">KP·e</text>
+<polygon points="953,290 958,277 996,277 1001,290 996,303 958,303" fill="#500724" stroke="#f472b6" stroke-width="1.8"/>
+<text x="977.0" y="294" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">KI·A</text>
+<polygon points="1001,290 1006,277 1044,277 1049,290 1044,303 1006,303" fill="#500724" stroke="#f472b6" stroke-width="1.8"/>
+<text x="1025.0" y="294" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">KD·Df</text>
+<polygon points="1049,290 1054,277 1092,277 1097,290 1092,303 1054,303" fill="#1e293b" stroke="#64748b" stroke-width="1.8"/>
+<text x="1073.0" y="294" font-size="9.5" text-anchor="middle" font-weight="700" fill="#f8fafc">hold</text>
+<polygon points="1097,290 1102,277 1236,277 1241,290 1236,303 1102,303" fill="#1e293b" stroke="#64748b" stroke-width="1.8"/>
+<text x="1169.0" y="294" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">idle</text>
+<text x="171" y="340" font-size="12.5" text-anchor="end" font-weight="700" fill="#cbd5e1">mix_r/p/y</text>
+<polygon points="185,336 190,323 516,323 521,336 516,349 190,349" fill="#1e293b" stroke="#64748b" stroke-width="1.8"/>
+<text x="353.0" y="340" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">0, 0, 0</text>
+<polygon points="521,336 526,323 804,323 809,336 804,349 526,349" fill="#431407" stroke="#fb923c" stroke-width="1.8"/>
+<text x="665.0" y="340" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">r=+142, 0, 0</text>
+<polygon points="809,336 814,323 1092,323 1097,336 1092,349 814,349" fill="#082f49" stroke="#38bdf8" stroke-width="1.8"/>
+<text x="953.0" y="340" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">r=+142, p=-85, 0</text>
+<polygon points="1097,336 1102,323 1236,323 1241,336 1236,349 1102,349" fill="#052e16" stroke="#4ade80" stroke-width="1.8"/>
+<text x="1169.0" y="340" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">r=+142, p=-85, y=+18</text>
+<text x="171" y="386" font-size="12.5" text-anchor="end" font-weight="700" fill="#fb923c">m1..m4 [µs]</text>
+<polygon points="185,382 190,369 1140,369 1145,382 1140,395 190,395" fill="#1e293b" stroke="#94a3b8" stroke-width="1.8"/>
+<text x="665.0" y="386" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">1500, 1500, 1500, 1500 (giữ mẫu trước)</text>
+<polygon points="1145,382 1150,369 1236,369 1241,382 1236,395 1150,395" fill="#7c2d12" stroke="#fb923c" stroke-width="1.8"/>
+<text x="1193.0" y="386" font-size="10.5" text-anchor="middle" font-weight="700" fill="#f8fafc">1539, 1291, 1425, 1745</text>
+<text x="171" y="424" font-size="12.5" text-anchor="end" font-weight="700" fill="#fb923c">out_valid</text>
+<polyline points="185,431 233,431 281,431 329,431 377,431 425,431 473,431 521,431 569,431 617,431 665,431 713,431 761,431 809,431 857,431 905,431 953,431 1001,431 1049,431 1097,431 1145,431 1145,431 1145,409 1193,409 1193,409 1193,431 1241,431" fill="none" stroke="#fb923c" stroke-width="2.2"/>
+<line x1="1145" y1="38" x2="1145" y2="437" stroke="#f97316" stroke-width="2.5" stroke-dasharray="6 4"/>
+<rect x="980" y="434" width="330" height="26" rx="6" fill="#f97316" stroke="none" stroke-width="0"/>
+<text x="1145" y="452" font-size="11.5" text-anchor="middle" font-weight="700" fill="#ffffff">Cursor t = +2.0 µs (20 clk): chốt m1..m4 &amp; out_valid = 1</text>
+</svg>

@@ -7,6 +7,7 @@ New-Item -ItemType Directory -Force $out | Out-Null
 $edge = 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
 $svgs = @(
     'ic/doc/figs/design_flow.svg', 'ic/doc/figs/block_diagram.svg', 'ic/doc/figs/fsm_timeline.svg',
+    'ic/doc/figs/waveform_zoom.svg',
     'ic/model/out/step_roll.svg', 'docs/wiring_s3.svg', 'docs/wiring_devkit.svg', 'docs/wiring_drone.svg'
 )
 foreach ($rel in $svgs) {
